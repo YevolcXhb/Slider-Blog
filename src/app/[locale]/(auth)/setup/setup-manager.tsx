@@ -139,7 +139,7 @@ export function SetupManager() {
   ];
 
   return (
-    <div className="relative flex min-h-[calc(100vh-12rem)] items-center justify-center">
+    <div className="relative flex min-h-screen items-center justify-center">
       <PageBackground />
 
       <GlassCard className="w-full max-w-md">

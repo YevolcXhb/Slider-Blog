@@ -14,7 +14,7 @@ import { registerUser } from "@/server/actions/register"
 import { getActionErrorMessage } from "@/lib/action-error"
 import { Link } from "@/i18n/routing"
 
-export default function RegisterPage() {
+export default function RegisterForm() {
   const t = useTranslations("Register")
   const tErr = useTranslations("AdminErrors")
   const router = useRouter()
@@ -76,7 +76,7 @@ export default function RegisterPage() {
   )
 
   return (
-    <div className="relative flex min-h-[calc(100vh-12rem)] items-center justify-center">
+    <div className="relative flex min-h-screen items-center justify-center">
       <PageBackground />
 
       <GlassCard className="w-full max-w-md">

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { UserRole } from "@/types/user";
 
 /**
@@ -20,6 +21,13 @@ export async function requireAdmin(locale: string, callbackPath?: string) {
   const session = await auth();
 
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
+    // System not initialized (no users yet): admin entry should go to setup.
+    if (!session?.user) {
+      const userCount = await prisma.user.count();
+      if (userCount === 0) {
+        redirect(`/${locale}/setup`);
+      }
+    }
     const loginUrl = `/${locale}/login`;
     // 仅允许站内相对路径作为 callback，防止开放重定向（P2-002）
     if (callbackPath && callbackPath.startsWith("/")) {

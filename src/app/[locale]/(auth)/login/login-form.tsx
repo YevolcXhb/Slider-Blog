@@ -12,7 +12,7 @@ import { GlassInput } from "@/components/ui/glass-input"
 import { GlassButton } from "@/components/ui/glass-button"
 import { PageBackground } from "@/components/ui/page-background"
 
-function LoginForm() {
+function LoginFormInner() {
   const t = useTranslations("Login")
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -58,7 +58,7 @@ function LoginForm() {
   )
 
   return (
-    <div className="relative flex min-h-[calc(100vh-12rem)] items-center justify-center">
+    <div className="relative flex min-h-screen items-center justify-center">
       <PageBackground />
 
       <GlassCard className="w-full max-w-md">
@@ -152,11 +152,11 @@ function LoginForm() {
   )
 }
 
-export default function LoginPage() {
+export default function LoginForm() {
   // useSearchParams 需要 Suspense 边界，避免客户端渲染期间跳出（Next.js 16）
   return (
     <Suspense fallback={null}>
-      <LoginForm />
+      <LoginFormInner />
     </Suspense>
   )
 }
