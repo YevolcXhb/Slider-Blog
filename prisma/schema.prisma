@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// NOTE: The indexes added below (Post.user_id, Post.category_id, Comment.user_id,
+// PostTag.tag_id, FriendLink.group_id) require a database migration when deploying.
+// Run: npx prisma migrate dev --name add_indexes
+// (Not run in dev environment — apply during deployment.)
+
+model User {
+  id            BigInt    @id @default(autoincrement())
+  username      String?   @unique @db.VarChar(50)
+  email         String    @unique @db.VarChar(100)
+  password_hash String?   @db.VarChar(255)
+  role          Int       @default(0) @db.TinyInt // 0:User, 1:Admin
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  posts         Post[]
+  comments      Comment[]
+
+  @@map("user")
+}
+
+model Post {
+  id           BigInt     @id @default(autoincrement())
+  slug         String     @unique @db.VarChar(255)
+  title        String     @db.VarChar(255)
+  content_mdx  String     @db.Text
+  excerpt      String?    @db.Text
+  status       Int        @default(0) @db.TinyInt // 0:Draft, 1:Published
+  user_id      BigInt
+  category_id  BigInt?
+  view_count   Int        @default(0)
+  published_at DateTime?
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+
+  user         User       @relation(fields: [user_id], references: [id])
+  category     Category?  @relation(fields: [category_id], references: [id])
+  comments     Comment[]
+  tags         PostTag[]
+
+  @@index([status, published_at])
+  @@index([user_id])
+  @@index([category_id])
+  @@map("post")
+}
+
+model Comment {
+  id           BigInt    @id @default(autoincrement())
+  post_id      BigInt
+  user_id      BigInt?
+  parent_id    BigInt?
+  author_name  String?   @db.VarChar(255)
+  author_email String?   @db.VarChar(255)
+  content      String    @db.Text
+  status       Int       @default(0) @db.TinyInt // 0:Pending, 1:Approved, 2:Rejected
+  avatar_url   String?   @db.VarChar(255)
+  created_at   DateTime  @default(now())
+
+  post         Post      @relation(fields: [post_id], references: [id])
+  user         User?     @relation(fields: [user_id], references: [id])
+  parent       Comment?  @relation("CommentReplies", fields: [parent_id], references: [id])
+  replies      Comment[] @relation("CommentReplies")
+
+  @@index([post_id, status])
+  @@index([parent_id])
+  @@index([user_id])
+  @@map("comment")
+}
+
+model Category {
+  id    BigInt @id @default(autoincrement())
+  name  String @unique @db.VarChar(50)
+  slug  String @unique @db.VarChar(255)
+  posts Post[]
+
+  @@map("category")
+}
+
+model Tag {
+  id    BigInt    @id @default(autoincrement())
+  name  String    @unique @db.VarChar(50)
+  slug  String    @unique @db.VarChar(255)
+  posts PostTag[]
+
+  @@map("tag")
+}
+
+model PostTag {
+  post_id BigInt
+  tag_id  BigInt
+
+  post Post @relation(fields: [post_id], references: [id])
+  tag  Tag  @relation(fields: [tag_id], references: [id])
+
+  @@id([post_id, tag_id])
+  @@index([tag_id])
+  @@map("post_tag")
+}
+
+model Dynamic {
+  id         BigInt   @id @default(autoincrement())
+  content    String   @db.Text
+  images     Json?
+  is_pinned  Int      @default(0) @db.TinyInt
+  likes      Int      @default(0)
+  status     Int      @default(1) @db.TinyInt // 0:隐藏 1:公开
+  user_id    BigInt?
+  location   String?  @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status, created_at(sort: Desc)])
+  @@map("dynamic")
+}
+
+model GalleryAlbum {
+  id          BigInt         @id @default(autoincrement())
+  name        String         @db.VarChar(100)
+  description String?        @db.Text
+  cover       String?        @db.VarChar(255)
+  sort_order  Int            @default(0)
+  created_at  DateTime       @default(now())
+  photos      GalleryPhoto[]
+
+  @@map("gallery_album")
+}
+
+model GalleryPhoto {
+  id          BigInt        @id @default(autoincrement())
+  album_id    BigInt?
+  url         String        @db.VarChar(255)
+  thumbnail   String?       @db.VarChar(255)
+  title       String?       @db.VarChar(255)
+  description String?       @db.Text
+  sort_order  Int           @default(0)
+  taken_at    DateTime?
+  created_at  DateTime      @default(now())
+
+  album       GalleryAlbum? @relation(fields: [album_id], references: [id])
+
+  @@index([album_id])
+  @@map("gallery_photo")
+}
+
+model Music {
+  id          BigInt   @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  artist      String   @db.VarChar(255)
+  album       String?  @db.VarChar(255)
+  cover       String?  @db.VarChar(255)
+  url         String   @db.VarChar(500)
+  lrc         String?  @db.Text
+  sort_order  Int      @default(0)
+  is_published Int     @default(1) @db.TinyInt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([is_published, sort_order])
+  @@map("music")
+}
+
+model Announcement {
+  id         BigInt   @id @default(autoincrement())
+  content    String   @db.Text
+  is_pinned  Int      @default(0) @db.TinyInt
+  is_active  Int      @default(1) @db.TinyInt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([is_active, is_pinned, created_at(sort: Desc)])
+  @@map("announcement")
+}
+
+model SiteSetting {
+  id          BigInt   @id @default(autoincrement())
+  key         String   @unique @db.VarChar(100)
+  value       String?  @db.Text
+  type        String   @default("string") @db.VarChar(20)
+  description String?  @db.VarChar(255)
+  updated_at  DateTime @updatedAt
+
+  @@map("site_setting")
+}
+
+model Donate {
+  id         BigInt   @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  url        String?  @db.VarChar(500)
+  qrcode     String?  @db.VarChar(255)
+  sort_order Int      @default(0)
+  is_active  Int      @default(1) @db.TinyInt
+  created_at DateTime @default(now())
+
+  @@index([is_active, sort_order])
+  @@map("donate")
+}
