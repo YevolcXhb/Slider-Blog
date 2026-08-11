@@ -31,6 +31,8 @@ EOF
 fi
 
 export NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL
+# 提供 prisma CLI（db push 迁移），安装在独立前缀目录
+export PATH="/opt/runtime/node_modules/.bin:$PATH"
 
 echo "[entrypoint] Starting Next.js on port ${PORT:-4000}..."
 PORT="${PORT:-4000}" node server.js &

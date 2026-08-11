@@ -44,11 +44,18 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Runtime tools: prisma CLI (db push), http-proxy (admin proxy), dotenv (prisma config).
-# Installing with package.json present keeps the full production dependency tree
-# (including the `next` package required by server.js).
-COPY package.json prisma.config.ts ./
+# Install them into a separate prefix and symlink only the missing packages into
+# /app/node_modules. The traced standalone node_modules (including `next`) is
+# never touched, so server.js keeps resolving `next` while the image stays small.
+COPY prisma.config.ts ./
 COPY prisma ./prisma
-RUN npm install --omit=dev --no-save --package-lock=false --no-audit --no-fund prisma@7.9.1 http-proxy@1.18.1 dotenv
+RUN mkdir -p /opt/runtime && cd /opt/runtime && \
+    npm install --no-save --package-lock=false --no-audit --no-fund http-proxy@1.18.1 dotenv prisma@7.9.1 && \
+    for pkg in http-proxy eventemitter3 follow-redirects requires-port dotenv prisma; do \
+      if [ ! -e "/app/node_modules/$pkg" ]; then \
+        ln -s "/opt/runtime/node_modules/$pkg" "/app/node_modules/$pkg"; \
+      fi; \
+    done
 
 # Admin proxy and entrypoint
 COPY admin-proxy.mjs ./admin-proxy.mjs
