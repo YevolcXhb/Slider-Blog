@@ -71,7 +71,6 @@ jobs:
           fi
 
       - name: Try to grant repository access to existing package
-        if: steps.package_check.outputs.package_exists == 'true'
         continue-on-error: true
         run: |
           PACKAGE_NAME="${IMAGE_NAME##*/}"
