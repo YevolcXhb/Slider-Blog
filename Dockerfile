@@ -57,9 +57,11 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 # dotenv（prisma.config.ts 加载 .env 用）。
 # 允许 prisma postinstall 下载 schema-engine 二进制（依赖树中不含 sharp，无 127 风险）。
 # --no-save 不写入 package.json，--package-lock=false 不生成 lockfile。
-COPY package.json prisma.config.ts ./
+COPY prisma.config.ts ./
 COPY prisma ./prisma
-RUN npm install --omit=dev --no-save --package-lock=false prisma@7.9.1 http-proxy@1.18.1 dotenv
+RUN rm -f package.json package-lock.json && \
+    npm install --omit=dev --no-save --package-lock=false --no-audit --no-fund prisma@7.9.1 http-proxy@1.18.1 dotenv && \
+    rm -f package.json package-lock.json
 
 # 管理端代理与启动脚本
 COPY admin-proxy.mjs ./admin-proxy.mjs
