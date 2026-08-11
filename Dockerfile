@@ -70,7 +70,9 @@ RUN chmod +x ./docker-entrypoint.sh
 
 # 非 root 运行
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001 \
-    && chown -R nextjs:nodejs /app
+    && chown -R nextjs:nodejs /app \
+    && mkdir -p /data && chown -R nextjs:nodejs /data
+VOLUME ["/data"]
 USER nextjs
 
 EXPOSE 4000 4100

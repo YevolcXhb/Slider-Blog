@@ -1,12 +1,38 @@
 #!/bin/sh
 set -e
 
-if [ -z "${ADMIN_PROXY_SECRET}" ]; then
-  echo "[entrypoint] ADMIN_PROXY_SECRET is required to start the admin proxy." >&2
-  exit 1
+CONFIG_FILE="/data/config.env"
+RESTART_GUARD="${RESTART_GUARD:-3}"
+RESTART_WINDOW="${RESTART_WINDOW:-5}"
+
+# 1. 加载持久化配置（若存在）
+if [ -f "$CONFIG_FILE" ]; then
+  . "$CONFIG_FILE"
 fi
 
-echo "[entrypoint] Starting Next.js frontend on port ${PORT:-4000}..."
+# 2. 自动生成缺失密钥并持久化，用户无需手动配置环境变量
+changed=0
+if [ -z "$NEXTAUTH_SECRET" ]; then
+  NEXTAUTH_SECRET=$(node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))")
+  changed=1
+fi
+if [ -z "$ADMIN_PROXY_SECRET" ]; then
+  ADMIN_PROXY_SECRET=$(node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))")
+  changed=1
+fi
+if [ "$changed" -eq 1 ]; then
+  umask 077
+  mkdir -p "$(dirname "$CONFIG_FILE")"
+  cat > "$CONFIG_FILE" <<EOF
+NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+ADMIN_PROXY_SECRET=$ADMIN_PROXY_SECRET
+DATABASE_URL=$DATABASE_URL
+EOF
+fi
+
+export NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL
+
+echo "[entrypoint] Starting Next.js on port ${PORT:-4000}..."
 PORT="${PORT:-4000}" node server.js &
 APP_PID=$!
 
@@ -21,4 +47,28 @@ shutdown() {
 }
 trap shutdown INT TERM EXIT
 
-wait
+# 等待应用进程；数据库配置保存后会以 0 退出，容器据此重启并加载新配置
+wait "$APP_PID"
+APP_EXIT=$?
+
+if [ "$APP_EXIT" -ne 0 ]; then
+  # 崩溃循环保护：仅统计非零退出，避免配置重启被误判
+  GUARD_FILE="${CONFIG_FILE}.restart"
+  now=$(date +%s)
+  tmp="${GUARD_FILE}.tmp"
+  : > "$tmp"
+  if [ -f "$GUARD_FILE" ]; then
+    while IFS= read -r ts; do
+      [ -n "$ts" ] && [ $((now - ts)) -lt "$RESTART_WINDOW" ] && echo "$ts" >> "$tmp"
+    done < "$GUARD_FILE"
+  fi
+  echo "$now" >> "$tmp"
+  mv "$tmp" "$GUARD_FILE"
+  count=$(wc -l < "$GUARD_FILE" | tr -d ' ')
+  if [ "$count" -ge "$RESTART_GUARD" ]; then
+    echo "[entrypoint] Too many restarts in ${RESTART_WINDOW}s, stopping." >&2
+    exit 1
+  fi
+fi
+
+exit "$APP_EXIT"

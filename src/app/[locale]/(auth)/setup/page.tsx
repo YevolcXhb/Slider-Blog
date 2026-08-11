@@ -15,9 +15,15 @@ export default async function SetupPage({
 }) {
   const { locale } = await params;
 
-  const userCount = await prisma.user.count();
-  if (userCount > 0) {
-    redirect(`/${locale}/dashboard`);
+  if (process.env.DATABASE_URL) {
+    try {
+      const userCount = await prisma.user.count();
+      if (userCount > 0) {
+        redirect(`/${locale}/dashboard`);
+      }
+    } catch {
+      // 数据库已配置但暂不可达：保留 setup 页供重新配置
+    }
   }
 
   return <SetupManager />;

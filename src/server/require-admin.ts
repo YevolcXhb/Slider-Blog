@@ -23,8 +23,15 @@ export async function requireAdmin(locale: string, callbackPath?: string) {
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
     // System not initialized (no users yet): admin entry should go to setup.
     if (!session?.user) {
-      const userCount = await prisma.user.count();
-      if (userCount === 0) {
+      if (!process.env.DATABASE_URL) {
+        redirect(`/${locale}/setup`);
+      }
+      try {
+        const userCount = await prisma.user.count();
+        if (userCount === 0) {
+          redirect(`/${locale}/setup`);
+        }
+      } catch {
         redirect(`/${locale}/setup`);
       }
     }
