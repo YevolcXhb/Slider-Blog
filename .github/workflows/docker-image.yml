@@ -62,7 +62,8 @@ jobs:
       - name: Check whether GHCR package already exists
         id: package_check
         run: |
-          if docker buildx imagetools inspect "${IMAGE_NAME}:${IMAGE_TAG}" >/dev/null 2>&1; then
+          if docker buildx imagetools inspect "${IMAGE_NAME}:${IMAGE_TAG}" >/dev/null 2>&1 \
+            || docker buildx imagetools inspect "${IMAGE_NAME}:latest" >/dev/null 2>&1; then
             echo "package_exists=true"
             echo "::warning::Package ${IMAGE_NAME} already exists. If push is denied with write_package, the repository must be granted Write/Admin under 'Manage Actions access' in the package settings."
           else
