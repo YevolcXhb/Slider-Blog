@@ -30,7 +30,7 @@ function errorDetail(err: unknown, fallback: string): string {
 
 async function applyDatabaseSchema(databaseUrl: string): Promise<void> {
   // 首次连接成功后立即建表（网页初始化阶段完成）
-  await execAsync("prisma db push --skip-generate", {
+  await execAsync("prisma db push", {
     cwd: process.cwd(),
     env: { ...process.env, DATABASE_URL: databaseUrl },
     timeout: 60_000,

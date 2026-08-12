@@ -43,13 +43,13 @@ export PATH="/opt/runtime/node_modules/.bin:$PATH"
 if [ -n "$DATABASE_URL" ] && [ ! -f /data/.schema-ready ]; then
   echo "[entrypoint] Applying database schema (prisma db push, first run)..."
   if command -v timeout >/dev/null 2>&1; then
-    if timeout 60 prisma db push --skip-generate; then
+    if timeout 60 prisma db push; then
       touch /data/.schema-ready
     else
       echo "[entrypoint] prisma db push failed; will retry on next start."
     fi
   else
-    if prisma db push --skip-generate; then
+    if prisma db push; then
       touch /data/.schema-ready
     else
       echo "[entrypoint] prisma db push failed; will retry on next start."
