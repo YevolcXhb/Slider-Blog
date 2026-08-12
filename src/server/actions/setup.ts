@@ -15,6 +15,19 @@ import { ValidationError } from "@/lib/validation";
 const execAsync = promisify(exec);
 const SCHEMA_MARKER = "/data/.schema-ready";
 
+function errorDetail(err: unknown, fallback: string): string {
+  const e = err as {
+    stderr?: string;
+    stdout?: string;
+    message?: string;
+    code?: string;
+  };
+  const stderr = e.stderr?.trim();
+  const stdout = e.stdout?.trim();
+  const detail = stderr || stdout || e.message || fallback;
+  return (e.code ? `${e.code}: ` : "") + detail.slice(0, 500);
+}
+
 async function applyDatabaseSchema(databaseUrl: string): Promise<void> {
   // 首次连接成功后立即建表（网页初始化阶段完成）
   await execAsync("prisma db push --skip-generate", {
@@ -118,12 +131,10 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
     }
   } catch (err) {
     console.error("[configureDatabase] connection failed:", err);
-    const code = (err as { code?: string })?.code ?? "";
-    const message = err instanceof Error ? err.message : String(err);
     return {
       ok: false as const,
       error: "connectionFailed",
-      detail: code ? `${code}: ${message}` : message,
+      detail: errorDetail(err, "unknown connection error"),
     };
   } finally {
     if (conn) {
@@ -170,12 +181,10 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
     await pool.query("SELECT 1");
   } catch (err) {
     console.error("[configureDatabase] database select failed:", err);
-    const code = (err as { code?: string })?.code ?? "";
-    const message = err instanceof Error ? err.message : String(err);
     return {
       ok: false as const,
       error: "connectionFailed",
-      detail: code ? `${code}: ${message}` : message,
+      detail: errorDetail(err, "unknown database error"),
     };
   } finally {
     if (pool) {
@@ -186,8 +195,13 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
   // 连接成功后自动建表；建表失败则不保存配置，方便用户修正后重试
   try {
     await applyDatabaseSchema(url);
-  } catch {
-    return { ok: false as const, error: "schemaFailed" };
+  } catch (err) {
+    console.error("[configureDatabase] prisma db push failed:", err);
+    return {
+      ok: false as const,
+      error: "schemaFailed",
+      detail: errorDetail(err, "prisma db push failed"),
+    };
   }
 
   await saveConfig({ DATABASE_URL: url });
