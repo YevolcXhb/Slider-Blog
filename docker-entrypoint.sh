@@ -12,6 +12,10 @@ fi
 
 # 2. 自动生成缺失密钥并持久化，用户无需手动配置环境变量
 changed=0
+if [ -z "$AUTH_TRUST_HOST" ]; then
+  AUTH_TRUST_HOST=true
+  changed=1
+fi
 if [ -z "$NEXTAUTH_SECRET" ]; then
   NEXTAUTH_SECRET=$(node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))")
   changed=1
@@ -24,15 +28,26 @@ if [ "$changed" -eq 1 ]; then
   umask 077
   mkdir -p "$(dirname "$CONFIG_FILE")"
   cat > "$CONFIG_FILE" <<EOF
+AUTH_TRUST_HOST=$AUTH_TRUST_HOST
 NEXTAUTH_SECRET=$NEXTAUTH_SECRET
 ADMIN_PROXY_SECRET=$ADMIN_PROXY_SECRET
 DATABASE_URL=$DATABASE_URL
 EOF
 fi
 
-export NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL
+export AUTH_TRUST_HOST NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL
 # 提供 prisma CLI（db push 迁移），安装在独立前缀目录
 export PATH="/opt/runtime/node_modules/.bin:$PATH"
+
+# 数据库已配置时自动建表，保证首次初始化可用
+if [ -n "$DATABASE_URL" ]; then
+  echo "[entrypoint] Applying database schema (prisma db push)..."
+  if command -v timeout >/dev/null 2>&1; then
+    timeout 60 prisma db push --skip-generate || echo "[entrypoint] prisma db push failed; continuing."
+  else
+    prisma db push --skip-generate || echo "[entrypoint] prisma db push failed; continuing."
+  fi
+fi
 
 echo "[entrypoint] Starting Next.js on port ${PORT:-4000}..."
 PORT="${PORT:-4000}" node server.js &
