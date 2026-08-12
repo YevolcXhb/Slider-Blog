@@ -136,11 +136,17 @@ export function SetupManager() {
             invalidHost: t("dbInvalidHost"),
             invalidPort: t("dbInvalidPort"),
             connectionFailed: t("dbFailed"),
+            invalidDatabase: t("dbInvalidDatabase"),
             alreadyConfigured: t("dbAlreadyConfigured"),
             adminOnly: t("dbAdminOnly"),
             schemaFailed: t("dbSchemaFailed"),
           };
-          setError(messages[result.error] ?? t("unexpectedError"));
+          const base = messages[result.error] ?? t("unexpectedError");
+          setError(
+            result.detail
+              ? `${base}（${result.detail.slice(0, 200)}）`
+              : base,
+          );
           return;
         }
 
@@ -299,6 +305,7 @@ export function SetupManager() {
                 autoComplete="off"
                 disabled={dbSaving}
               />
+              <p className="text-xs text-white/40">{t("dbHostHint")}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

@@ -4,7 +4,7 @@ import { exec } from "node:child_process";
 import { promises as fs } from "node:fs";
 import { promisify } from "node:util";
 import { headers } from "next/headers";
-import mariadb, { type Pool } from "mariadb";
+import mariadb, { type Connection, type Pool } from "mariadb";
 import { prisma } from "@/lib/prisma";
 import { saveConfig } from "@/lib/config";
 import { hashPassword } from "@/server/actions/auth";
@@ -90,10 +90,46 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     return { ok: false as const, error: "invalidPort" };
   }
+  if (!/^[A-Za-z0-9_]+$/.test(database)) {
+    return { ok: false as const, error: "invalidDatabase" };
+  }
 
   const url = `mysql://${encodeURIComponent(username)}:${encodeURIComponent(
     password,
   )}@${host}:${port}/${database}`;
+
+  // 先不选库连接，确认账号可登录；数据库不存在时自动创建
+  let conn: Connection | null = null;
+  try {
+    conn = await mariadb.createConnection({
+      host,
+      port,
+      user: username,
+      password,
+      connectTimeout: 5000,
+    });
+    const rows = await conn.query(
+      "SELECT 1 FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+      [database],
+    );
+    const exists = Array.isArray(rows) && rows.length > 0;
+    if (!exists) {
+      await conn.query(`CREATE DATABASE \`${database}\``);
+    }
+  } catch (err) {
+    console.error("[configureDatabase] connection failed:", err);
+    const code = (err as { code?: string })?.code ?? "";
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false as const,
+      error: "connectionFailed",
+      detail: code ? `${code}: ${message}` : message,
+    };
+  } finally {
+    if (conn) {
+      await conn.end().catch(() => {});
+    }
+  }
 
   // 已配置且可连通时拒绝覆盖，避免误操作重置数据库配置
   if (process.env.DATABASE_URL) {
@@ -132,8 +168,15 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
       connectTimeout: 5000,
     });
     await pool.query("SELECT 1");
-  } catch {
-    return { ok: false as const, error: "connectionFailed" };
+  } catch (err) {
+    console.error("[configureDatabase] database select failed:", err);
+    const code = (err as { code?: string })?.code ?? "";
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false as const,
+      error: "connectionFailed",
+      detail: code ? `${code}: ${message}` : message,
+    };
   } finally {
     if (pool) {
       await pool.end().catch(() => {});
