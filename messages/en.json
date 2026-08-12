@@ -293,6 +293,7 @@
     "dbFailed": "Database connection failed. Check host, credentials and network",
     "dbAlreadyConfigured": "Database is already configured and reachable",
     "dbAdminOnly": "Database configuration is only allowed from the admin gateway",
+    "dbSchemaFailed": "Database connected, but automatic schema creation failed. Check that the database user has CREATE privileges.",
     "dbRestartTimeout": "Service restart timed out. Please refresh and retry"
   },
   "AdminUsers": {

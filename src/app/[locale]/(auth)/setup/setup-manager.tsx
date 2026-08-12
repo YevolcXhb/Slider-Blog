@@ -138,6 +138,7 @@ export function SetupManager() {
             connectionFailed: t("dbFailed"),
             alreadyConfigured: t("dbAlreadyConfigured"),
             adminOnly: t("dbAdminOnly"),
+            schemaFailed: t("dbSchemaFailed"),
           };
           setError(messages[result.error] ?? t("unexpectedError"));
           return;

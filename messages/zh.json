@@ -293,6 +293,7 @@
     "dbFailed": "数据库连接失败，请检查地址、账号、密码和网络",
     "dbAlreadyConfigured": "数据库已配置且可正常连接",
     "dbAdminOnly": "仅允许通过管理端入口配置数据库",
+    "dbSchemaFailed": "数据库连接成功，但自动建表失败，请检查数据库账号是否有建表（CREATE）权限",
     "dbRestartTimeout": "服务重启超时，请刷新页面重试"
   },
   "AdminUsers": {

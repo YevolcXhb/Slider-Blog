@@ -39,13 +39,21 @@ export AUTH_TRUST_HOST NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL
 # 提供 prisma CLI（db push 迁移），安装在独立前缀目录
 export PATH="/opt/runtime/node_modules/.bin:$PATH"
 
-# 数据库已配置时自动建表，保证首次初始化可用
-if [ -n "$DATABASE_URL" ]; then
-  echo "[entrypoint] Applying database schema (prisma db push)..."
+# 兜底：数据库已配置但从未建过表时补一次建表（正常流程由 setup 页面完成）
+if [ -n "$DATABASE_URL" ] && [ ! -f /data/.schema-ready ]; then
+  echo "[entrypoint] Applying database schema (prisma db push, first run)..."
   if command -v timeout >/dev/null 2>&1; then
-    timeout 60 prisma db push --skip-generate || echo "[entrypoint] prisma db push failed; continuing."
+    if timeout 60 prisma db push --skip-generate; then
+      touch /data/.schema-ready
+    else
+      echo "[entrypoint] prisma db push failed; will retry on next start."
+    fi
   else
-    prisma db push --skip-generate || echo "[entrypoint] prisma db push failed; continuing."
+    if prisma db push --skip-generate; then
+      touch /data/.schema-ready
+    else
+      echo "[entrypoint] prisma db push failed; will retry on next start."
+    fi
   fi
 fi
 

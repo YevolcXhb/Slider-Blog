@@ -1,5 +1,8 @@
 "use server";
 
+import { exec } from "node:child_process";
+import { promises as fs } from "node:fs";
+import { promisify } from "node:util";
 import { headers } from "next/headers";
 import mariadb, { type Pool } from "mariadb";
 import { prisma } from "@/lib/prisma";
@@ -8,6 +11,25 @@ import { hashPassword } from "@/server/actions/auth";
 import { saveProfileSettings } from "@/server/actions/settings";
 import { UserRole } from "@/types/user";
 import { ValidationError } from "@/lib/validation";
+
+const execAsync = promisify(exec);
+const SCHEMA_MARKER = "/data/.schema-ready";
+
+async function applyDatabaseSchema(databaseUrl: string): Promise<void> {
+  // 首次连接成功后立即建表（网页初始化阶段完成）
+  await execAsync("prisma db push --skip-generate", {
+    cwd: process.cwd(),
+    env: { ...process.env, DATABASE_URL: databaseUrl },
+    timeout: 60_000,
+  });
+  // 标记 schema 已应用，entrypoint 不再重复执行
+  try {
+    await fs.mkdir("/data", { recursive: true });
+    await fs.writeFile(SCHEMA_MARKER, "ok\n", { mode: 0o600 });
+  } catch {
+    // 非容器/无写权限时忽略标记
+  }
+}
 
 /**
  * 初始化向导 Server Actions。
@@ -116,6 +138,13 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
     if (pool) {
       await pool.end().catch(() => {});
     }
+  }
+
+  // 连接成功后自动建表；建表失败则不保存配置，方便用户修正后重试
+  try {
+    await applyDatabaseSchema(url);
+  } catch {
+    return { ok: false as const, error: "schemaFailed" };
   }
 
   await saveConfig({ DATABASE_URL: url });
