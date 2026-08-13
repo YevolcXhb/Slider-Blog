@@ -13,6 +13,7 @@ import {
   getNavExternalLinks,
   getSiteInfoSettings,
   getThemeSettings,
+  getHomepageVideoUrl,
 } from "@/server/queries/site"
 
 const locales: ReadonlyArray<LocaleOption> = [
@@ -46,6 +47,8 @@ async function PublicLayout({ children }: { children: React.ReactNode }) {
   const themeSettings = await getThemeSettings()
   // 读取站点信息（标题、副标题、描述），用于 Header/Footer 等客户端组件
   const siteInfo = await getSiteInfoSettings()
+  // 首页背景视频直链（管理端配置，默认不配置则不播放视频）
+  const homepageVideoUrl = await getHomepageVideoUrl()
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem storageKey="theme">
@@ -56,6 +59,7 @@ async function PublicLayout({ children }: { children: React.ReactNode }) {
             locales={locales}
             navExternalLinks={navExternalLinks ?? undefined}
             siteTitle={siteInfo.site_title}
+            bannerVideo={homepageVideoUrl || undefined}
             leftSidebar={
               <Suspense fallback={<SidebarSkeleton />}>
                 <LeftSidebar />

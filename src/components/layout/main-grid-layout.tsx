@@ -58,11 +58,8 @@ const defaultBanner = Array.isArray(wallpaperSrc?.desktop)
     ? wallpaperSrc.desktop
     : "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80"
 
-const defaultBannerVideo = wallpaperSrc?.playerUrl
-  ? Array.isArray(wallpaperSrc.playerUrl)
-    ? wallpaperSrc.playerUrl
-    : [wallpaperSrc.playerUrl]
-  : ["https://alist.slidercore.com/f/OLS7/blog.mp4"]
+// 首页视频直链默认不配置，由管理端设置后传入；空数组表示不播放视频
+const defaultBannerVideo: string[] = []
 
 const defaultSubtitleTexts = Array.isArray(backgroundWallpaper.common?.homeText?.subtitle)
   ? backgroundWallpaper.common.homeText.subtitle

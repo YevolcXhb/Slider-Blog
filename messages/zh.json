@@ -729,7 +729,12 @@
     "themeCardBorderShadow": "卡片边框阴影",
     "themeCardBorderShadowHint": "卡片是否显示边框与阴影",
     "themeCardThemeColored": "卡片跟随主题色",
-    "themeCardThemeColoredHint": "卡片背景使用主题色调"
+    "themeCardThemeColoredHint": "卡片背景使用主题色调",
+    "mediaSection": "媒体资源",
+    "homepageVideo": "首页背景视频直链",
+    "homepageVideoPlaceholder": "https://example.com/video.mp4",
+    "homepageVideoHint": "留空则不播放首页背景视频；支持 http(s) 直链或站内相对路径",
+    "musicManageHint": "音乐直链请在「音乐管理」中增删改，默认不配置任何音乐。"
   },
   "Widgets": {
     "profile": "个人资料",

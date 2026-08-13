@@ -21,7 +21,6 @@ import { AnimatePresence, motion } from "motion/react"
 import { cn } from "@/lib/utils"
 import { WidgetLayout } from "./widget-layout"
 import {
-  DEFAULT_MUSIC,
   loadPlaylist,
   useMusicPlayer,
 } from "@/lib/music-player-store"
@@ -261,7 +260,6 @@ function VolumeControl({
 function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetProps) {
   const t = useTranslations("Widgets")
   const showTitle = widgetConfig?.showTitle !== false
-  const fallbackPlaylist = musicList && musicList.length > 0 ? musicList : DEFAULT_MUSIC
 
   const { state, togglePlay, nextTrack, prevTrack, playTrack, seekStart, seekPreview, seekEnd, setVolume, toggleMute, cyclePlayMode } =
     useMusicPlayer()
@@ -270,12 +268,20 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
 
   // 将播放列表喂入共享 store（先到先得，已加载则跳过）
   useEffect(() => {
-    loadPlaylist(fallbackPlaylist)
-  }, [fallbackPlaylist])
+    loadPlaylist(musicList ?? [])
+  }, [musicList])
 
   const { playlist, currentIndex, isPlaying, progress, duration, volume, isMuted, playMode } =
     state
   const currentTrack = playlist[currentIndex]
+
+  if (playlist.length === 0) {
+    return (
+      <WidgetLayout name={t("music")} showTitle={showTitle} id="music" className={className} style={style}>
+        <p className="py-6 text-center text-sm text-white/40">{t("musicNoSongs")}</p>
+      </WidgetLayout>
+    )
+  }
 
   const ModeIcon = playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat
   const modeTitle = playMode === "sequence" ? "顺序播放" : playMode === "repeat" ? "单曲循环" : "随机播放"

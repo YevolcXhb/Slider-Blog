@@ -20,7 +20,6 @@ import Image from "next/image"
 
 import { cn } from "@/lib/utils"
 import {
-  DEFAULT_MUSIC,
   loadPlaylist,
   useMusicPlayer,
 } from "@/lib/music-player-store"
@@ -552,11 +551,11 @@ function GlobalPlayer() {
       .then((res) => res.json())
       .then((tracks: MusicItem[]) => {
         if (!mounted) return
-        loadPlaylist(tracks && tracks.length > 0 ? tracks : DEFAULT_MUSIC)
+        loadPlaylist(Array.isArray(tracks) ? tracks : [])
       })
       .catch(() => {
         if (!mounted) return
-        loadPlaylist(DEFAULT_MUSIC)
+        loadPlaylist([])
       })
     return () => {
       mounted = false

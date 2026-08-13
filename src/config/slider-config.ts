@@ -885,9 +885,6 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
       `${SLIDER_IMAGES}/MobileWallpaper/m5.avif`,
       `${SLIDER_IMAGES}/MobileWallpaper/m6.avif`,
     ],
-    playerUrl: [
-      "https://alist.slidercore.com/f/OLS7/blog.mp4",
-    ],
   },
   common: {
     dimOpacity: 0.2,
@@ -998,14 +995,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
     ],
   },
   local: {
-    playlist: [
-      {
-        name: "Love Song",
-        artist: "YOSHE1",
-        url: "https://alist.slidercore.com/f/lVHo/Love%20Song-YOSHE1.mp3",
-        lrc: "",
-      },
-    ],
+    playlist: [],
   },
 }
 

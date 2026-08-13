@@ -313,3 +313,29 @@ export async function saveThemeSettings(formData: FormData) {
   revalidatePath("/zh");
   revalidatePath("/en");
 }
+
+/**
+ * 保存媒体资源设置：首页背景视频直链（留空表示不播放视频）。
+ */
+export async function saveMediaSettings(formData: FormData) {
+  await requireAdmin();
+
+  const url = getStringFromFormData(formData, "homepage_video_url");
+  if (url) {
+    validateSafeUrl(url, "homepage_video_url", {
+      allowRelative: true,
+      maxLength: 500,
+    });
+  }
+
+  await prisma.siteSetting.upsert({
+    where: { key: "homepage_video_url" },
+    update: { value: url, type: "string" },
+    create: { key: "homepage_video_url", value: url, type: "string" },
+  });
+
+  revalidateTag("site-settings", "max");
+  revalidatePath("/");
+  revalidatePath("/zh");
+  revalidatePath("/en");
+}

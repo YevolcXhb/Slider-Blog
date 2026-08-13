@@ -19,6 +19,7 @@ import {
   Palette,
   LayoutList,
   LayoutGrid,
+  Video,
 } from "lucide-react";
 import {
   saveProfileSettings,
@@ -26,6 +27,7 @@ import {
   saveNavExternalLinks,
   saveAboutContent,
   saveThemeSettings,
+  saveMediaSettings,
 } from "@/server/actions/settings";
 import type {
   SocialLinkItem,
@@ -40,6 +42,7 @@ export const SETTINGS_TABS = [
   "nav",
   "about",
   "theme",
+  "media",
 ] as const;
 
 type TabId = (typeof SETTINGS_TABS)[number];
@@ -128,6 +131,9 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
   );
   const [cardThemeColored, setCardThemeColored] = useState(
     initialData.themeSettings.cardThemeColored,
+  );
+  const [homepageVideoUrl, setHomepageVideoUrl] = useState(
+    initialData.homepageVideoUrl,
   );
 
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
@@ -222,6 +228,22 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
     });
   };
 
+  const handleSaveMedia = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatus("idle");
+    const formData = new FormData();
+    formData.set("homepage_video_url", homepageVideoUrl);
+
+    startTransition(async () => {
+      try {
+        await saveMediaSettings(formData);
+        setStatus("saved");
+      } catch {
+        setStatus("error");
+      }
+    });
+  };
+
   // 社交链接操作
   const addSocialLink = () => {
     setSocialLinks([
@@ -278,6 +300,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
     { id: "nav", icon: Navigation, label: t("navLinksSection") },
     { id: "about", icon: FileText, label: t("aboutSection") },
     { id: "theme", icon: Palette, label: t("themeSection") },
+    { id: "media", icon: Video, label: t("mediaSection") },
   ];
 
   return (
@@ -875,6 +898,47 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                 />
               </div>
             </div>
+          </GlassCard>
+
+          <SaveButton isPending={isPending} status={status} />
+        </form>
+      )}
+
+      {/* 媒体资源（首页背景视频直链，留空则不播放） */}
+      {activeTab === "media" && (
+        <form
+          onSubmit={handleSaveMedia}
+          className="space-y-6"
+          role="tabpanel"
+          id="settings-panel-media"
+          aria-labelledby="settings-tab-media"
+        >
+          <GlassCard className="space-y-5 p-6">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+              <Video className="size-5 text-white/60" aria-hidden="true" />
+              <h2 className="text-lg font-semibold text-white/80">
+                {t("mediaSection")}
+              </h2>
+            </div>
+
+            <div className="space-y-2">
+              <label className={labelClass} htmlFor="homepage_video_url">
+                {t("homepageVideo")}
+              </label>
+              <input
+                id="homepage_video_url"
+                name="homepage_video_url"
+                value={homepageVideoUrl}
+                onChange={(e) => setHomepageVideoUrl(e.target.value)}
+                placeholder={t("homepageVideoPlaceholder")}
+                className={inputClass}
+              />
+              <p className="text-xs text-white/40">{t("homepageVideoHint")}</p>
+            </div>
+
+            <p className="text-xs text-white/40">
+              {t("musicManageHint")}
+            </p>
           </GlassCard>
 
           <SaveButton isPending={isPending} status={status} />

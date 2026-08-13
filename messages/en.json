@@ -729,7 +729,12 @@
     "themeCardBorderShadow": "Card Border Shadow",
     "themeCardBorderShadowHint": "Whether cards show borders and shadows",
     "themeCardThemeColored": "Cards Follow Theme",
-    "themeCardThemeColoredHint": "Card backgrounds use the theme hue"
+    "themeCardThemeColoredHint": "Card backgrounds use the theme hue",
+    "mediaSection": "Media",
+    "homepageVideo": "Homepage Background Video URL",
+    "homepageVideoPlaceholder": "https://example.com/video.mp4",
+    "homepageVideoHint": "Leave empty to disable the homepage background video. Supports http(s) direct links or relative paths.",
+    "musicManageHint": "Manage music direct links in \"Music Management\"; no music is configured by default."
   },
   "Widgets": {
     "profile": "Profile",

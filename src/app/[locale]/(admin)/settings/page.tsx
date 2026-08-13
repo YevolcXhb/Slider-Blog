@@ -40,6 +40,7 @@ export interface SettingsPageData {
   navExternalLinks: NavExternalLinkItem[];
   aboutContent: string;
   themeSettings: ThemeSettings;
+  homepageVideoUrl: string;
 }
 
 export async function generateMetadata({
@@ -77,6 +78,7 @@ export default async function SettingsPage({
           "nav_external_links",
           "about_content",
           "theme_settings",
+          "homepage_video_url",
         ],
       },
     },
@@ -120,6 +122,7 @@ export default async function SettingsPage({
   }
 
   const aboutContent = map.get("about_content") ?? "";
+  const homepageVideoUrl = map.get("homepage_video_url") ?? "";
 
   // 解析主题外观配置
   let themeSettings: ThemeSettings = DEFAULT_THEME_SETTINGS;
@@ -159,6 +162,7 @@ export default async function SettingsPage({
     navExternalLinks,
     aboutContent,
     themeSettings,
+    homepageVideoUrl,
   };
 
   return <SettingsManager initialData={data} />;

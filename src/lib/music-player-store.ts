@@ -19,18 +19,6 @@ export interface MusicPlayerState {
   isLoaded: boolean
 }
 
-export const DEFAULT_MUSIC: MusicItem[] = [
-  {
-    id: "demo-1",
-    title: "Love Song",
-    artist: "YOSHE1",
-    album: "",
-    cover: null,
-    url: "https://alist.slidercore.com/f/lVHo/Love%20Song-YOSHE1.mp3",
-    lrc: null,
-  },
-]
-
 const DEFAULT_VOLUME = musicPlayerConfig.volume ?? 0.7
 
 // =============================================================================

@@ -609,6 +609,25 @@ export const getSiteInfoSettings = unstable_cache(
   { revalidate: 3600, tags: ["site-settings"] },
 );
 
+/**
+ * 获取首页背景视频直链（管理端可配置；空字符串表示不播放视频）。
+ */
+export const getHomepageVideoUrl = unstable_cache(
+  async (): Promise<string> => {
+    try {
+      const setting = await prisma.siteSetting.findUnique({
+        where: { key: "homepage_video_url" },
+        select: { value: true },
+      });
+      return setting?.value?.trim() ?? "";
+    } catch {
+      return "";
+    }
+  },
+  ["homepage-video-url"],
+  { revalidate: 3600, tags: ["site-settings"] },
+);
+
 export const getSidebarProfile = unstable_cache(
   async (): Promise<SidebarProfile> => {
     const defaultProfile: SidebarProfile = {
