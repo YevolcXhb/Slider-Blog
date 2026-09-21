@@ -1,11 +1,11 @@
-import { MDXRemote } from "next-mdx-remote/rsc"
-import { cn } from "@/lib/utils"
-import { GlassCard } from "@/components/ui/glass-card"
-import { extendedComponents, SHIKI_THEME_CSS } from "./mdx-components"
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { cn } from "@/lib/utils";
+import { GlassCard } from "@/components/ui/glass-card";
+import { extendedComponents, SHIKI_THEME_CSS } from "./mdx-components";
 
 interface PostContentProps {
-  source: string
-  className?: string
+  source: string;
+  className?: string;
 }
 
 async function PostContent({ source, className }: PostContentProps) {
@@ -15,11 +15,11 @@ async function PostContent({ source, className }: PostContentProps) {
         "prose prose-invert max-w-none",
         "prose-headings:scroll-mt-24",
         "prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline",
-        "prose-strong:text-white/90",
-        "prose-blockquote:border-l-blue-500 prose-blockquote:bg-white/5 prose-blockquote:py-1 prose-blockquote:not-italic",
+        "prose-strong:text-90",
+        "prose-blockquote:border-l-blue-500 prose-blockquote:bg-[oklch(0.2_0_0/0.05)] prose-blockquote:py-1 prose-blockquote:not-italic",
         "prose-img:rounded-xl",
-        "prose-hr:border-white/10",
-        "prose-ul:marker:text-white/30",
+        "prose-hr:border-black/10 dark:prose-hr:border-white/10",
+        "prose-ul:marker:text-30",
         className,
       )}
     >
@@ -34,7 +34,7 @@ async function PostContent({ source, className }: PostContentProps) {
         <MDXRemote source={source} components={extendedComponents} />
       </GlassCard>
     </article>
-  )
+  );
 }
 
-export { PostContent, type PostContentProps }
+export { PostContent, type PostContentProps };

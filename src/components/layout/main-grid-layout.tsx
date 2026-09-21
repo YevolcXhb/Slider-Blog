@@ -1,67 +1,71 @@
-"use client"
+"use client";
 
-import { usePathname } from "next/navigation"
-import { useEffect, type ReactNode } from "react"
+import { usePathname } from "next/navigation";
+import { useEffect, type ReactNode } from "react";
 
-import { PageBackground } from "@/components/ui/page-background"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { type LocaleOption } from "@/components/layout/language-switcher"
-import { HeroSection } from "@/components/hero/hero-section"
-import { FloatingControls } from "@/components/controls/floating-controls"
-import { GlobalPlayer } from "@/components/player/global-player"
-import { ProgressBar } from "@/components/feedback/progress-bar"
-import { usePageTransition } from "@/hooks/use-page-transition"
-import { cn } from "@/lib/utils"
-import { backgroundWallpaper, siteConfig } from "@/config/slider-config"
+import { PageBackground } from "@/components/ui/page-background";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { type LocaleOption } from "@/components/layout/language-switcher";
+import { HeroSection } from "@/components/hero/hero-section";
+import { FloatingControls } from "@/components/controls/floating-controls";
+import { GlobalPlayer } from "@/components/player/global-player";
+import { ProgressBar } from "@/components/feedback/progress-bar";
+import { usePageTransition } from "@/hooks/use-page-transition";
+import { cn } from "@/lib/utils";
+import { backgroundWallpaper, siteConfig } from "@/config/slider-config";
 
 interface MainGridLayoutProps {
-  children: ReactNode
-  leftSidebar?: ReactNode
-  rightSidebar?: ReactNode
-  locales: ReadonlyArray<LocaleOption>
-  banner?: string
-  bannerVideo?: string | string[]
-  subtitleTexts?: string[]
-  headings?: Array<{ slug: string; text: string; depth: number }>
-  encrypted?: boolean
+  children: ReactNode;
+  leftSidebar?: ReactNode;
+  rightSidebar?: ReactNode;
+  locales: ReadonlyArray<LocaleOption>;
+  banner?: string;
+  bannerVideo?: string | string[];
+  subtitleTexts?: string[];
+  headings?: Array<{ slug: string; text: string; depth: number }>;
+  encrypted?: boolean;
   /**
    * 数据库存储的导航外链（管理员后台配置）。
    * 传递给 Header，用于覆盖默认 "links" 下拉菜单的 children。
    */
   navExternalLinks?: Array<{
-    i18nKey: string
-    name: string
-    url: string
-    icon: string
-    external: boolean
-  }>
+    i18nKey: string;
+    name: string;
+    url: string;
+    icon: string;
+    external: boolean;
+  }>;
   /**
    * 数据库存储的站点标题，覆盖 siteConfig.title。
    * 由 public/layout.tsx 从 getSiteInfoSettings() 获取后传入。
    */
-  siteTitle?: string
+  siteTitle?: string;
 }
 
 const defaultLocales: ReadonlyArray<LocaleOption> = [
   { code: "en", label: "EN" },
   { code: "zh", label: "中文" },
-]
+];
 
-const wallpaperSrc = typeof backgroundWallpaper.src === "object" && !Array.isArray(backgroundWallpaper.src)
-  ? backgroundWallpaper.src
-  : undefined
+const wallpaperSrc =
+  typeof backgroundWallpaper.src === "object" &&
+  !Array.isArray(backgroundWallpaper.src)
+    ? backgroundWallpaper.src
+    : undefined;
 
 const defaultBanner = Array.isArray(wallpaperSrc?.desktop)
   ? wallpaperSrc.desktop[0]
   : typeof wallpaperSrc?.desktop === "string"
     ? wallpaperSrc.desktop
-    : "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80"
+    : "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80";
 
 // 首页视频直链默认不配置，由管理端设置后传入；空数组表示不播放视频
-const defaultBannerVideo: string[] = []
+const defaultBannerVideo: string[] = [];
 
-const defaultSubtitleTexts = Array.isArray(backgroundWallpaper.common?.homeText?.subtitle)
+const defaultSubtitleTexts = Array.isArray(
+  backgroundWallpaper.common?.homeText?.subtitle,
+)
   ? backgroundWallpaper.common.homeText.subtitle
   : typeof backgroundWallpaper.common?.homeText?.subtitle === "string"
     ? [backgroundWallpaper.common.homeText.subtitle]
@@ -69,9 +73,10 @@ const defaultSubtitleTexts = Array.isArray(backgroundWallpaper.common?.homeText?
         "记录技术、生活与思考",
         "分享有趣的事物和学习心得",
         "Amidst Silhouette of Dreams",
-      ]
+      ];
 
-const defaultBannerTitle = backgroundWallpaper.common?.homeText?.title ?? siteConfig.title
+const defaultBannerTitle =
+  backgroundWallpaper.common?.homeText?.title ?? siteConfig.title;
 
 function MainGridLayout({
   children,
@@ -86,50 +91,50 @@ function MainGridLayout({
   navExternalLinks,
   siteTitle,
 }: MainGridLayoutProps) {
-  const pathname = usePathname()
-  const pathWithoutLocale = pathname.replace(/^\/(zh|en)(?=\/|$)/, "") || "/"
-  const isHomePageCheck = pathWithoutLocale === "/"
+  const pathname = usePathname();
+  const pathWithoutLocale = pathname.replace(/^\/(zh|en)(?=\/|$)/, "") || "/";
+  const isHomePageCheck = pathWithoutLocale === "/";
 
   // 页面切换进度条 + 过渡动画
-  usePageTransition()
+  usePageTransition();
 
   // Default to banner mode on home, no-banner on other pages
-  const isBannerMode = isHomePageCheck
+  const isBannerMode = isHomePageCheck;
 
-  const title = isHomePageCheck ? siteTitle || defaultBannerTitle : undefined
+  const title = isHomePageCheck ? siteTitle || defaultBannerTitle : undefined;
 
-  const mobileNonHomeBannerClass = !isHomePageCheck ? "mobile-hide-banner" : ""
+  const mobileNonHomeBannerClass = !isHomePageCheck ? "mobile-hide-banner" : "";
   // Banner 模式下让 main 区域顶部位于 banner 底部 5vh 处（即向上延伸 5vh 进入 banner 区域），
   // 避免使用 transform 破坏 sticky 元素的 containing block
   const finalMainPanelTop = isBannerMode
     ? "calc(var(--banner-height) - var(--banner-height-extend))"
-    : "calc(var(--navbar-height) + 0.5rem)"
+    : "calc(var(--navbar-height) + 0.5rem)";
 
   // Sync body/html classes to match Slider layout expectations
   useEffect(() => {
-    const body = document.body
-    const html = document.documentElement
+    const body = document.body;
+    const html = document.documentElement;
 
-    html.setAttribute("data-wallpaper-mode", isBannerMode ? "banner" : "none")
+    html.setAttribute("data-wallpaper-mode", isBannerMode ? "banner" : "none");
 
     if (isHomePageCheck) {
-      body.classList.add("is-home", "lg:is-home", "enable-banner")
-      body.classList.remove("no-banner-layout")
+      body.classList.add("is-home", "lg:is-home", "enable-banner");
+      body.classList.remove("no-banner-layout");
     } else {
-      body.classList.remove("is-home", "lg:is-home", "enable-banner")
-      body.classList.add("no-banner-layout")
+      body.classList.remove("is-home", "lg:is-home", "enable-banner");
+      body.classList.add("no-banner-layout");
     }
 
     if (siteConfig.navbar.stickyNavbar) {
-      body.classList.add("sticky-navbar")
+      body.classList.add("sticky-navbar");
     } else {
-      body.classList.remove("sticky-navbar")
+      body.classList.remove("sticky-navbar");
     }
 
     return () => {
       // Cleanup handled on next effect run
-    }
-  }, [isHomePageCheck, isBannerMode])
+    };
+  }, [isHomePageCheck, isBannerMode]);
 
   return (
     <div className="relative min-h-screen">
@@ -142,7 +147,11 @@ function MainGridLayout({
         className="pointer-events-none mx-auto transition-all duration-700 w-full"
       >
         <div id="navbar-wrapper" className="pointer-events-auto transition-all">
-          <Header locales={locales} navExternalLinks={navExternalLinks} siteTitle={siteTitle} />
+          <Header
+            locales={locales}
+            navExternalLinks={navExternalLinks}
+            siteTitle={siteTitle}
+          />
         </div>
       </div>
 
@@ -152,9 +161,11 @@ function MainGridLayout({
           id="wallpaper-wrapper"
           className={cn(
             "absolute z-10 w-full overflow-hidden transition duration-700",
-            mobileNonHomeBannerClass
+            mobileNonHomeBannerClass,
           )}
-        >          <HeroSection
+        >
+          {" "}
+          <HeroSection
             backgroundImage={banner}
             backgroundVideo={bannerVideo}
             title={title}
@@ -164,11 +175,14 @@ function MainGridLayout({
       )}
 
       {/* Main content grid */}
+      {/* light-adapt：浅色模式补偿作用域标记（见 globals.css 亮色适配块）。
+          与顶部导航卡片（#navbar > div）一同包裹公开站点的全部浅色玻璃表面。
+          它的兄弟节点 HeroSection 是刻意保持深色的横幅，不在此作用域内。 */}
       <div
         className={cn(
-          "absolute z-30 w-full pointer-events-none",
+          "light-adapt absolute z-30 w-full pointer-events-none",
           mobileNonHomeBannerClass ? "mobile-main-no-banner" : "",
-          !isBannerMode ? "no-banner-layout" : ""
+          !isBannerMode ? "no-banner-layout" : "",
         )}
         style={{ top: finalMainPanelTop }}
       >
@@ -181,14 +195,17 @@ function MainGridLayout({
               "grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]",
               /* items-start 让每个单元格按自身内容高度展开，
                  避免 align-items: stretch 把 aside 强行拉成与 main 等高而造成“挤压” */
-              "items-start"
+              "items-start",
             )}
           >
             {/* Left sidebar */}
             {leftSidebar && (
               <div id="left-sidebar-wrapper" className="contents">
                 <aside className="sidebar-left hidden md:block">
-                  <div id="left-sidebar-sticky" className="sticky top-[var(--navbar-height)] space-y-4">
+                  <div
+                    id="left-sidebar-sticky"
+                    className="sticky top-[var(--navbar-height)] space-y-4"
+                  >
                     {leftSidebar}
                   </div>
                 </aside>
@@ -198,7 +215,9 @@ function MainGridLayout({
             {/* Main content */}
             <div className="min-w-0">
               <main id="swup-container" className="transition-main">
-                <h1 className="sr-only">{title || siteTitle || siteConfig.title}</h1>
+                <h1 className="sr-only">
+                  {title || siteTitle || siteConfig.title}
+                </h1>
                 <div id="content-wrapper" className="onload-animation">
                   {children}
                 </div>
@@ -209,7 +228,10 @@ function MainGridLayout({
             {rightSidebar && (
               <div id="right-sidebar-wrapper" className="contents">
                 <aside className="sidebar-right hidden xl:block">
-                  <div id="right-sidebar-sticky" className="sticky top-[var(--navbar-height)] space-y-4">
+                  <div
+                    id="right-sidebar-sticky"
+                    className="sticky top-[var(--navbar-height)] space-y-4"
+                  >
                     {rightSidebar}
                   </div>
                 </aside>
@@ -227,8 +249,8 @@ function MainGridLayout({
       <FloatingControls headings={headings} encrypted={encrypted} />
       <GlobalPlayer />
     </div>
-  )
+  );
 }
 
-export { MainGridLayout, type MainGridLayoutProps }
-export default MainGridLayout
+export { MainGridLayout, type MainGridLayoutProps };
+export default MainGridLayout;

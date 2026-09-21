@@ -1,26 +1,26 @@
-import Image from "next/image"
-import { getTranslations } from "next-intl/server"
-import { ChevronLeft, ChevronRight, Clock, FileText } from "lucide-react"
+import Image from "next/image";
+import { getTranslations } from "next-intl/server";
+import { ChevronLeft, ChevronRight, Clock, FileText } from "lucide-react";
 
-import { Link } from "@/i18n/routing"
-import { estimateReadTime, estimateWords } from "@/lib/post"
-import type { Comment, Post } from "@/types/post"
+import { Link } from "@/i18n/routing";
+import { estimateReadTime, estimateWords } from "@/lib/post";
+import type { Comment, Post } from "@/types/post";
 
-import { PostMeta } from "./post-meta"
-import { PostContent } from "./post-content"
-import { CommentSection } from "./comment-section"
-import { LikeButton } from "./like-button"
-import { RecommendedPosts } from "./recommended-posts"
+import { PostMeta } from "./post-meta";
+import { PostContent } from "./post-content";
+import { CommentSection } from "./comment-section";
+import { LikeButton } from "./like-button";
+import { RecommendedPosts } from "./recommended-posts";
 
 interface PostPageProps {
-  post: Post
-  content: string
-  locale: string
-  comments: Comment[]
-  relatedPosts: Post[]
-  randomPosts: Post[]
-  prevPost: { slug: string; title: string } | null
-  nextPost: { slug: string; title: string } | null
+  post: Post;
+  content: string;
+  locale: string;
+  comments: Comment[];
+  relatedPosts: Post[];
+  randomPosts: Post[];
+  prevPost: { slug: string; title: string } | null;
+  nextPost: { slug: string; title: string } | null;
 }
 
 async function PostPage({
@@ -33,11 +33,11 @@ async function PostPage({
   prevPost,
   nextPost,
 }: PostPageProps) {
-  const t = await getTranslations("BlogPost")
+  const t = await getTranslations("BlogPost");
 
-  const words = estimateWords(post.content_mdx)
-  const minutes = estimateReadTime(post.content_mdx)
-  const hasCover = !!post.cover_image
+  const words = estimateWords(post.content_mdx);
+  const minutes = estimateReadTime(post.content_mdx);
+  const hasCover = !!post.cover_image;
 
   return (
     <article className="post-page mx-auto w-full max-w-none">
@@ -100,7 +100,7 @@ async function PostPage({
 
           {!hasCover && (
             <>
-              <div className="flex flex-row text-black/30 dark:text-white/30 gap-5 mb-3 transition onload-animation">
+              <div className="flex flex-row text-30 gap-5 mb-3 transition onload-animation">
                 <div className="flex flex-row items-center">
                   <div className="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
                     <FileText className="size-4" />
@@ -156,7 +156,11 @@ async function PostPage({
 
       {/* Like button */}
       <div className="mb-4 onload-animation">
-        <LikeButton postId={post.id} initialCount={post.view_count} label={t("like")} />
+        <LikeButton
+          postId={post.id}
+          initialCount={post.view_count}
+          label={t("like")}
+        />
       </div>
 
       {/* Recommended posts */}
@@ -175,7 +179,7 @@ async function PostPage({
         >
           <div className="btn-card rounded-2xl w-full h-14 max-w-full px-4 flex items-center justify-start gap-4">
             <ChevronLeft className="text-[2rem] text-(--primary)" />
-            <div className="overflow-hidden transition text-ellipsis whitespace-nowrap max-w-[calc(100%-3rem)] text-black/75 dark:text-white/75">
+            <div className="overflow-hidden transition text-ellipsis whitespace-nowrap max-w-[calc(100%-3rem)] text-75">
               {prevPost ? prevPost.title : t("home")}
             </div>
           </div>
@@ -187,7 +191,7 @@ async function PostPage({
           className="w-full font-bold overflow-hidden active:scale-95"
         >
           <div className="btn-card rounded-2xl w-full h-14 max-w-full px-4 flex items-center justify-end gap-4">
-            <div className="overflow-hidden transition text-ellipsis whitespace-nowrap max-w-[calc(100%-3rem)] text-black/75 dark:text-white/75">
+            <div className="overflow-hidden transition text-ellipsis whitespace-nowrap max-w-[calc(100%-3rem)] text-75">
               {nextPost ? nextPost.title : t("home")}
             </div>
             <ChevronRight className="text-[2rem] text-(--primary)" />
@@ -198,7 +202,7 @@ async function PostPage({
       {/* Comments */}
       <CommentSection postId={post.id} initialComments={comments} />
     </article>
-  )
+  );
 }
 
-export { PostPage, type PostPageProps }
+export { PostPage, type PostPageProps };

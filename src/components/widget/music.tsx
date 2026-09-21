@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import Image from "next/image"
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   Music2,
   Play,
@@ -14,31 +14,28 @@ import {
   Repeat,
   Repeat1,
   Shuffle,
-} from "lucide-react"
-import { useTranslations } from "next-intl"
-import { AnimatePresence, motion } from "motion/react"
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "motion/react";
 
-import { cn } from "@/lib/utils"
-import { WidgetLayout } from "./widget-layout"
-import {
-  loadPlaylist,
-  useMusicPlayer,
-} from "@/lib/music-player-store"
-import type { MusicItem } from "@/server/queries/site"
-import type { WidgetComponentConfig } from "@/types/sidebarConfig"
+import { cn } from "@/lib/utils";
+import { WidgetLayout } from "./widget-layout";
+import { loadPlaylist, useMusicPlayer } from "@/lib/music-player-store";
+import type { MusicItem } from "@/server/queries/site";
+import type { WidgetComponentConfig } from "@/types/sidebarConfig";
 
 interface MusicWidgetProps {
-  musicList?: MusicItem[]
-  widgetConfig?: WidgetComponentConfig
-  className?: string
-  style?: React.CSSProperties
+  musicList?: MusicItem[];
+  widgetConfig?: WidgetComponentConfig;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 function formatTime(time: number): string {
-  if (isNaN(time) || !isFinite(time)) return "0:00"
-  const minutes = Math.floor(time / 60)
-  const seconds = Math.floor(time % 60)
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  if (isNaN(time) || !isFinite(time)) return "0:00";
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function CoverImage({
@@ -46,16 +43,16 @@ function CoverImage({
   title,
   isPlaying,
 }: {
-  cover: string | null
-  title: string
-  isPlaying: boolean
+  cover: string | null;
+  title: string;
+  isPlaying: boolean;
 }) {
   return (
     <div className="relative size-14 shrink-0">
       <div
         className={cn(
           "absolute inset-0 rounded-full overflow-hidden shadow-lg border-2 border-white dark:border-neutral-700 bg-[var(--primary)]/10 flex items-center justify-center",
-          isPlaying && "animate-spin-slow"
+          isPlaying && "animate-spin-slow",
         )}
         style={{ animationPlayState: isPlaying ? "running" : "paused" }}
       >
@@ -76,7 +73,7 @@ function CoverImage({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function useDragSlider(
@@ -84,58 +81,58 @@ function useDragSlider(
   onPreview?: (fraction: number) => void,
 ) {
   // 通用拖拽 hook：pointerdown 启动，move 期间持续回调，up 时提交
-  const containerRef = useRef<HTMLDivElement>(null)
-  const isDraggingRef = useRef(false)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const fractionFromEvent = (clientX: number): number | null => {
-    const el = containerRef.current
-    if (!el) return null
-    const rect = el.getBoundingClientRect()
-    if (rect.width <= 0) return null
-    const raw = (clientX - rect.left) / rect.width
-    return Math.max(0, Math.min(1, raw))
-  }
+    const el = containerRef.current;
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0) return null;
+    const raw = (clientX - rect.left) / rect.width;
+    return Math.max(0, Math.min(1, raw));
+  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse" && e.button !== 0) return
-    e.preventDefault()
-    isDraggingRef.current = true
-    const f = fractionFromEvent(e.clientX)
-    if (f === null) return
-    onPreview?.(f)
-    onCommit(f)
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    isDraggingRef.current = true;
+    const f = fractionFromEvent(e.clientX);
+    if (f === null) return;
+    onPreview?.(f);
+    onCommit(f);
     try {
-      e.currentTarget.setPointerCapture(e.pointerId)
+      e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
       // ignore
     }
-  }
+  };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return
-    const f = fractionFromEvent(e.clientX)
-    if (f === null) return
-    onPreview?.(f)
-  }
+    if (!isDraggingRef.current) return;
+    const f = fractionFromEvent(e.clientX);
+    if (f === null) return;
+    onPreview?.(f);
+  };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return
-    isDraggingRef.current = false
-    const f = fractionFromEvent(e.clientX)
-    if (f !== null) onCommit(f)
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    const f = fractionFromEvent(e.clientX);
+    if (f !== null) onCommit(f);
     try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
+      e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {
       // ignore
     }
-  }
+  };
 
   return {
     containerRef,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
-  }
+  };
 }
 
 function ProgressBar({
@@ -145,30 +142,34 @@ function ProgressBar({
   onSeekPreview,
   onSeekEnd,
 }: {
-  progress: number
-  duration: number
-  onSeekStart: () => void
-  onSeekPreview: (value: number) => void
-  onSeekEnd: (value: number) => void
+  progress: number;
+  duration: number;
+  onSeekStart: () => void;
+  onSeekPreview: (value: number) => void;
+  onSeekEnd: (value: number) => void;
 }) {
   // 进度直接来自 store（拖拽时 store 的 progress 由 seekPreview 实时更新）
-  const t = useTranslations("Player")
-  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0
+  const t = useTranslations("Player");
+  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   const handleCommit = (fraction: number) => {
-    onSeekEnd(fraction * duration)
-  }
+    onSeekEnd(fraction * duration);
+  };
   const handlePreview = (fraction: number) => {
-    onSeekPreview(fraction * duration)
-  }
+    onSeekPreview(fraction * duration);
+  };
 
-  const { containerRef, handlePointerDown, handlePointerMove, handlePointerUp } =
-    useDragSlider(handleCommit, handlePreview)
+  const {
+    containerRef,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+  } = useDragSlider(handleCommit, handlePreview);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    onSeekStart()
-    handlePointerDown(e)
-  }
+    onSeekStart();
+    handlePointerDown(e);
+  };
 
   return (
     <div className="px-1">
@@ -195,7 +196,7 @@ function ProgressBar({
         />
       </div>
     </div>
-  )
+  );
 }
 
 function VolumeControl({
@@ -204,24 +205,28 @@ function VolumeControl({
   onToggleMute,
   onVolumeChange,
 }: {
-  volume: number
-  isMuted: boolean
-  onToggleMute: () => void
-  onVolumeChange: (value: number) => void
+  volume: number;
+  isMuted: boolean;
+  onToggleMute: () => void;
+  onVolumeChange: (value: number) => void;
 }) {
-  const t = useTranslations("Player")
+  const t = useTranslations("Player");
   // 音量直接来自 store，拖拽时实时调用 onVolumeChange 更新 store
-  const displayVolume = isMuted ? 0 : volume
+  const displayVolume = isMuted ? 0 : volume;
 
   const handleCommit = (fraction: number) => {
-    onVolumeChange(fraction)
-  }
+    onVolumeChange(fraction);
+  };
   const handlePreview = (fraction: number) => {
-    onVolumeChange(fraction)
-  }
+    onVolumeChange(fraction);
+  };
 
-  const { containerRef, handlePointerDown, handlePointerMove, handlePointerUp } =
-    useDragSlider(handleCommit, handlePreview)
+  const {
+    containerRef,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+  } = useDragSlider(handleCommit, handlePreview);
 
   return (
     <div className="flex items-center gap-1">
@@ -256,50 +261,91 @@ function VolumeControl({
         />
       </div>
     </div>
-  )
+  );
 }
 
-function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetProps) {
-  const t = useTranslations("Widgets")
-  const tPlayer = useTranslations("Player")
-  const showTitle = widgetConfig?.showTitle !== false
+function MusicWidget({
+  musicList,
+  widgetConfig,
+  className,
+  style,
+}: MusicWidgetProps) {
+  const t = useTranslations("Widgets");
+  const tPlayer = useTranslations("Player");
+  const showTitle = widgetConfig?.showTitle !== false;
 
-  const { state, togglePlay, nextTrack, prevTrack, playTrack, seekStart, seekPreview, seekEnd, setVolume, toggleMute, cyclePlayMode } =
-    useMusicPlayer()
+  const {
+    state,
+    togglePlay,
+    nextTrack,
+    prevTrack,
+    playTrack,
+    seekStart,
+    seekPreview,
+    seekEnd,
+    setVolume,
+    toggleMute,
+    cyclePlayMode,
+  } = useMusicPlayer();
 
-  const [showPlaylist, setShowPlaylist] = useState(false)
+  const [showPlaylist, setShowPlaylist] = useState(false);
 
   // 将播放列表喂入共享 store（先到先得，已加载则跳过）
   useEffect(() => {
-    loadPlaylist(musicList ?? [])
-  }, [musicList])
+    loadPlaylist(musicList ?? []);
+  }, [musicList]);
 
-  const { playlist, currentIndex, isPlaying, progress, duration, volume, isMuted, playMode } =
-    state
-  const currentTrack = playlist[currentIndex]
+  const {
+    playlist,
+    currentIndex,
+    isPlaying,
+    progress,
+    duration,
+    volume,
+    isMuted,
+    playMode,
+  } = state;
+  const currentTrack = playlist[currentIndex];
 
   if (playlist.length === 0) {
     return (
-      <WidgetLayout name={t("music")} showTitle={showTitle} id="music" className={className} style={style}>
-        <p className="py-6 text-center text-sm text-white/40">{t("musicNoSongs")}</p>
+      <WidgetLayout
+        name={t("music")}
+        showTitle={showTitle}
+        id="music"
+        className={className}
+        style={style}
+      >
+        <p className="py-6 text-center text-sm text-30">{t("musicNoSongs")}</p>
       </WidgetLayout>
-    )
+    );
   }
 
-  const ModeIcon = playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat
+  const ModeIcon =
+    playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat;
   const modeTitle =
     playMode === "sequence"
       ? tPlayer("sequence")
       : playMode === "repeat"
         ? tPlayer("repeat")
-        : tPlayer("shuffle")
+        : tPlayer("shuffle");
 
   return (
-    <WidgetLayout name={t("music")} showTitle={showTitle} id="music" className={className} style={style}>
+    <WidgetLayout
+      name={t("music")}
+      showTitle={showTitle}
+      id="music"
+      className={className}
+      style={style}
+    >
       <div className="flex flex-col gap-3">
         {/* Top Row: Cover & Info */}
         <div className="flex items-center gap-3 px-1">
-          <CoverImage cover={currentTrack?.cover ?? null} title={currentTrack?.title ?? ""} isPlaying={isPlaying} />
+          <CoverImage
+            cover={currentTrack?.cover ?? null}
+            title={currentTrack?.title ?? ""}
+            isPlaying={isPlaying}
+          />
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between overflow-hidden gap-2">
               <div className="flex-1 min-w-0 overflow-hidden relative">
@@ -368,7 +414,11 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
             className="size-12 rounded-full bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)] text-[var(--primary)] flex items-center justify-center transition-all active:scale-95"
             aria-label={isPlaying ? t("pause") : t("play")}
           >
-            {isPlaying ? <Pause className="size-6" /> : <Play className="size-6 ml-0.5" />}
+            {isPlaying ? (
+              <Pause className="size-6" />
+            ) : (
+              <Play className="size-6 ml-0.5" />
+            )}
           </button>
           <button
             onClick={nextTrack}
@@ -381,7 +431,9 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
             onClick={() => setShowPlaylist((prev) => !prev)}
             className={cn(
               "p-2 rounded-lg transition-colors active:scale-95",
-              showPlaylist ? "text-[var(--primary)]" : "text-neutral-400 hover:text-[var(--primary)]"
+              showPlaylist
+                ? "text-[var(--primary)]"
+                : "text-neutral-400 hover:text-[var(--primary)]",
             )}
             aria-label={t("playlist")}
             title={t("playlist")}
@@ -413,7 +465,8 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
                         onClick={() => playTrack(index)}
                         className={cn(
                           "flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group w-full text-left",
-                          index === currentIndex && "bg-neutral-100 dark:bg-white/10"
+                          index === currentIndex &&
+                            "bg-neutral-100 dark:bg-white/10",
                         )}
                         role="option"
                         aria-selected={index === currentIndex}
@@ -431,7 +484,7 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
                             />
                           ) : (
                             <div className="flex size-full items-center justify-center">
-                              <Music2 className="size-3 text-neutral-400 dark:text-white/40" />
+                              <Music2 className="size-3 text-neutral-400" />
                             </div>
                           )}
                           {index === currentIndex && isPlaying && (
@@ -443,11 +496,17 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
                                 />
                                 <span
                                   className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar"
-                                  style={{ animationDuration: "0.6s", animationDelay: "0.15s" }}
+                                  style={{
+                                    animationDuration: "0.6s",
+                                    animationDelay: "0.15s",
+                                  }}
                                 />
                                 <span
                                   className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar"
-                                  style={{ animationDuration: "1s", animationDelay: "0.3s" }}
+                                  style={{
+                                    animationDuration: "1s",
+                                    animationDelay: "0.3s",
+                                  }}
                                 />
                               </div>
                             </div>
@@ -457,12 +516,14 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
                           <div
                             className={cn(
                               "text-xs font-bold truncate group-hover:text-[var(--primary)] transition-colors",
-                              index === currentIndex && "text-[var(--primary)]"
+                              index === currentIndex && "text-[var(--primary)]",
                             )}
                           >
                             {track.title}
                           </div>
-                          <div className="text-[10px] text-neutral-400 truncate">{track.artist}</div>
+                          <div className="text-[10px] text-neutral-400 truncate">
+                            {track.artist}
+                          </div>
                         </div>
                       </button>
                     ))}
@@ -474,8 +535,8 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
         </AnimatePresence>
       </div>
     </WidgetLayout>
-  )
+  );
 }
 
-export { MusicWidget, type MusicWidgetProps }
-export default MusicWidget
+export { MusicWidget, type MusicWidgetProps };
+export default MusicWidget;

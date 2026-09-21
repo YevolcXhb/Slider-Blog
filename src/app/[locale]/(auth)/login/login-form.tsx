@@ -1,44 +1,45 @@
-"use client"
+"use client";
 
-import { useState, useCallback, Suspense } from "react"
-import { signIn } from "next-auth/react"
-import { useTranslations } from "next-intl"
-import { useSearchParams } from "next/navigation"
-import { useRouter, Link, routing } from "@/i18n/routing"
-import { LogIn, Loader2, AlertCircle } from "lucide-react"
+import { useState, useCallback, Suspense } from "react";
+import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useRouter, Link, routing } from "@/i18n/routing";
+import { LogIn, Loader2, AlertCircle } from "lucide-react";
 
-import { GlassCard } from "@/components/ui/glass-card"
-import { GlassInput } from "@/components/ui/glass-input"
-import { GlassButton } from "@/components/ui/glass-button"
-import { PageBackground } from "@/components/ui/page-background"
-import { normalizeCallbackUrl } from "@/lib/callback-url"
+import { GlassCard } from "@/components/ui/glass-card";
+import { GlassInput } from "@/components/ui/glass-input";
+import { GlassButton } from "@/components/ui/glass-button";
+import { PageBackground } from "@/components/ui/page-background";
+import { normalizeCallbackUrl } from "@/lib/callback-url";
+import { loginErrorKey } from "@/lib/login-error";
 
 function LoginFormInner() {
-  const t = useTranslations("Login")
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const t = useTranslations("Login");
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      setError("")
-      setIsLoading(true)
+      e.preventDefault();
+      setError("");
+      setIsLoading(true);
 
       try {
         const result = await signIn("credentials", {
           email,
           password,
           redirect: false,
-        })
+        });
 
         if (result?.error) {
-          setError(t("invalidCredentials"))
-          return
+          setError(t(loginErrorKey(result.error)));
+          return;
         }
 
         // 登录成功后跳回原页面（P2-002）。
@@ -47,17 +48,17 @@ function LoginFormInner() {
         const target = normalizeCallbackUrl(
           searchParams.get("callbackUrl"),
           routing.locales,
-        )
-        router.push(target ?? "/dashboard")
-        router.refresh()
+        );
+        router.push(target ?? "/dashboard");
+        router.refresh();
       } catch {
-        setError(t("unexpectedError"))
+        setError(t("unexpectedError"));
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
     [email, password, router, searchParams, t],
-  )
+  );
 
   return (
     <div className="relative flex min-h-screen items-center justify-center">
@@ -65,7 +66,10 @@ function LoginFormInner() {
 
       <GlassCard className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md" aria-hidden="true">
+          <div
+            className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md"
+            aria-hidden="true"
+          >
             <LogIn className="size-6 text-white/70" />
           </div>
           <h1 className="text-2xl font-bold text-white/90">{t("title")}</h1>
@@ -145,13 +149,16 @@ function LoginFormInner() {
 
         <p className="mt-6 text-center text-sm text-white/50">
           {t("noAccount")}{" "}
-          <Link href="/register" className="font-medium text-white/80 transition-colors hover:text-white">
+          <Link
+            href="/register"
+            className="font-medium text-white/80 transition-colors hover:text-white"
+          >
             {t("register")}
           </Link>
         </p>
       </GlassCard>
     </div>
-  )
+  );
 }
 
 export default function LoginForm() {
@@ -160,5 +167,5 @@ export default function LoginForm() {
     <Suspense fallback={null}>
       <LoginFormInner />
     </Suspense>
-  )
+  );
 }

@@ -175,6 +175,7 @@
     "email": "Email",
     "password": "Password",
     "invalidCredentials": "Invalid email or password",
+    "signInMisconfigured": "Sign-in is misconfigured. Please contact the administrator.",
     "unexpectedError": "An unexpected error occurred. Please try again.",
     "signingIn": "Signing in...",
     "signIn": "Sign In",

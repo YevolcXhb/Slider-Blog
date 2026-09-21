@@ -39,13 +39,51 @@ import type { NextAuthConfig } from "next-auth";
  *
  * 反向影响（部署时必须满足，已写入 README/.env.example）：
  *   生产环境若不启用 HTTPS，带 Secure 的 cookie 会被浏览器直接丢弃，
- *   表现为「登录成功但立刻回到登录页」。生产部署需由 Nginx 等终止 TLS；
+ *   表现为登录**恒定失败**（在 CSRF 阶段就被拒绝，密码根本没被校验），
+ *   而**不是**「登录成功后再被跳回登录页」。生产部署需由 Nginx 等终止 TLS；
  *   这正是「生产 HTTPS 启用 Secure」的预期语义，dev 不受影响。
  *
  * 前缀说明：沿用 @auth/core 默认的 __Secure- / __Host-，
  * 不在此基础上再加自定义前缀，避免影响 callbackUrl cookie 的读写与回跳。
+ *
+ * ── 逃生舱：AUTH_COOKIE_SECURE（显式、可选，默认行为一个字节都不变）──────────
+ *
+ * 背景（内网明文 HTTP 部署，实测）：把本站部署在 http://192.168.137.52:4100 时，
+ * 生产构建下所有认证 cookie 带 Secure + __Host-/__Secure- 前缀，而浏览器对
+ * http:// 下的 Secure cookie **直接丢弃**，csrf 双提交校验拿不到 cookie，
+ * POST /api/auth/callback/credentials 恒定返回 MissingCSRF，密码根本没被校验。
+ *
+ * 因 admin-proxy.mjs 在 proxyReq 里 removeHeader 掉 x-forwarded-proto（见上面
+ * ⚠ 段），按请求协议动态判定已被否决，只能提供一个**显式**开关：
+ *
+ *   AUTH_COOKIE_SECURE === "false"（严格字符串比较）-> false
+ *   AUTH_COOKIE_SECURE === "true" （严格字符串比较）-> true
+ *   未设置 / 空串 / "FALSE" / "0" / "no" / 其它任何值 -> 走上面的默认分支
+ *
+ * 为什么用严格字符串比较而不是 truthy 判定：
+ *   `process.env.X === "false"` 是唯一无歧义的写法。若写成 `!process.env.X`，
+ *   那么运维在 /data/config.env 里手写空值或 AUTH_COOKIE_SECURE=0 都会被静默
+ *   解释成「关闭 Secure」—— 这正是本任务要杜绝的「默认行为被意外改变」。
+ *   同理不做大小写/别名归一化：只认小写字面量，拼错（"FALSE"）时保守地退回
+ *   默认的 fail-secure 行为，而不是悄悄降级。
+ *
+ * 为什么这个开关是安全的（不会自己把生产降级）：
+ *   它**只能由管理员显式写入**（环境变量或 /data/config.env），默认路径不经过它；
+ *   docker-entrypoint.sh 的自动生成段不会生成它，也不在会被重写的键集合里，
+ *   因此普通 HTTPS 部署的 cookie 行为与本次改动前完全一致。
+ *
+ * 一致性要求（最关键）：
+ *   src/proxy.ts 与 src/lib/auth.ts 用同一个 authConfig 构造 NextAuth，
+ *   **中间件也会据此推导 session cookie 名**（__Secure-authjs.session-token
+ *   还是 authjs.session-token）。两个 runtime 必须读到同一个 AUTH_COOKIE_SECURE，
+ *   否则会出现「登录成功但中间件认为未登录」的跳转循环 —— 比现在更糟。
+ *   因此 docker-entrypoint.sh 把该变量 export 进同一个进程环境，两个 runtime
+ *   共享同一份 process.env，不存在分叉。
  */
 function resolveUseSecureCookies(): boolean {
+  // 显式覆盖（可选）。默认分支与本次改动前逐字节一致：只认 NODE_ENV。
+  if (process.env.AUTH_COOKIE_SECURE === "false") return false;
+  if (process.env.AUTH_COOKIE_SECURE === "true") return true;
   return process.env.NODE_ENV === "production";
 }
 

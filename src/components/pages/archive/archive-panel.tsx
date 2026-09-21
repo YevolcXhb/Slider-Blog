@@ -1,110 +1,122 @@
-"use client"
+"use client";
 
-import { useMemo, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-import { Link } from "@/i18n/routing"
-import type { ArchivePost } from "@/server/queries/post"
-import { siteConfig } from "@/config/slider-config"
-import { cn } from "@/lib/utils"
-
+import { Link } from "@/i18n/routing";
+import type { ArchivePost } from "@/server/queries/post";
+import { siteConfig } from "@/config/slider-config";
+import { cn } from "@/lib/utils";
 
 interface ArchivePanelProps {
-  posts: ArchivePost[]
-  locale: string
+  posts: ArchivePost[];
+  locale: string;
   i18n: {
-    categories: string
-    tags: string
-    uncategorized: string
-    postCount: string
-    postsCount: string
-  }
+    categories: string;
+    tags: string;
+    uncategorized: string;
+    postCount: string;
+    postsCount: string;
+  };
 }
 
 function formatDate(dateString: string) {
-  const date = new Date(dateString)
-  const month = (date.getMonth() + 1).toString().padStart(2, "0")
-  const day = date.getDate().toString().padStart(2, "0")
-  return `${month}-${day}`
+  const date = new Date(dateString);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${month}-${day}`;
 }
 
 function formatTag(tagList: { name: string }[]) {
-  return tagList.map((t) => `#${t.name}`).join(" ")
+  return tagList.map((t) => `#${t.name}`).join(" ");
 }
 
 export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
-  const searchParams = useSearchParams()
-  const filterTags = searchParams.getAll("tag")
-  const filterCategories = searchParams.getAll("category")
-  const uncategorizedParam = searchParams.get("uncategorized")
-  const filterUncategorized = uncategorizedParam === "true" || uncategorizedParam === "1"
+  const searchParams = useSearchParams();
+  const filterTags = searchParams.getAll("tag");
+  const filterCategories = searchParams.getAll("category");
+  const uncategorizedParam = searchParams.get("uncategorized");
+  const filterUncategorized =
+    uncategorizedParam === "true" || uncategorizedParam === "1";
 
   const [collapsedYears, setCollapsedYears] = useState<Set<number>>(() => {
-    const foldArticle = siteConfig.foldArticle !== false
-    if (!foldArticle || posts.length === 0) return new Set()
-    const years = Array.from(new Set(posts.map((p) => new Date(p.publishedAt).getFullYear()))).sort((a, b) => b - a)
-    if (years.length <= 1) return new Set()
-    return new Set(years.slice(1))
-  })
+    const foldArticle = siteConfig.foldArticle !== false;
+    if (!foldArticle || posts.length === 0) return new Set();
+    const years = Array.from(
+      new Set(posts.map((p) => new Date(p.publishedAt).getFullYear())),
+    ).sort((a, b) => b - a);
+    if (years.length <= 1) return new Set();
+    return new Set(years.slice(1));
+  });
 
   const grouped = useMemo(() => {
-    const map = new Map<number, ArchivePost[]>()
+    const map = new Map<number, ArchivePost[]>();
     for (const post of posts) {
-      const year = new Date(post.publishedAt).getFullYear()
-      if (!map.has(year)) map.set(year, [])
-      map.get(year)?.push(post)
+      const year = new Date(post.publishedAt).getFullYear();
+      if (!map.has(year)) map.set(year, []);
+      map.get(year)?.push(post);
     }
     return Array.from(map.entries())
       .map(([year, yearPosts]) => ({ year, posts: yearPosts }))
-      .sort((a, b) => b.year - a.year)
-  }, [posts])
+      .sort((a, b) => b.year - a.year);
+  }, [posts]);
 
   const filtered = useMemo(() => {
     return grouped
       .map((group) => ({
         ...group,
         posts: group.posts.filter((post) => {
-          const tagNames = post.tags.map((t) => t.name)
-          const categoryName = post.category?.name || ""
+          const tagNames = post.tags.map((t) => t.name);
+          const categoryName = post.category?.name || "";
           if (filterUncategorized) {
-            return !categoryName
+            return !categoryName;
           }
-          let match = true
+          let match = true;
           if (filterTags.length > 0) {
-            match = match && filterTags.some((t) => tagNames.includes(t))
+            match = match && filterTags.some((t) => tagNames.includes(t));
           }
           if (filterCategories.length > 0) {
-            match = match && filterCategories.includes(categoryName)
+            match = match && filterCategories.includes(categoryName);
           }
-          return match
+          return match;
         }),
       }))
-      .filter((group) => group.posts.length > 0)
-  }, [grouped, filterTags, filterCategories, filterUncategorized])
+      .filter((group) => group.posts.length > 0);
+  }, [grouped, filterTags, filterCategories, filterUncategorized]);
 
-  const hasFilter = filterTags.length > 0 || filterCategories.length > 0 || filterUncategorized
-  const totalVisible = filtered.reduce((sum, g) => sum + g.posts.length, 0)
+  const hasFilter =
+    filterTags.length > 0 || filterCategories.length > 0 || filterUncategorized;
+  const totalVisible = filtered.reduce((sum, g) => sum + g.posts.length, 0);
 
   const toggleYear = (year: number) => {
     setCollapsedYears((prev) => {
-      const next = new Set(prev)
-      if (next.has(year)) next.delete(year)
-      else next.add(year)
-      return next
-    })
-  }
+      const next = new Set(prev);
+      if (next.has(year)) next.delete(year);
+      else next.add(year);
+      return next;
+    });
+  };
 
-  const primaryFilter = filterTags.length > 0
-    ? { label: i18n.tags, values: filterTags, isTag: true }
-    : filterCategories.length > 0
-      ? { label: i18n.categories, values: filterCategories, isTag: false }
-      : filterUncategorized
-        ? { label: i18n.categories, values: [i18n.uncategorized], isTag: false }
-        : null
+  const primaryFilter =
+    filterTags.length > 0
+      ? { label: i18n.tags, values: filterTags, isTag: true }
+      : filterCategories.length > 0
+        ? { label: i18n.categories, values: filterCategories, isTag: false }
+        : filterUncategorized
+          ? {
+              label: i18n.categories,
+              values: [i18n.uncategorized],
+              isTag: false,
+            }
+          : null;
 
-  const secondaryFilters = []
+  const secondaryFilters = [];
   if (filterCategories.length > 0 && filterTags.length > 0) {
-    secondaryFilters.push({ label: i18n.categories, values: filterCategories, isTag: false })
+    secondaryFilters.push({
+      label: i18n.categories,
+      values: filterCategories,
+      isTag: false,
+    });
   }
 
   return (
@@ -121,26 +133,43 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
                 {primaryFilter.label}
               </Link>
               <span className="mx-2 text-30">/</span>
-              <span id="archive-filter-values" className="font-semibold text-(--primary)">
-                {primaryFilter.values.map((v) => (primaryFilter.isTag ? `#${v}` : v)).join(" / ")}
+              <span
+                id="archive-filter-values"
+                className="font-semibold text-(--primary)"
+              >
+                {primaryFilter.values
+                  .map((v) => (primaryFilter.isTag ? `#${v}` : v))
+                  .join(" / ")}
               </span>
               {secondaryFilters.length > 0 && (
                 <span id="archive-filter-secondary" className="ml-2 text-50">
-                  · {secondaryFilters.map((f) => `${f.label}: ${f.values.map((v) => (f.isTag ? `#${v}` : v)).join(" / ")}`).join("  ·  ")}
+                  ·{" "}
+                  {secondaryFilters
+                    .map(
+                      (f) =>
+                        `${f.label}: ${f.values.map((v) => (f.isTag ? `#${v}` : v)).join(" / ")}`,
+                    )
+                    .join("  ·  ")}
                 </span>
               )}
             </div>
             <div className="shrink-0 text-xs text-50">
-              {totalVisible} {totalVisible === 1 ? i18n.postCount : i18n.postsCount}
+              {totalVisible}{" "}
+              {totalVisible === 1 ? i18n.postCount : i18n.postsCount}
             </div>
           </div>
         </div>
       )}
 
       {filtered.map((group) => {
-        const collapsed = collapsedYears.has(group.year)
+        const collapsed = collapsedYears.has(group.year);
         return (
-          <div key={group.year} className="archive-year-block" data-year={group.year} data-count={group.posts.length}>
+          <div
+            key={group.year}
+            className="archive-year-block"
+            data-year={group.year}
+            data-count={group.posts.length}
+          >
             <button
               type="button"
               onClick={() => toggleYear(group.year)}
@@ -164,8 +193,18 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
                     collapsed && "-rotate-90",
                   )}
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  >
+                    <path
+                      d="M6 9l6 6 6-6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
               </div>
@@ -193,6 +232,7 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
                       <div className="w-[70%] md:max-w-[65%] md:w-[65%] text-left font-bold group-hover:translate-x-1 transition-all group-hover:text-(--primary) text-75 pr-8 whitespace-nowrap text-ellipsis overflow-hidden flex items-center gap-2">
                         {post.category && (
                           <span className="shrink-0 inline-block text-xs font-medium px-1.5 py-0.5 rounded-sm bg-[oklch(0.95_0.025_var(--hue))] dark:bg-[oklch(0.25_0.025_var(--hue))] text-(--primary) group-hover:bg-(--primary) group-hover:text-white transition-colors">
+                            {/* 保留白字：hover 时 px 块变成 --primary 饱和色，白字压色块 */}
                             {post.category.name}
                           </span>
                         )}
@@ -207,7 +247,7 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
               </div>
             )}
           </div>
-        )
+        );
       })}
 
       {filtered.length === 0 && (
@@ -216,5 +256,5 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

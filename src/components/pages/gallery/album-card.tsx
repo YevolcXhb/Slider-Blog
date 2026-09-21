@@ -1,14 +1,13 @@
-"use client"
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 
-
-import { Link } from "@/i18n/routing"
-import type { GalleryAlbumItem } from "@/server/queries/site"
+import { Link } from "@/i18n/routing";
+import type { GalleryAlbumItem } from "@/server/queries/site";
 
 interface AlbumCardProps {
-  album: GalleryAlbumItem
-  photoLabel?: string
+  album: GalleryAlbumItem;
+  photoLabel?: string;
 }
 
 export function AlbumCard({ album, photoLabel = "张照片" }: AlbumCardProps) {
@@ -49,14 +48,21 @@ export function AlbumCard({ album, photoLabel = "张照片" }: AlbumCardProps) {
 
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="font-bold text-base text-white line-clamp-1 drop-shadow-lg">{album.name}</h3>
+          {/* 保留白字：封面图 + from-black/70 渐变蒙层上，两种主题都必须保持白色 */}
+          <h3 className="font-bold text-base text-white line-clamp-1 drop-shadow-lg">
+            {album.name}
+          </h3>
+          {/* 保留白字 75%：同上，图片蒙层 */}
           {album.description && (
-            <p className="text-xs text-white/75 line-clamp-1 mt-1 leading-relaxed" title={album.description}>
+            <p
+              className="text-xs text-white/75 line-clamp-1 mt-1 leading-relaxed"
+              title={album.description}
+            >
               {album.description}
             </p>
           )}
         </div>
       </div>
     </Link>
-  )
+  );
 }

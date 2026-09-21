@@ -1,5 +1,5 @@
-import type { Category, Tag } from "@/types/post"
-import { Link } from "@/i18n/routing"
+import type { Category, Tag } from "@/types/post";
+import { Link } from "@/i18n/routing";
 import {
   CalendarDays,
   Pencil,
@@ -9,80 +9,76 @@ import {
   Lock,
   FileText,
   Clock,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useTranslations } from "next-intl"
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 // 服务端布局（[locale]/layout.tsx）在 <body> 上挂了 NextIntlClientProvider，
 // 这里是它下游的普通组件，useTranslations 一定拿得到 context。
 // 原文案依赖传入的 locale prop（post.locale），改为按当前路由语言取值；
 // locale prop 仍然保留，PostMeta 还用它做其他判断。
 function useMetaText() {
-  return useTranslations("PostMeta")
+  return useTranslations("PostMeta");
 }
 
 function formatYMD(date: Date | string | number): string {
-  const d = new Date(date)
-  if (isNaN(d.getTime())) return ""
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, "0")
-  const day = String(d.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function getCategorySlug(
   category: string | Pick<Category, "slug"> | null | undefined,
 ): string {
-  if (!category) return ""
-  if (typeof category === "string") return category
-  return category.slug
+  if (!category) return "";
+  if (typeof category === "string") return category;
+  return category.slug;
 }
 
 function getCategoryName(
   category: string | Pick<Category, "name"> | null | undefined,
 ): string {
-  if (!category) return ""
-  if (typeof category === "string") return category
-  return category.name
+  if (!category) return "";
+  if (typeof category === "string") return category;
+  return category.name;
 }
 
 function normalizeTags(
-  tags:
-    | string[]
-    | Pick<Tag, "id" | "name" | "slug">[]
-    | null
-    | undefined,
+  tags: string[] | Pick<Tag, "id" | "name" | "slug">[] | null | undefined,
 ): { name: string; slug: string }[] {
-  if (!tags) return []
+  if (!tags) return [];
   return tags.map((tag) => {
     if (typeof tag === "string") {
-      return { name: tag, slug: tag }
+      return { name: tag, slug: tag };
     }
-    return { name: tag.name, slug: tag.slug }
-  })
+    return { name: tag.name, slug: tag.slug };
+  });
 }
 
 interface PostMetaProps {
-  published: Date | string | number
-  updated?: Date | string | number | null
-  category?: string | Pick<Category, "name" | "slug"> | null
-  tags?: string[] | Pick<Tag, "id" | "name" | "slug">[]
-  hideUpdateDate?: boolean
-  hideTagsForMobile?: boolean
-  className?: string
-  showPublished?: boolean
-  showCategory?: boolean
-  showTags?: boolean
-  maxTags?: number
-  showNoTags?: boolean
-  pinned?: boolean
-  password?: boolean
-  words?: number
-  minutes?: number
-  showWords?: boolean
-  showReadingTime?: boolean
-  variant?: "default" | "cover"
-  locale?: string
+  published: Date | string | number;
+  updated?: Date | string | number | null;
+  category?: string | Pick<Category, "name" | "slug"> | null;
+  tags?: string[] | Pick<Tag, "id" | "name" | "slug">[];
+  hideUpdateDate?: boolean;
+  hideTagsForMobile?: boolean;
+  className?: string;
+  showPublished?: boolean;
+  showCategory?: boolean;
+  showTags?: boolean;
+  maxTags?: number;
+  showNoTags?: boolean;
+  pinned?: boolean;
+  password?: boolean;
+  words?: number;
+  minutes?: number;
+  showWords?: boolean;
+  showReadingTime?: boolean;
+  variant?: "default" | "cover";
+  locale?: string;
 }
 
 function PostMeta({
@@ -111,29 +107,25 @@ function PostMeta({
   const visibleTags =
     typeof maxTags === "number" && maxTags >= 0
       ? normalizeTags(tags).slice(0, maxTags)
-      : normalizeTags(tags)
+      : normalizeTags(tags);
 
-  const isCover = variant === "cover"
-  const textColor = isCover
-    ? "text-white/90"
-    : "text-black/50 dark:text-white/50"
-  const mutedColor = isCover
-    ? "text-white/80"
-    : "text-black/50 dark:text-white/50"
-  const dividerColor = isCover
-    ? "text-white/60"
-    : "text-(--meta-divider)"
+  // 封面（图片蒙层）模式下文字压在照片 + 黑色渐变上，浅色/深色都必须保持白色，
+  // 否则浅色主题下标题会与照片亮部糊在一起。
+  const isCover = variant === "cover";
+  const textColor = isCover ? "text-white/90" : "text-50";
+  const mutedColor = isCover ? "text-white/80" : "text-50";
+  const dividerColor = isCover ? "text-white/60" : "text-(--meta-divider)";
 
-  const tMeta = useMetaText()
-  const tArchive = useTranslations("Archive")
-  const tTags = useTranslations("Tags")
-  const tWidgets = useTranslations("Widgets")
-  const tBlogPost = useTranslations("BlogPost")
+  const tMeta = useMetaText();
+  const tArchive = useTranslations("Archive");
+  const tTags = useTranslations("Tags");
+  const tWidgets = useTranslations("Widgets");
+  const tBlogPost = useTranslations("BlogPost");
 
-  const uncategorizedText = tArchive("uncategorized")
-  const noTagsText = tTags("noData")
-  const encryptedText = tBlogPost("encrypted")
-  const pinnedText = tWidgets("pinned")
+  const uncategorizedText = tArchive("uncategorized");
+  const noTagsText = tTags("noData");
+  const encryptedText = tBlogPost("encrypted");
+  const pinnedText = tWidgets("pinned");
 
   return (
     <div
@@ -155,7 +147,7 @@ function PostMeta({
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
               isCover
-                ? "bg-white/10 text-white/90"
+                ? "bg-white/10 text-90"
                 : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
@@ -176,7 +168,7 @@ function PostMeta({
               className={cn(
                 "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
                 isCover
-                  ? "bg-white/10 text-white/90"
+                  ? "bg-white/10 text-90"
                   : "bg-(--btn-regular-bg) text-(--btn-content)",
               )}
             >
@@ -194,7 +186,7 @@ function PostMeta({
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
               isCover
-                ? "bg-white/10 text-white/90"
+                ? "bg-white/10 text-90"
                 : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
@@ -223,7 +215,7 @@ function PostMeta({
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
               isCover
-                ? "bg-white/10 text-white/90"
+                ? "bg-white/10 text-90"
                 : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
@@ -235,10 +227,7 @@ function PostMeta({
                 <span key={`${tag.slug}-${i}`} className="flex items-center">
                   {i > 0 && (
                     <span
-                      className={cn(
-                        "mx-1.5 text-sm font-medium",
-                        dividerColor,
-                      )}
+                      className={cn("mx-1.5 text-sm font-medium", dividerColor)}
                     >
                       /
                     </span>
@@ -269,7 +258,7 @@ function PostMeta({
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
               isCover
-                ? "bg-white/10 text-white/90"
+                ? "bg-white/10 text-90"
                 : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
@@ -287,7 +276,7 @@ function PostMeta({
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
               isCover
-                ? "bg-white/10 text-white/90"
+                ? "bg-white/10 text-90"
                 : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
@@ -305,7 +294,7 @@ function PostMeta({
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
               isCover
-                ? "bg-white/10 text-white/90"
+                ? "bg-white/10 text-90"
                 : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
@@ -317,7 +306,7 @@ function PostMeta({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export { PostMeta, type PostMetaProps, formatYMD }
+export { PostMeta, type PostMetaProps, formatYMD };

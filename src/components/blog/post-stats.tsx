@@ -1,5 +1,5 @@
-import type { ReactNode } from "react"
-import type { LucideIcon } from "lucide-react"
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
   CalendarDays,
   FileText,
@@ -7,21 +7,21 @@ import {
   Eye,
   Heart,
   MessageCircle,
-} from "lucide-react"
-import { useTranslations } from "next-intl"
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { cn } from "@/lib/utils"
-import { formatYMD } from "./post-meta"
+import { cn } from "@/lib/utils";
+import { formatYMD } from "./post-meta";
 
 interface StatItemProps {
-  icon: LucideIcon
-  label?: string
-  value: ReactNode
-  showIcons?: boolean
-  textClass?: string
-  iconWrapperClass?: string
-  interactive?: boolean
-  onClick?: () => void
+  icon: LucideIcon;
+  label?: string;
+  value: ReactNode;
+  showIcons?: boolean;
+  textClass?: string;
+  iconWrapperClass?: string;
+  interactive?: boolean;
+  onClick?: () => void;
 }
 
 function StatItem({
@@ -46,7 +46,7 @@ function StatItem({
         {value}
       </span>
     </div>
-  )
+  );
 
   if (interactive) {
     return (
@@ -57,26 +57,26 @@ function StatItem({
       >
         {content}
       </button>
-    )
+    );
   }
 
-  return content
+  return content;
 }
 
 interface PostStatsProps {
-  published?: Date | string | number
-  words?: number
-  minutes?: number
-  showPublished?: boolean
-  showWords?: boolean
-  showReadingTime?: boolean
-  showIcons?: boolean
-  className?: string
-  locale?: string
-  viewCount?: number
-  likeCount?: number
-  commentCount?: number
-  onLike?: () => void
+  published?: Date | string | number;
+  words?: number;
+  minutes?: number;
+  showPublished?: boolean;
+  showWords?: boolean;
+  showReadingTime?: boolean;
+  showIcons?: boolean;
+  className?: string;
+  locale?: string;
+  viewCount?: number;
+  likeCount?: number;
+  commentCount?: number;
+  onLike?: () => void;
 }
 
 function PostStats({
@@ -96,27 +96,34 @@ function PostStats({
   onLike,
 }: PostStatsProps) {
   // PostStats 是普通客户端组件，位于 NextIntlClientProvider 下游，useTranslations 安全。
-  const tMeta = useTranslations("PostMeta")
-  const tArchive = useTranslations("Archive")
+  const tMeta = useTranslations("PostMeta");
+  const tArchive = useTranslations("Archive");
 
-  const hasPublished = showPublished && published !== undefined
-  const hasWords = showWords && typeof words === "number"
-  const hasMinutes = showReadingTime && typeof minutes === "number"
+  const hasPublished = showPublished && published !== undefined;
+  const hasWords = showWords && typeof words === "number";
+  const hasMinutes = showReadingTime && typeof minutes === "number";
 
-  const textClass = "text-xs font-medium text-black/50 dark:text-white/50"
-  const dividerClass =
-    "text-xs font-medium text-black/20 dark:text-white/20"
+  const textClass = "text-xs font-medium text-50";
+  const dividerClass = "text-xs font-medium text-30";
   const iconWrapperClass =
-    "transition h-5 w-5 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-1.5"
+    "transition h-5 w-5 rounded-md bg-black/5 dark:bg-white/10 text-50 flex items-center justify-center mr-1.5";
 
   const socialMode =
-    viewCount !== undefined || likeCount !== undefined || commentCount !== undefined
+    viewCount !== undefined ||
+    likeCount !== undefined ||
+    commentCount !== undefined;
 
   if (socialMode) {
     return (
       <div className={cn("flex flex-wrap items-center gap-2", className)}>
         {viewCount !== undefined && (
-          <StatItem icon={Eye} value={viewCount} showIcons={showIcons} textClass={textClass} iconWrapperClass={iconWrapperClass} />
+          <StatItem
+            icon={Eye}
+            value={viewCount}
+            showIcons={showIcons}
+            textClass={textClass}
+            iconWrapperClass={iconWrapperClass}
+          />
         )}
         {viewCount !== undefined && likeCount !== undefined && (
           <span className={dividerClass}>|</span>
@@ -138,10 +145,16 @@ function PostStats({
             <span className={dividerClass}>|</span>
           )}
         {commentCount !== undefined && (
-          <StatItem icon={MessageCircle} value={commentCount} showIcons={showIcons} textClass={textClass} iconWrapperClass={iconWrapperClass} />
+          <StatItem
+            icon={MessageCircle}
+            value={commentCount}
+            showIcons={showIcons}
+            textClass={textClass}
+            iconWrapperClass={iconWrapperClass}
+          />
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -183,7 +196,7 @@ function PostStats({
         />
       )}
     </div>
-  )
+  );
 }
 
-export { PostStats, type PostStatsProps }
+export { PostStats, type PostStatsProps };

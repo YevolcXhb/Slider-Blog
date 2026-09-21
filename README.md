@@ -48,16 +48,18 @@ npm run dev:admin
 NextAuth 会话 cookie 的 `Secure` 属性与 `__Secure-` / `__Host-` 前缀由 **构建期常量 `NODE_ENV`** 决定
 （`src/auth.config.ts` 的 `resolveUseSecureCookies`），**不看请求头**：
 
-| 环境 | 命令 | session / callback-url | csrf |
-| --- | --- | --- | --- |
-| 开发 | `npm run dev` | `authjs.session-token`（无 Secure） | `authjs.csrf-token` |
+| 环境 | 命令                          | session / callback-url                    | csrf                       |
+| ---- | ----------------------------- | ----------------------------------------- | -------------------------- |
+| 开发 | `npm run dev`                 | `authjs.session-token`（无 Secure）       | `authjs.csrf-token`        |
 | 生产 | `npm run build` + `npm start` | `__Secure-authjs.session-token`（Secure） | `__Host-authjs.csrf-token` |
 
 由此带来两条部署要求：
 
 - **开发**：`http://localhost:4000` 与 `http://192.168.x.x:4100` 都照常登录，无需任何额外配置。
 - **生产**：**必须**对客户端提供 HTTPS（由 Nginx / Caddy 等终止 TLS）。若生产以明文 http 对外服务，
-  浏览器会直接丢弃带 `Secure` 的 cookie，表现为「登录成功但立刻跳回登录页」。
+  浏览器会直接丢弃带 `Secure` 的 csrf cookie，导致 CSRF 校验失败、登录**恒定报错**
+  （`POST /api/auth/callback/credentials` 始终返回 `error=MissingCSRF`，密码根本没被校验过）。
+  无 TLS 的**局域网/内网**部署可显式设置 `AUTH_COOKIE_SECURE=false` 作为受控例外，见 `DEPLOY.md` 4.3.2。
 
 > 不要改成「按 `x-forwarded-proto` 动态判定」：`admin-proxy.mjs` 出于安全原因会剥掉该请求头，
 > 生产里 Next.js 看到的上游协议是明文 http，动态判定反而会把生产会话 cookie 降级为非 Secure。

@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import type { Post } from "@/types/post"
-import { Link } from "@/i18n/routing"
-import Image from "next/image"
-import { ChevronRight, Lock } from "lucide-react"
+import type { Post } from "@/types/post";
+import { Link } from "@/i18n/routing";
+import Image from "next/image";
+import { ChevronRight, Lock } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { estimateReadTime, estimateWords } from "@/lib/post"
-import { PostMeta } from "./post-meta"
-import { PostStats } from "./post-stats"
+import { cn } from "@/lib/utils";
+import { estimateReadTime, estimateWords } from "@/lib/post";
+import { PostMeta } from "./post-meta";
+import { PostStats } from "./post-stats";
 
 interface PostCardProps {
-  post: Post
-  className?: string
-  style?: React.CSSProperties
-  loading?: "eager" | "lazy"
-  descriptionLines?: number
-  metaShowCategory?: boolean
-  metaShowTags?: boolean
-  metaShowWords?: boolean
-  metaShowReadingTime?: boolean
-  metaShowPublished?: boolean
-  metaTagCount?: number
-  tagsPosition?: "meta" | "bottom"
-  statsShowPublished?: boolean
-  statsShowWords?: boolean
-  statsShowReadingTime?: boolean
-  statsShowIcons?: boolean
+  post: Post;
+  className?: string;
+  style?: React.CSSProperties;
+  loading?: "eager" | "lazy";
+  descriptionLines?: number;
+  metaShowCategory?: boolean;
+  metaShowTags?: boolean;
+  metaShowWords?: boolean;
+  metaShowReadingTime?: boolean;
+  metaShowPublished?: boolean;
+  metaTagCount?: number;
+  tagsPosition?: "meta" | "bottom";
+  statsShowPublished?: boolean;
+  statsShowWords?: boolean;
+  statsShowReadingTime?: boolean;
+  statsShowIcons?: boolean;
 }
 
 function PostCard({
@@ -47,17 +47,17 @@ function PostCard({
   statsShowReadingTime = true,
   statsShowIcons = false,
 }: PostCardProps) {
-  const locale = post.locale || "zh"
-  const hasCover = !!post.cover_image
-  const pinned = post.status === 1 && false // Slider-Blog schema has no pinned field; reserve prop for future use
-  const password = false // Slider-Blog schema has no password field; reserve prop for future use
-  const descriptionText = post.excerpt || ""
-  const words = estimateWords(post.content_mdx)
-  const minutes = estimateReadTime(post.content_mdx)
+  const locale = post.locale || "zh";
+  const hasCover = !!post.cover_image;
+  const pinned = post.status === 1 && false; // Slider-Blog schema has no pinned field; reserve prop for future use
+  const password = false; // Slider-Blog schema has no password field; reserve prop for future use
+  const descriptionText = post.excerpt || "";
+  const words = estimateWords(post.content_mdx);
+  const minutes = estimateReadTime(post.content_mdx);
 
-  const showTagsInMeta = metaShowTags && tagsPosition === "meta"
-  const showTagsAtBottom = metaShowTags && tagsPosition === "bottom"
-  const shouldClampDescription = descriptionLines > 0
+  const showTagsInMeta = metaShowTags && tagsPosition === "meta";
+  const showTagsAtBottom = metaShowTags && tagsPosition === "bottom";
+  const shouldClampDescription = descriptionLines > 0;
 
   return (
     <div
@@ -121,7 +121,10 @@ function PostCard({
           title={descriptionText}
           style={
             shouldClampDescription
-              ? { WebkitLineClamp: descriptionLines, lineClamp: descriptionLines }
+              ? {
+                  WebkitLineClamp: descriptionLines,
+                  lineClamp: descriptionLines,
+                }
               : undefined
           }
         >
@@ -130,7 +133,10 @@ function PostCard({
 
         {showTagsAtBottom && post.tags && post.tags.length > 0 && (
           <div className="post-card-bottom-tags flex flex-wrap items-center gap-1.5 mt-auto pt-3">
-            {(metaTagCount > 0 ? post.tags.slice(0, metaTagCount) : post.tags).map((tag) => (
+            {(metaTagCount > 0
+              ? post.tags.slice(0, metaTagCount)
+              : post.tags
+            ).map((tag) => (
               <Link
                 key={tag.id}
                 href={`/blog?tag=${tag.slug}`}
@@ -155,7 +161,7 @@ function PostCard({
             showWords={statsShowWords}
             showReadingTime={statsShowReadingTime}
             showIcons={statsShowIcons}
-            className="stats mt-auto pt-3 text-black/30 dark:text-white/30 gap-x-2"
+            className="stats mt-auto pt-3 text-30 gap-x-2"
             locale={locale}
           />
         )}
@@ -176,6 +182,7 @@ function PostCard({
         >
           <div className="absolute pointer-events-none z-10 w-full h-full group-hover/image:bg-black/30 group-active/image:bg-black/50 transition" />
           <div className="absolute pointer-events-none z-20 w-full h-full flex items-center justify-center">
+            {/* 保留白字：压在封面图 + hover 时 group-hover/image:bg-black/30 的黑色蒙层上 */}
             <ChevronRight className="transition opacity-0 group-hover/image:opacity-100 scale-50 group-hover/image:scale-100 text-white text-5xl" />
           </div>
           <Image
@@ -207,7 +214,7 @@ function PostCard({
         </Link>
       )}
     </div>
-  )
+  );
 }
 
-export { PostCard, type PostCardProps }
+export { PostCard, type PostCardProps };

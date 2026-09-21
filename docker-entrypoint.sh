@@ -56,7 +56,16 @@ if [ "$changed" -eq 1 ]; then
   chmod 600 "$CONFIG_FILE" 2>/dev/null || true
 fi
 
-export AUTH_TRUST_HOST NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL
+# 把 /data/config.env 里的变量真正注入 node server.js 的环境。
+# ⚠ AUTH_COOKIE_SECURE 必须在这里显式列出：上面第 9-11 行的 `. "$CONFIG_FILE"` 只是
+# 把文件 source 进**当前 shell**，若不再 export，子进程（node server.js）根本
+# 看不到它，写在 /data/config.env 里的开关会静默失效，表现为「明明配了却还是
+# MissingCSRF」—— 排查成本极高。它同时也保证了 Next.js 路由与 Edge 中间件
+# （src/proxy.ts 同样读这个变量推导 session cookie 名）读到同一个值，
+# 不会出现「登录成功但中间件认为未登录」的跳转循环。
+# 注意：它不该被自动生成，也不在上面那组「会被重新生成/覆盖」的键里 ——
+# 这是管理员显式可选的逃生舱，未设置时 resolveUseSecureCookies() 走 NODE_ENV 默认分支。
+export AUTH_TRUST_HOST NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL AUTH_COOKIE_SECURE
 # 提供 prisma CLI（migrate deploy 迁移），安装在独立前缀目录
 export PATH="/opt/runtime/node_modules/.bin:$PATH"
 

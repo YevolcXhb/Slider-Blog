@@ -26,8 +26,10 @@ export default async function AuthLayout({
       storageKey="admin-theme"
     >
       <ThemeSettingsProvider initialSettings={themeSettings}>
-        <style dangerouslySetInnerHTML={{ __html: buildThemeCss(themeSettings) }} />
-        <main className="relative min-h-screen">{children}</main>
+        <style
+          dangerouslySetInnerHTML={{ __html: buildThemeCss(themeSettings) }}
+        />
+        <main className="light-adapt relative min-h-screen">{children}</main>
       </ThemeSettingsProvider>
     </ThemeProvider>
   );

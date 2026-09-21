@@ -8,31 +8,31 @@
 
 ### 1.1 服务器硬件最低配置
 
-| 资源 | 最低 | 推荐 |
-|------|------|------|
-| CPU | 1 核 | 2 核 |
-| 内存 | 1 GB | 2 GB |
-| 磁盘 | 10 GB | 20 GB SSD |
-| 带宽 | 1 Mbps | 5 Mbps |
+| 资源 | 最低   | 推荐      |
+| ---- | ------ | --------- |
+| CPU  | 1 核   | 2 核      |
+| 内存 | 1 GB   | 2 GB      |
+| 磁盘 | 10 GB  | 20 GB SSD |
+| 带宽 | 1 Mbps | 5 Mbps    |
 
 ### 1.2 软件依赖
 
-| 软件 | 最低版本 | 说明 |
-|------|----------|------|
-| Node.js | 22.16.0+ | 推荐 22 LTS（Next.js 16 要求） |
-| npm | 10.9.4+ | 随 Node.js 安装 |
-| MariaDB | 10.6+ | 推荐 10.11 LTS |
-| Nginx | 1.18+ | 反向代理与静态资源 |
-| PM2 | 5.0+ | Node.js 进程守护（可选，可用 systemd 替代） |
+| 软件    | 最低版本 | 说明                                        |
+| ------- | -------- | ------------------------------------------- |
+| Node.js | 22.16.0+ | 推荐 22 LTS（Next.js 16 要求）              |
+| npm     | 10.9.4+  | 随 Node.js 安装                             |
+| MariaDB | 10.6+    | 推荐 10.11 LTS                              |
+| Nginx   | 1.18+    | 反向代理与静态资源                          |
+| PM2     | 5.0+     | Node.js 进程守护（可选，可用 systemd 替代） |
 
 ### 1.3 端口规划
 
-| 服务 | 端口 | 说明 |
-|------|------|------|
-| Next.js | 4000 | 应用进程 |
-| 管理端代理 | 4100 | 应用进程（admin-proxy） |
-| MariaDB | 3306 | 数据库（仅本地访问） |
-| Nginx | 80 / 443 | HTTP / HTTPS 入口 |
+| 服务       | 端口     | 说明                    |
+| ---------- | -------- | ----------------------- |
+| Next.js    | 4000     | 应用进程                |
+| 管理端代理 | 4100     | 应用进程（admin-proxy） |
+| MariaDB    | 3306     | 数据库（仅本地访问）    |
+| Nginx      | 80 / 443 | HTTP / HTTPS 入口       |
 
 ---
 
@@ -162,6 +162,12 @@ NEXTAUTH_SECRET="在此粘贴 openssl rand -base64 32 的输出"
 # 站点完整 URL（含协议，不要带尾斜杠）
 NEXTAUTH_URL="https://your-domain.com"
 
+# ===== 认证 cookie 的 Secure 开关（可选，仅限可信内网）=====
+# 默认（注释掉即可）：由 NODE_ENV 决定 —— 生产构建带 Secure + __Secure-/__Host- 前缀，
+# 因此**公网部署必须走 HTTPS**。只有「局域网/内网 + 明文 http 访问」才取消注释，
+# 详见 4.3.2「内网（局域网 HTTP）部署」。
+# AUTH_COOKIE_SECURE=false
+
 # ===== Sentry（可选，不配置则不上报错误） =====
 SENTRY_DSN=
 NEXT_PUBLIC_SENTRY_DSN=
@@ -200,6 +206,16 @@ EMAIL_FROM=noreply@your-domain.com
 - **Sentry**：DSN 留空则 SDK 不上报，不影响功能。
 - **邮件**：不配置则评论拒绝通知跳过，不影响拒绝操作本身。
 - **REDIS_URL**：可选。留空即沿用进程内存限流（当前默认行为）；仅多副本部署需要，详见 4.3.1。
+- **AUTH_COOKIE_SECURE**：可选。**只有局域网/内网用明文 `http://` 访问时才需要设为 `false`**；
+  公网 HTTPS 部署请保持注释掉（即不设置）。详见 4.3.2。
+
+> ⚠ **公网部署必须启用 HTTPS**：生产构建下 NextAuth 会话 cookie 一律带 `Secure`
+> 与 `__Secure-` / `__Host-` 前缀（判定依据是 `NODE_ENV`，见 `src/auth.config.ts` 的
+> `resolveUseSecureCookies`）。若生产以明文 http 对外提供服务，浏览器会**直接丢弃**
+> 带 Secure 的 cookie，表现为登录恒定失败（服务端返回 `MissingCSRF`，密码根本没被校验）。
+> 生产环境必须由 Nginx / Caddy 等终止 TLS 并以 https 对外服务。
+> `AUTH_COOKIE_SECURE=false` 是给**没有 TLS 的可信内网**留的受控例外，不是对本条的否定，
+> 用法与安全代价见 4.3.2。
 
 #### 4.3.1 限流与 Redis（可选）
 
@@ -212,13 +228,13 @@ EMAIL_FROM=noreply@your-domain.com
 
 **什么时候需要开启 Redis**——只有「同一份限流计数需要被多个进程共享」时才需要：
 
-| 部署形态 | 是否需要 Redis |
-|----------|----------------|
-| 单实例 + 单容器 / 单进程 standalone（当前部署形态） | **不需要** |
-| Nginx 之后跑多个应用副本 | 需要 |
-| 负载均衡（LVS / 云 LB）后挂多台后端 | 需要 |
-| PM2 cluster 模式（`pm2 start -i N`，N > 1） | 需要 |
-| Serverless / 容器平台横向扩容（同一部署并发多实例） | 需要 |
+| 部署形态                                            | 是否需要 Redis |
+| --------------------------------------------------- | -------------- |
+| 单实例 + 单容器 / 单进程 standalone（当前部署形态） | **不需要**     |
+| Nginx 之后跑多个应用副本                            | 需要           |
+| 负载均衡（LVS / 云 LB）后挂多台后端                 | 需要           |
+| PM2 cluster 模式（`pm2 start -i N`，N > 1）         | 需要           |
+| Serverless / 容器平台横向扩容（同一部署并发多实例） | 需要           |
 
 理由：内存限流按**进程**计数，多副本时请求会分散到不同进程，每个进程各自持有一份配额，
 等效于配额被乘以副本数——例如登录限流「同 IP 60 秒 5 次」在两个副本下实际放宽到约 10 次。
@@ -258,6 +274,99 @@ REDIS_URL=redis://10.0.0.10:6379/5
 
 > 若当前就是「单实例 + 单容器」的部署形态，**保持 `REDIS_URL` 留空即可**，
 > 无需为了限流额外部署 Redis。
+
+#### 4.3.2 内网（局域网 HTTP）部署：让管理员能登录
+
+**适用场景**：站点只在一个**没有 TLS 的局域网/内网**里提供服务，用户用
+`http://<host>:<port>/` 这种明文地址访问（例如 `http://<内网IP>:4100/`）。
+**不适用于公网部署** —— 公网请一律走 HTTPS，见 4.3 的关键说明。
+
+**症状（先确认是不是这个问题）**：密码确定没错，但登录**恒定失败**，从来没有成功过一次。
+打开浏览器开发者工具可以看到 `POST /api/auth/callback/credentials` 返回
+`{"url":".../login?error=MissingCSRF"}`。
+
+> 纠错说明：早期文档把该症状描述成「登录成功但立刻跳回登录页」，实测**并非如此**。
+> 浏览器丢弃的是 `__Host-authjs.csrf-token`，请求在 **CSRF 阶段就硬失败**，
+> 密码从头到尾没被校验过，因此不存在「成功后再被踢回」的过程。
+> 若按旧描述去排查会话/跳转问题，会找错方向 —— 请以网络面板中的 `?error=` 参数为准。
+
+**根因**：生产构建（`NODE_ENV=production`）下所有认证 cookie 带 `Secure` 与
+`__Secure-` / `__Host-` 前缀。浏览器对 `http://` 页面下发的 `Secure` cookie
+**直接丢弃**，于是 NextAuth 的 CSRF 双提交校验拿不到 cookie，请求在**校验密码之前**
+就被拒绝 —— 所以这**不是**密码错误，也不是数据库问题。修复前请先排除这两个方向，
+不要浪费时间重置密码。
+
+**修复：设置 `AUTH_COOKIE_SECURE=false`**
+
+```bash
+# 容器部署：写进持久化的 /data/config.env（entrypoint 会 source 并 export 给 node 进程）
+echo 'AUTH_COOKIE_SECURE=false' >> /srv/slider-blog/data/config.env
+
+# 然后重启容器，变量在进程启动时读取
+docker restart slider-blog
+```
+
+也可以不走配置文件，直接在启动时用环境变量传入：
+
+```bash
+docker run -d --name slider-blog \
+  -p 4000:4000 -p 4100:4100 \
+  -e AUTH_COOKIE_SECURE=false \
+  -v /srv/slider-blog/data:/data \
+  slider-blog:latest
+```
+
+非容器部署（PM2 / systemd）同理，写进项目根目录的 `.env`（systemd 用
+`EnvironmentFile` 指向它）后重启进程：
+
+```bash
+pm2 restart slider-blog
+# 或 sudo systemctl restart slider-blog
+```
+
+| `AUTH_COOKIE_SECURE` 取值 | cookie 行为                                                         |
+| ------------------------- | ------------------------------------------------------------------- |
+| 不设置（推荐默认）        | 由 `NODE_ENV` 决定：生产 = `Secure` + 前缀；dev = 非 Secure         |
+| `false`                   | 关闭 `Secure` 与前缀，明文 `http://` 下可正常登录（**本节的用法**） |
+| `true`                    | 强制开启（一般无需设置）                                            |
+
+> 值只认**小写字面量** `"false"` / `"true"`（严格字符串比较）。
+> 写成 `FALSE`、`0`、`no` 或留空都**不会**关闭 Secure，而是保守地退回默认行为。
+> 这是刻意的 fail-secure 设计：拼错不会静默降低安全性。
+
+##### ⚠ 安全代价（务必读完再决定）
+
+把 `AUTH_COOKIE_SECURE` 设为 `false` 之后：
+
+1. 会话 cookie（`authjs.session-token`）**不再带 `Secure`**，浏览器会把它随
+   **明文 HTTP** 请求一起发出。
+2. 因此**同一网络内的中间人**（ARP 欺骗、Wi-Fi 嗅探、被入侵的路由器/交换机、
+   同网段的其它主机）都能截获该 cookie，并**直接冒用管理员身份**——无需密码。
+3. CSRF 保护也随之削弱：csrf token 同样是明文传输，攻击者可以在同一内网内
+   读取并重放它。
+
+**所以这个开关只适用于你完全掌控、且确认无可信度问题的内网。**
+一旦站点暴露到公网，或接上了 HTTPS（哪怕只是前置 Nginx 做了 TLS 终止），
+**必须删掉这一行**回到默认行为，否则等于主动放弃了 cookie 的传输层保护。
+它**不是**「让生产环境在 http 下跑起来」的通用手段。
+
+##### 内网部署还需要什么
+
+- **不需要**手动设置 `AUTH_TRUST_HOST`：容器 entrypoint 在它为空时会自动置为
+  `true` 并写回 `/data/config.env`，NextAuth 据此按请求的 `Host` 头推断地址，
+  局域网 IP 与公网域名可以共用同一份配置。
+- **`NEXT_PUBLIC_SITE_URL`**：这是**构建期**注入客户端的变量，**不影响登录流程**，
+  但它会被用在邮件（如评论拒绝通知）里的站点链接、以及 sitemap/robots 等生成的
+  绝对地址上。用 IP 访问内网时若想让这些链接可用，请把它设成你实际访问的地址，
+  例如 `NEXT_PUBLIC_SITE_URL=http://<host>:4100`；改完需要**重新执行 `npm run build`**
+  才会生效（构建期变量不会在运行时更新）。
+- **`NEXTAUTH_URL`**：同样建议不要硬编码公网域名。留空并依赖上面的
+  `AUTH_TRUST_HOST=true` 动态推断，才能让局域网 IP / SSH 隧道 / 域名三种入口
+  同时可用。
+- **HTTPS 相关安全头**：项目下发的 `Strict-Transport-Security` 等头部在明文 HTTP
+  下不会生效（浏览器只对 HTTPS 响应处理 HSTS），这是预期行为，不是故障。
+- **防火墙**：确认内网端口（示例中的 4000 / 4100）只对可信网段开放，
+  不要把这个明文入口暴露到公网 IP 上。
 
 ### 4.4 生成 Prisma Client
 
@@ -379,6 +488,7 @@ npx prisma migrate diff \
 ```
 
 > **安全提示**：
+>
 > - 部署后请尽快完成首次注册，避免被他人抢注管理员。
 > - 注册页会显示提示「首个注册的用户将自动成为管理员」。
 > - 如需批量初始化数据，可使用 seed 脚本（见下方说明）。
@@ -410,6 +520,7 @@ npm run build
 ```
 
 构建成功后输出示例：
+
 ```
 ✓ Compiled successfully in 10.9s
 Route (app)
@@ -680,29 +791,29 @@ curl https://your-domain.com/api/health
 
 ### 7.2 功能验证清单
 
-| 序号 | 验证项 | 操作方法 |
-|------|--------|----------|
-| 1 | 首页加载 | 访问 `https://your-domain.com/` |
-| 2 | 语言切换 | 点击右上角"中/EN"切换 |
-| 3 | 主题切换 | 点击主题按钮切换明暗 |
-| 4 | 博客列表 | 访问 `/zh/blog`，确认文章列表加载 |
-| 5 | 全文搜索 | 在博客列表输入关键词搜索 |
-| 6 | 文章详情 | 点击任意文章，确认正文与代码高亮渲染 |
-| 7 | 评论提交 | 在文章详情页提交评论（登录用户立即显示，游客提示待审核） |
-| 8 | 注册 | 访问 `/zh/register`，首个注册账号自动成为管理员 |
-| 9 | 登录 | 访问 `/zh/login`，使用管理员账号登录 |
-| 10 | 后台 Dashboard | 登录后访问 `/zh/dashboard`，确认统计数据显示 |
-| 11 | 创建文章 | 访问 `/zh/posts/create`，创建并发布文章 |
-| 12 | 评论审核 | 访问 `/zh/comments`，审核待处理评论 |
-| 13 | 分类管理 | 访问 `/zh/manage-categories`，增删分类与标签 |
-| 14 | 动态管理 | 访问 `/zh/manage-moments`，发布/编辑/置顶动态 |
-| 15 | 相册管理 | 访问 `/zh/manage-gallery`，创建相册与添加照片 |
-| 16 | 用户管理 | 访问 `/zh/manage-users`，调整用户角色、删除用户 |
-| 17 | 图片上传 | 创建文章时上传图片，确认返回 URL |
-| 18 | sitemap | 访问 `/sitemap.xml`，确认输出 sitemap |
-| 19 | robots.txt | 访问 `/robots.txt` |
-| 20 | 404 页面 | 访问不存在的路径，确认显示 404 |
-| 21 | 权限控制 | 退出登录后访问 `/zh/dashboard`，应重定向到登录页 |
+| 序号 | 验证项         | 操作方法                                                 |
+| ---- | -------------- | -------------------------------------------------------- |
+| 1    | 首页加载       | 访问 `https://your-domain.com/`                          |
+| 2    | 语言切换       | 点击右上角"中/EN"切换                                    |
+| 3    | 主题切换       | 点击主题按钮切换明暗                                     |
+| 4    | 博客列表       | 访问 `/zh/blog`，确认文章列表加载                        |
+| 5    | 全文搜索       | 在博客列表输入关键词搜索                                 |
+| 6    | 文章详情       | 点击任意文章，确认正文与代码高亮渲染                     |
+| 7    | 评论提交       | 在文章详情页提交评论（登录用户立即显示，游客提示待审核） |
+| 8    | 注册           | 访问 `/zh/register`，首个注册账号自动成为管理员          |
+| 9    | 登录           | 访问 `/zh/login`，使用管理员账号登录                     |
+| 10   | 后台 Dashboard | 登录后访问 `/zh/dashboard`，确认统计数据显示             |
+| 11   | 创建文章       | 访问 `/zh/posts/create`，创建并发布文章                  |
+| 12   | 评论审核       | 访问 `/zh/comments`，审核待处理评论                      |
+| 13   | 分类管理       | 访问 `/zh/manage-categories`，增删分类与标签             |
+| 14   | 动态管理       | 访问 `/zh/manage-moments`，发布/编辑/置顶动态            |
+| 15   | 相册管理       | 访问 `/zh/manage-gallery`，创建相册与添加照片            |
+| 16   | 用户管理       | 访问 `/zh/manage-users`，调整用户角色、删除用户          |
+| 17   | 图片上传       | 创建文章时上传图片，确认返回 URL                         |
+| 18   | sitemap        | 访问 `/sitemap.xml`，确认输出 sitemap                    |
+| 19   | robots.txt     | 访问 `/robots.txt`                                       |
+| 20   | 404 页面       | 访问不存在的路径，确认显示 404                           |
+| 21   | 权限控制       | 退出登录后访问 `/zh/dashboard`，应重定向到登录页         |
 
 ### 7.3 安全验证
 
@@ -817,10 +928,12 @@ crontab -e
 **现象**：`npm run build` 报 TypeScript 类型错误。
 
 **排查**：
+
 ```bash
 # 单独运行类型检查
 npx tsc --noEmit
 ```
+
 根据报错信息修复对应文件后重新构建。
 
 ### Q2：数据库连接失败
@@ -828,6 +941,7 @@ npx tsc --noEmit
 **现象**：应用启动报 `Can't reach database server`。
 
 **排查**：
+
 ```bash
 # 检查 MariaDB 服务状态
 sudo systemctl status mariadb
@@ -843,20 +957,51 @@ mysql -u slider_blog -p -h localhost slider_blog
 ### Q3：登录失败 "无效凭据"
 
 **排查**：
+
 1. 确认已完成首次注册（访问 `/zh/register` 创建首个管理员账号）
 2. 确认邮箱与密码输入正确
 3. 检查 `NEXTAUTH_SECRET` 是否设置（未设置会导致 JWT 签发失败）
 4. 检查 `NEXTAUTH_URL` 与实际访问 URL 是否一致
 5. 登录限流：同一 IP 60 秒内最多 5 次尝试，超限会被临时拦截
+6. **若页面提示的是「登录服务配置有误，请联系管理员检查部署设置」而不是「邮箱或密码错误」**，
+   说明失败原因**不是**密码问题（登录页只会把 `CredentialsSignin` 显示成凭据错误），
+   请看下一条 Q3.1。
+
+### Q3.1：登录页提示「登录服务配置有误」/ 接口返回 `error=MissingCSRF`
+
+**现象**：密码确定没错，但登录页提示「登录服务配置有误，请联系管理员检查部署设置」；
+开发者工具里 `POST /api/auth/callback/credentials` 返回
+`{"url":".../login?error=MissingCSRF"}`。
+
+**原因**：这在**明文 HTTP 的生产部署**下是预期症状 —— 生产构建的认证 cookie 带
+`Secure`，浏览器对 `http://` 页面下发的 Secure cookie 直接丢弃，NextAuth 的 CSRF
+双提交校验因此失败，请求在**校验密码之前**就被拒。**不是**密码错误、也**不是**数据库问题。
+
+**修复**：按 4.3.2 设置 `AUTH_COOKIE_SECURE=false` 并重启容器/进程。
+
+```bash
+echo 'AUTH_COOKIE_SECURE=false' >> /srv/slider-blog/data/config.env
+docker restart slider-blog
+# 重启后确认变量确实进入了进程环境（应输出 false）
+docker exec slider-blog printenv AUTH_COOKIE_SECURE
+```
+
+**修复后务必**：一旦该站点改走 HTTPS，请删掉这一行并重启（详见 4.3.2 的安全代价）。
+
+> 提示：登录页对「非密码错误」统一显示「登录服务配置有误」是刻意设计 ——
+> 原始错误码（`MissingCSRF` / `Configuration` 等）不会渲染给用户，
+> 避免泄露服务端实现细节。排查时请以浏览器网络面板中的 `?error=` 参数为准。
 
 ### Q4：图片上传返回 413
 
 **现象**：Nginx 返回 413 Request Entity Too Large。
 
 **修复**：在 Nginx 配置中调整：
+
 ```nginx
 client_max_body_size 10M;  # 已在示例配置中设置
 ```
+
 重载 Nginx：`sudo systemctl reload nginx`
 
 ### Q5：邮件发送失败
@@ -864,6 +1009,7 @@ client_max_body_size 10M;  # 已在示例配置中设置
 **现象**：评论拒绝时日志报 `Email environment variables are not configured`。
 
 **排查**：
+
 1. 检查 `.env` 中 `EMAIL_HOST`、`EMAIL_PORT`、`EMAIL_USER`、`EMAIL_PASS` 是否全部填写
 2. 测试 SMTP 连通性：
    ```bash
@@ -874,6 +1020,7 @@ client_max_body_size 10M;  # 已在示例配置中设置
 ### Q6：Sentry 不上报错误
 
 **排查**：
+
 1. 确认 `.env` 中 `SENTRY_DSN` 与 `NEXT_PUBLIC_SENTRY_DSN` 均已填写
 2. 服务端错误检查 `SENTRY_DSN`，客户端错误检查 `NEXT_PUBLIC_SENTRY_DSN`
 3. DSN 留空时 SDK 静默跳过，不影响应用功能
@@ -883,6 +1030,7 @@ client_max_body_size 10M;  # 已在示例配置中设置
 **现象**：多副本部署下，超出配额后仍能继续请求，实测可用次数约等于「配置配额 × 副本数」。
 
 **排查**：
+
 1. 确认变量确实被进程读到（`.env` 在项目根目录、systemd 的 `EnvironmentFile` 指向同一文件），
    改完 `.env` 后**必须重启**：`pm2 restart slider-blog` 或 `sudo systemctl restart slider-blog`。
 2. 确认 Redis 连通：`redis-cli -h <主机> -p 6379 ping` 应返回 `PONG`；连接串里的库序号要与实际一致。
@@ -899,6 +1047,7 @@ client_max_body_size 10M;  # 已在示例配置中设置
 **现象**：构建过程中进程被 OOM Killer 杀死。
 
 **修复**（1GB 内存服务器）：
+
 ```bash
 # 方式一：添加临时 swap
 sudo fallocate -l 2G /swapfile
@@ -915,6 +1064,7 @@ sudo swapon /swapfile
 **现象**：未登录可访问后台页面。
 
 **排查**：
+
 1. 确认 `src/proxy.ts` 文件存在（Next.js 16 已将 middleware 改名为 proxy）
 2. 构建输出应包含 `ƒ Proxy (Middleware)`
 3. 检查 `src/auth.config.ts` 是否正确导出 `authConfig`
@@ -924,25 +1074,26 @@ sudo swapon /swapfile
 
 ## 十、环境变量速查表
 
-| 变量名 | 必填 | 说明 | 示例 |
-|--------|------|------|------|
-| `DATABASE_URL` | 是 | MariaDB 连接串 | `mariadb://user:pass@localhost:3306/slider_blog` |
-| `NEXTAUTH_SECRET` | 是 | JWT 签名密钥 | `openssl rand -base64 32` 的输出 |
-| `NEXTAUTH_URL` | 是 | 站点完整 URL | `https://your-domain.com` |
-| `NEXT_PUBLIC_SITE_URL` | 是 | 站点 URL（客户端可见） | `https://your-domain.com` |
-| `UPLOAD_DIR` | 否 | 上传目录的**绝对路径**，且必须位于 `<项目>/public` 之下；不设置时默认 `<项目>/public/uploads` | `/home/user/slider-blog/public/uploads` |
-| `SENTRY_DSN` | 否 | Sentry 服务端 DSN | `https://xxx@sentry.io/123` |
-| `NEXT_PUBLIC_SENTRY_DSN` | 否 | Sentry 客户端 DSN | `https://xxx@sentry.io/123` |
-| `SENTRY_ORG` | 否 | Sentry 组织 | `your-org` |
-| `SENTRY_PROJECT` | 否 | Sentry 项目 | `slider-blog` |
-| `SENTRY_AUTH_TOKEN` | 否 | Sentry 构建上传 token | `sntrys_eyJpYXQ...` |
-| `EMAIL_HOST` | 否 | SMTP 主机 | `smtp.gmail.com` |
-| `EMAIL_PORT` | 否 | SMTP 端口 | `587` |
-| `EMAIL_USER` | 否 | SMTP 用户名 | `your@gmail.com` |
-| `EMAIL_PASS` | 否 | SMTP 密码或应用专用密码 | `your-app-password` |
-| `EMAIL_FROM` | 否 | 发件人地址 | `noreply@your-domain.com` |
-| `REDIS_URL` | 否 | 限流计数存储。留空即进程内存限流（默认，单实例无需配置）；多副本时填 Redis 以共享计数，键前缀 `slider-blog:rl:`，详见 4.3.1 | `redis://10.0.0.10:6379/5` |
-| `SEED_ADMIN_PASSWORD` | 否 | seed 时的管理员密码（仅运行 seed 时需要） | `YourStrongPassword123!` |
+| 变量名                   | 必填 | 说明                                                                                                                                                                                                                                     | 示例                                             |
+| ------------------------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `DATABASE_URL`           | 是   | MariaDB 连接串                                                                                                                                                                                                                           | `mariadb://user:pass@localhost:3306/slider_blog` |
+| `NEXTAUTH_SECRET`        | 是   | JWT 签名密钥                                                                                                                                                                                                                             | `openssl rand -base64 32` 的输出                 |
+| `NEXTAUTH_URL`           | 是   | 站点完整 URL                                                                                                                                                                                                                             | `https://your-domain.com`                        |
+| `NEXT_PUBLIC_SITE_URL`   | 是   | 站点 URL（客户端可见，**构建期**注入；不影响登录，影响邮件/sitemap 里的绝对链接，改后需重新 build）                                                                                                                                      | `https://your-domain.com`                        |
+| `AUTH_COOKIE_SECURE`     | 否   | 认证 cookie 的 `Secure` 开关。**不设置**即由 `NODE_ENV` 决定（生产=Secure，推荐）；**仅当内网用明文 `http://` 访问**时设为 `false`，否则登录恒定失败（`MissingCSRF`）。关闭后同网段中间人可截获会话 cookie，只适用于可信内网，详见 4.3.2 | `false`                                          |
+| `UPLOAD_DIR`             | 否   | 上传目录的**绝对路径**，且必须位于 `<项目>/public` 之下；不设置时默认 `<项目>/public/uploads`                                                                                                                                            | `/home/user/slider-blog/public/uploads`          |
+| `SENTRY_DSN`             | 否   | Sentry 服务端 DSN                                                                                                                                                                                                                        | `https://xxx@sentry.io/123`                      |
+| `NEXT_PUBLIC_SENTRY_DSN` | 否   | Sentry 客户端 DSN                                                                                                                                                                                                                        | `https://xxx@sentry.io/123`                      |
+| `SENTRY_ORG`             | 否   | Sentry 组织                                                                                                                                                                                                                              | `your-org`                                       |
+| `SENTRY_PROJECT`         | 否   | Sentry 项目                                                                                                                                                                                                                              | `slider-blog`                                    |
+| `SENTRY_AUTH_TOKEN`      | 否   | Sentry 构建上传 token                                                                                                                                                                                                                    | `sntrys_eyJpYXQ...`                              |
+| `EMAIL_HOST`             | 否   | SMTP 主机                                                                                                                                                                                                                                | `smtp.gmail.com`                                 |
+| `EMAIL_PORT`             | 否   | SMTP 端口                                                                                                                                                                                                                                | `587`                                            |
+| `EMAIL_USER`             | 否   | SMTP 用户名                                                                                                                                                                                                                              | `your@gmail.com`                                 |
+| `EMAIL_PASS`             | 否   | SMTP 密码或应用专用密码                                                                                                                                                                                                                  | `your-app-password`                              |
+| `EMAIL_FROM`             | 否   | 发件人地址                                                                                                                                                                                                                               | `noreply@your-domain.com`                        |
+| `REDIS_URL`              | 否   | 限流计数存储。留空即进程内存限流（默认，单实例无需配置）；多副本时填 Redis 以共享计数，键前缀 `slider-blog:rl:`，详见 4.3.1                                                                                                              | `redis://10.0.0.10:6379/5`                       |
+| `SEED_ADMIN_PASSWORD`    | 否   | seed 时的管理员密码（仅运行 seed 时需要）                                                                                                                                                                                                | `YourStrongPassword123!`                         |
 
 ---
 
@@ -987,15 +1138,15 @@ slider-blog/
 
 #### 管理后台路由（`(admin)` 路由组）
 
-| 路径 | 说明 | 鉴权 |
-|------|------|------|
-| `/dashboard` | 仪表盘（站点概览） | 管理员 |
-| `/posts` | 文章管理（列表/创建/编辑） | 管理员 |
-| `/comments` | 评论审核 | 管理员 |
-| `/manage-categories` | 分类与标签管理 | 管理员 |
-| `/manage-moments` | 动态管理（发布/编辑/置顶） | 管理员 |
-| `/manage-gallery` | 相册管理（相册/照片 CRUD） | 管理员 |
-| `/manage-users` | 用户管理（角色调整/删除） | 管理员 |
+| 路径                 | 说明                       | 鉴权   |
+| -------------------- | -------------------------- | ------ |
+| `/dashboard`         | 仪表盘（站点概览）         | 管理员 |
+| `/posts`             | 文章管理（列表/创建/编辑） | 管理员 |
+| `/comments`          | 评论审核                   | 管理员 |
+| `/manage-categories` | 分类与标签管理             | 管理员 |
+| `/manage-moments`    | 动态管理（发布/编辑/置顶） | 管理员 |
+| `/manage-gallery`    | 相册管理（相册/照片 CRUD） | 管理员 |
+| `/manage-users`      | 用户管理（角色调整/删除）  | 管理员 |
 
 ---
 
@@ -1069,17 +1220,17 @@ chmod +x deploy.sh
 
 ### 13.1 技术栈版本
 
-| 技术 | 版本 |
-|------|------|
-| Next.js | 16.2.12 |
-| React | 19.2.4 |
-| TypeScript | 5.x |
-| Prisma | 7.9.0 |
-| MariaDB | 10.6+ |
-| next-auth | 5.0.0-beta.32 |
-| next-intl | 4.13.4 |
-| Tailwind CSS | 4.x |
-| Sentry SDK | 10.68.0 |
+| 技术         | 版本          |
+| ------------ | ------------- |
+| Next.js      | 16.2.12       |
+| React        | 19.2.4        |
+| TypeScript   | 5.x           |
+| Prisma       | 7.9.0         |
+| MariaDB      | 10.6+         |
+| next-auth    | 5.0.0-beta.32 |
+| next-intl    | 4.13.4        |
+| Tailwind CSS | 4.x           |
+| Sentry SDK   | 10.68.0       |
 
 ### 13.2 管理员账号机制
 
@@ -1094,18 +1245,18 @@ chmod +x deploy.sh
 
 ### 13.3 关键 API 端点
 
-| 端点 | 方法 | 说明 | 鉴权 |
-|------|------|------|------|
-| `/api/health` | GET | 健康检查 | 无 |
-| `/api/auth/[...nextauth]` | * | NextAuth 认证 | 无 |
-| `/api/comments` | GET / POST | 评论列表 / 提交评论 | POST 需限流 |
-| `/api/categories` | GET | 分类列表 | 无 |
-| `/api/tags` | GET | 标签列表 | 无 |
-| `/api/calendar/posts` | GET | 日历热力图文章数据 | 无 |
-| `/api/music` | GET | 音乐播放列表 | 无 |
-| `/api/upload` | POST | 图片上传 | 需管理员 |
-| `/robots.txt` | GET | 爬虫规则 | 无 |
-| `/sitemap.xml` | GET | 站点地图 | 无 |
+| 端点                      | 方法       | 说明                | 鉴权        |
+| ------------------------- | ---------- | ------------------- | ----------- |
+| `/api/health`             | GET        | 健康检查            | 无          |
+| `/api/auth/[...nextauth]` | *          | NextAuth 认证       | 无          |
+| `/api/comments`           | GET / POST | 评论列表 / 提交评论 | POST 需限流 |
+| `/api/categories`         | GET        | 分类列表            | 无          |
+| `/api/tags`               | GET        | 标签列表            | 无          |
+| `/api/calendar/posts`     | GET        | 日历热力图文章数据  | 无          |
+| `/api/music`              | GET        | 音乐播放列表        | 无          |
+| `/api/upload`             | POST       | 图片上传            | 需管理员    |
+| `/robots.txt`             | GET        | 爬虫规则            | 无          |
+| `/sitemap.xml`            | GET        | 站点地图            | 无          |
 
 ### 13.4 参考文档
 

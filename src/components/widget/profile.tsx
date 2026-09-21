@@ -1,15 +1,15 @@
-import Image from "next/image"
-import { Link } from "@/i18n/routing"
-import { IdCard, User, GitBranch, Mail, Globe, Link2 } from "lucide-react"
+import Image from "next/image";
+import { Link } from "@/i18n/routing";
+import { IdCard, User, GitBranch, Mail, Globe, Link2 } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { profileConfig } from "@/config/profileConfig"
-import type { SidebarProfile } from "@/server/queries/site"
+import { cn } from "@/lib/utils";
+import { profileConfig } from "@/config/profileConfig";
+import type { SidebarProfile } from "@/server/queries/site";
 
 interface ProfileWidgetProps {
-  profile?: SidebarProfile
-  className?: string
-  style?: React.CSSProperties
+  profile?: SidebarProfile;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -19,14 +19,14 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   envelope: Mail,
   globe: Globe,
   link: Link2,
-}
+};
 
 function encodeEmailForProfile(email: string): string {
-  if (typeof window === "undefined") return ""
+  if (typeof window === "undefined") return "";
   try {
-    return window.btoa(email)
+    return window.btoa(email);
   } catch {
-    return ""
+    return "";
   }
 }
 
@@ -42,26 +42,34 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
       icon: l.icon,
       showName: l.showName,
     })),
-  }
+  };
 
-  const links = displayProfile.socialLinks.length > 0
-    ? displayProfile.socialLinks
-    : profileConfig.links.map((l) => ({ name: l.name, url: l.url, icon: l.icon, showName: l.showName }))
+  const links =
+    displayProfile.socialLinks.length > 0
+      ? displayProfile.socialLinks
+      : profileConfig.links.map((l) => ({
+          name: l.name,
+          url: l.url,
+          icon: l.icon,
+          showName: l.showName,
+        }));
 
-  const hasMultipleLinks = links.length > 1
-  const singleLink = links.length === 1 ? links[0] : null
+  const hasMultipleLinks = links.length > 1;
+  const singleLink = links.length === 1 ? links[0] : null;
 
   function renderLink(item: (typeof links)[number]) {
-    const showName = item.showName ?? item.name.length <= 6
-    const Icon = iconMap[item.icon.toLowerCase()] || Link2
-    const isMail = item.url.startsWith("mailto:")
+    const showName = item.showName ?? item.name.length <= 6;
+    const Icon = iconMap[item.icon.toLowerCase()] || Link2;
+    const isMail = item.url.startsWith("mailto:");
     const classNames = cn(
       "btn-regular rounded-lg h-10 active:scale-95",
       showName ? "gap-2 px-3 font-bold" : "w-10",
-    )
+    );
 
     if (isMail) {
-      const encodedEmail = encodeEmailForProfile(item.url.replace("mailto:", ""))
+      const encodedEmail = encodeEmailForProfile(
+        item.url.replace("mailto:", ""),
+      );
       return (
         <a
           key={item.name}
@@ -71,15 +79,15 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
           data-encoded-email={encodedEmail}
           className={classNames}
           onClick={(e) => {
-            e.preventDefault()
-            const target = e.currentTarget
-            const encoded = target.getAttribute("data-encoded-email")
-            if (!encoded) return
+            e.preventDefault();
+            const target = e.currentTarget;
+            const encoded = target.getAttribute("data-encoded-email");
+            if (!encoded) return;
             try {
-              const decoded = window.atob(encoded)
-              target.href = `mailto:${decoded}`
-              target.removeAttribute("data-encoded-email")
-              target.click()
+              const decoded = window.atob(encoded);
+              target.href = `mailto:${decoded}`;
+              target.removeAttribute("data-encoded-email");
+              target.click();
             } catch {
               // ignore decoding errors
             }
@@ -88,10 +96,10 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
           <Icon className="size-5" />
           {showName && item.name}
         </a>
-      )
+      );
     }
 
-    const isExternal = item.url.startsWith("http")
+    const isExternal = item.url.startsWith("http");
     return (
       <a
         key={item.name}
@@ -104,7 +112,7 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
         <Icon className="size-5" />
         {showName && item.name}
       </a>
-    )
+    );
   }
 
   return (
@@ -128,6 +136,7 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
           />
         ) : (
           <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-pink-400 to-frost-400">
+            {/* 保留白字：头像占位块是 from-pink-400 to-frost-400 饱和渐变，white/80 在两种主题下都清晰 */}
             <User className="size-20 text-white/80" />
           </div>
         )}
@@ -143,12 +152,16 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
         </div>
 
         <div className="flex flex-wrap gap-2 justify-center mb-1">
-          {hasMultipleLinks ? links.map(renderLink) : singleLink ? renderLink(singleLink) : null}
+          {hasMultipleLinks
+            ? links.map(renderLink)
+            : singleLink
+              ? renderLink(singleLink)
+              : null}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export { ProfileWidget, type ProfileWidgetProps }
-export default ProfileWidget
+export { ProfileWidget, type ProfileWidgetProps };
+export default ProfileWidget;

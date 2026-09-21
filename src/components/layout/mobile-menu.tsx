@@ -1,41 +1,48 @@
-"use client"
+"use client";
 
-import { useState, useSyncExternalStore } from "react"
-import { createPortal } from "react-dom"
-import { motion, AnimatePresence } from "motion/react"
-import { Menu, X } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "motion/react";
+import { Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { Link, usePathname } from "@/i18n/routing"
-import { GlassButton } from "@/components/ui/glass-button"
-import { LanguageSwitcher, type LocaleOption } from "@/components/layout/language-switcher"
-import { cn } from "@/lib/utils"
-import { siteConfig } from "@/config/slider-config"
+import { Link, usePathname } from "@/i18n/routing";
+import { GlassButton } from "@/components/ui/glass-button";
+import {
+  LanguageSwitcher,
+  type LocaleOption,
+} from "@/components/layout/language-switcher";
+import { cn } from "@/lib/utils";
+import { siteConfig } from "@/config/slider-config";
 
 export interface NavLink {
-  href: string
-  label: string
+  href: string;
+  label: string;
 }
 
 interface MobileMenuProps {
-  navLinks: ReadonlyArray<NavLink>
-  locales: ReadonlyArray<LocaleOption>
+  navLinks: ReadonlyArray<NavLink>;
+  locales: ReadonlyArray<LocaleOption>;
 }
 
 // Detects whether the component has mounted on the client without calling
 // setState inside an effect (which would trigger a cascading render).
-const emptySubscribe = () => () => {}
+const emptySubscribe = () => () => {};
 
 function MobileMenu({ navLinks, locales }: MobileMenuProps) {
-  const t = useTranslations("Public")
-  const pathname = usePathname()
-  const [open, setOpen] = useState(false)
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
+  const t = useTranslations("Public");
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/"
-    return pathname.startsWith(href)
-  }
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
     <>
@@ -70,8 +77,10 @@ function MobileMenu({ navLinks, locales }: MobileMenuProps) {
                   aria-modal="true"
                   aria-label="Site navigation"
                   className={cn(
-                    "fixed inset-y-0 right-0 z-50 w-72",
-                    "backdrop-blur-2xl bg-white/10 dark:bg-white/5 border-l border-white/20",
+                    "light-adapt fixed inset-y-0 right-0 z-50 w-72",
+                    // 浅色模式下的面板底色由 globals.css 亮色适配块补上（bg-white/10 在
+                    // 浅色下会被改写成 rgba(0,0,0,0.07)，过于透明，需不透明底衬）
+                    "bg-white/10 backdrop-blur-2xl dark:bg-white/5 border-l border-white/20",
                     "shadow-2xl",
                   )}
                   initial={{ x: "100%" }}
@@ -80,7 +89,9 @@ function MobileMenu({ navLinks, locales }: MobileMenuProps) {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <div className="flex items-center justify-between p-4">
-                    <span className="text-lg font-bold text-white/80">{siteConfig.title}</span>
+                    <span className="text-lg font-bold text-white/80">
+                      {siteConfig.title}
+                    </span>
                     <button
                       onClick={() => setOpen(false)}
                       className="flex size-8 items-center justify-center rounded-lg backdrop-blur-md bg-white/10 hover:bg-white/20 transition-colors"
@@ -90,7 +101,10 @@ function MobileMenu({ navLinks, locales }: MobileMenuProps) {
                     </button>
                   </div>
 
-                  <nav className="flex flex-col gap-1 px-4" aria-label="Main navigation">
+                  <nav
+                    className="flex flex-col gap-1 px-4"
+                    aria-label="Main navigation"
+                  >
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
@@ -129,8 +143,8 @@ function MobileMenu({ navLinks, locales }: MobileMenuProps) {
           document.body,
         )}
     </>
-  )
+  );
 }
 
-export { MobileMenu }
-export default MobileMenu
+export { MobileMenu };
+export default MobileMenu;

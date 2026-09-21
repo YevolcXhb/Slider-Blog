@@ -1,8 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect, useCallback, startTransition } from "react"
-import { usePathname } from "next/navigation"
-import { useTranslations } from "next-intl"
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  startTransition,
+} from "react";
+import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Home,
   BookOpen,
@@ -31,36 +37,39 @@ import {
   Sun,
   Moon,
   Monitor,
-} from "lucide-react"
-import { useTheme } from "@/components/theme/theme-system"
-import { useSyncExternalStore } from "react"
+} from "lucide-react";
+import { useTheme } from "@/components/theme/theme-system";
+import { useSyncExternalStore } from "react";
 
-import { cn } from "@/lib/utils"
-import { siteConfig, navBarConfig } from "@/config/slider-config"
-import { Link } from "@/i18n/routing"
-import { LanguageSwitcher, type LocaleOption } from "@/components/layout/language-switcher"
-import { type NavBarLink } from "@/components/layout/dropdown-menu"
-import { NavBar } from "@/components/layout/navbar"
-import { AnimatePresence, motion } from "motion/react"
+import { cn } from "@/lib/utils";
+import { siteConfig, navBarConfig } from "@/config/slider-config";
+import { Link } from "@/i18n/routing";
+import {
+  LanguageSwitcher,
+  type LocaleOption,
+} from "@/components/layout/language-switcher";
+import { type NavBarLink } from "@/components/layout/dropdown-menu";
+import { NavBar } from "@/components/layout/navbar";
+import { AnimatePresence, motion } from "motion/react";
 
 interface HeaderProps {
-  locales: ReadonlyArray<LocaleOption>
+  locales: ReadonlyArray<LocaleOption>;
   /**
    * 数据库存储的导航外链（管理员后台配置）。
    * 如果存在，将覆盖 navBarConfig 中 "links" 下拉菜单的 children。
    */
   navExternalLinks?: Array<{
-    i18nKey: string
-    name: string
-    url: string
-    icon: string
-    external: boolean
-  }>
+    i18nKey: string;
+    name: string;
+    url: string;
+    icon: string;
+    external: boolean;
+  }>;
   /**
    * 数据库存储的站点标题，覆盖 siteConfig.title。
    * 由 public/layout.tsx 从 getSiteInfoSettings() 获取后传入。
    */
-  siteTitle?: string
+  siteTitle?: string;
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -84,26 +93,30 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   "fa7-brands:github": GitBranch,
   "fa7-brands:gitee": GitBranch,
   "fa7-brands:qq": UserCircle,
+};
+
+function resolveIcon(
+  iconName?: string,
+): React.ComponentType<{ className?: string }> | undefined {
+  if (!iconName) return undefined;
+  return iconMap[iconName];
 }
 
-function resolveIcon(iconName?: string): React.ComponentType<{ className?: string }> | undefined {
-  if (!iconName) return undefined
-  return iconMap[iconName]
-}
-
-function filterLinks(link: typeof navBarConfig.links[0]): typeof navBarConfig.links[0] | null {
+function filterLinks(
+  link: (typeof navBarConfig.links)[0],
+): (typeof navBarConfig.links)[0] | null {
   if (link.pageKey) {
-    const key = link.pageKey as keyof typeof siteConfig.pages
-    if (siteConfig.pages[key] === false) return null
+    const key = link.pageKey as keyof typeof siteConfig.pages;
+    if (siteConfig.pages[key] === false) return null;
   }
-  if (!link.children || link.children.length === 0) return link
+  if (!link.children || link.children.length === 0) return link;
 
   const filteredChildren = link.children
     .map((child) => filterLinks(child))
-    .filter((child): child is NonNullable<typeof child> => child !== null)
+    .filter((child): child is NonNullable<typeof child> => child !== null);
 
-  if (filteredChildren.length === 0) return null
-  return { ...link, children: filteredChildren }
+  if (filteredChildren.length === 0) return null;
+  return { ...link, children: filteredChildren };
 }
 
 function mapConfigLinks(links: typeof navBarConfig.links): NavBarLink[] {
@@ -117,15 +130,17 @@ function mapConfigLinks(links: typeof navBarConfig.links): NavBarLink[] {
         ? link.children.map((child) => ({
             ...child,
             icon: resolveIcon(child.icon),
-            children: child.children ? mapConfigLinks(child.children) : undefined,
+            children: child.children
+              ? mapConfigLinks(child.children)
+              : undefined,
           }))
         : undefined,
-    }))
+    }));
 }
 
-const navItems: NavBarLink[] = mapConfigLinks(navBarConfig.links)
+const navItems: NavBarLink[] = mapConfigLinks(navBarConfig.links);
 
-const navbarBlur = 20
+const navbarBlur = 20;
 
 /**
  * 将数据库存储的外链配置映射为 NavBarLink[]。
@@ -140,7 +155,7 @@ function mapDbExternalLinks(
     url: link.url,
     external: link.external,
     icon: resolveIcon(link.icon),
-  }))
+  }));
 }
 
 /**
@@ -150,47 +165,47 @@ function mapDbExternalLinks(
 function buildNavItems(
   dbExternalLinks: HeaderProps["navExternalLinks"],
 ): NavBarLink[] {
-  if (!dbExternalLinks || dbExternalLinks.length === 0) return navItems
-  const mapped = mapDbExternalLinks(dbExternalLinks)
+  if (!dbExternalLinks || dbExternalLinks.length === 0) return navItems;
+  const mapped = mapDbExternalLinks(dbExternalLinks);
   return navItems.map((item) =>
     item.i18nKey === "links" && item.children
       ? { ...item, children: mapped }
       : item,
-  )
+  );
 }
 
 function ThemeToggleButton() {
-  const t = useTranslations("HeaderActions")
-  const { resolvedTheme, theme, setTheme } = useTheme()
-  const [open, setOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const t = useTranslations("HeaderActions");
+  const { resolvedTheme, theme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false,
-  )
-  const isAnimating = useRef(false)
+  );
+  const isAnimating = useRef(false);
 
   const applyTheme = useCallback(
     (next: "light" | "dark") => {
-      if (isAnimating.current) return
+      if (isAnimating.current) return;
 
       const runTransition = () => {
         if (typeof document === "undefined" || !document.startViewTransition) {
-          setTheme(next)
-          return
+          setTheme(next);
+          return;
         }
 
-        isAnimating.current = true
+        isAnimating.current = true;
 
-        const isDarkToLight = next === "light"
-        const x = isDarkToLight ? window.innerWidth : 0
-        const y = isDarkToLight ? window.innerHeight : 0
-        const endRadius = Math.hypot(window.innerWidth, window.innerHeight)
+        const isDarkToLight = next === "light";
+        const x = isDarkToLight ? window.innerWidth : 0;
+        const y = isDarkToLight ? window.innerHeight : 0;
+        const endRadius = Math.hypot(window.innerWidth, window.innerHeight);
 
         const transition = document.startViewTransition(() => {
-          setTheme(next)
-        })
+          setTheme(next);
+        });
 
         transition.ready
           .then(() => {
@@ -204,55 +219,55 @@ function ThemeToggleButton() {
                 easing: "cubic-bezier(0.22, 1, 0.36, 1)",
                 pseudoElement: "::view-transition-new(root)",
               },
-            )
+            );
           })
           .finally(() => {
             setTimeout(() => {
-              isAnimating.current = false
-            }, 800)
-          })
-      }
+              isAnimating.current = false;
+            }, 800);
+          });
+      };
 
       if (!resolvedTheme) {
-        setTheme(next)
-        return
+        setTheme(next);
+        return;
       }
 
       if (next === resolvedTheme && theme !== "system") {
-        return
+        return;
       }
 
-      runTransition()
+      runTransition();
     },
     [resolvedTheme, setTheme, theme],
-  )
+  );
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpen(false)
+        setOpen(false);
       }
-    }
+    };
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false)
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    document.addEventListener("keydown", handleEscape)
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.removeEventListener("keydown", handleEscape)
-    }
-  }, [open])
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
 
-  const current = theme ?? "system"
-  const isDark = mounted && resolvedTheme === "dark"
+  const current = theme ?? "system";
+  const isDark = mounted && resolvedTheme === "dark";
 
   const options = [
     { value: "light" as const, label: t("light"), icon: Sun },
     { value: "dark" as const, label: t("dark"), icon: Moon },
     { value: "system" as const, label: t("system"), icon: Monitor },
-  ]
+  ];
 
   return (
     <div className="relative" ref={menuRef}>
@@ -267,7 +282,11 @@ function ThemeToggleButton() {
         type="button"
         suppressHydrationWarning
       >
-        {isDark ? <Sun className="size-5" aria-hidden="true" /> : <Moon className="size-5" aria-hidden="true" />}
+        {isDark ? (
+          <Sun className="size-5" aria-hidden="true" />
+        ) : (
+          <Moon className="size-5" aria-hidden="true" />
+        )}
       </button>
       <AnimatePresence>
         {open && (
@@ -281,18 +300,18 @@ function ThemeToggleButton() {
           >
             <div className="glass-card rounded-xl p-1 shadow-2xl border border-black/5 dark:border-white/10">
               {options.map((opt) => {
-                const Icon = opt.icon
-                const active = current === opt.value
+                const Icon = opt.icon;
+                const active = current === opt.value;
                 return (
                   <button
                     key={opt.value}
                     onClick={() => {
                       if (opt.value === "system") {
-                        setTheme("system")
+                        setTheme("system");
                       } else {
-                        applyTheme(opt.value)
+                        applyTheme(opt.value);
                       }
-                      setOpen(false)
+                      setOpen(false);
                     }}
                     className={cn(
                       "w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
@@ -308,36 +327,39 @@ function ThemeToggleButton() {
                     <span className="flex-1 text-left">{opt.label}</span>
                     {active && <span className="text-xs">✓</span>}
                   </button>
-                )
+                );
               })}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 function BgPlayerToggle() {
-  const t = useTranslations("HeaderActions")
-  const [playing, setPlaying] = useState(false)
+  const t = useTranslations("HeaderActions");
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const handleStateChange = (e: Event) => {
-      const custom = e as CustomEvent<{ playing: boolean }>
-      setPlaying(custom.detail?.playing ?? false)
-    }
+      const custom = e as CustomEvent<{ playing: boolean }>;
+      setPlaying(custom.detail?.playing ?? false);
+    };
     const sync = () => {
-      setPlaying(document.documentElement.hasAttribute("data-bg-video-playing"))
-    }
-    window.addEventListener("bg-player-state-change", handleStateChange)
-    sync()
-    return () => window.removeEventListener("bg-player-state-change", handleStateChange)
-  }, [])
+      setPlaying(
+        document.documentElement.hasAttribute("data-bg-video-playing"),
+      );
+    };
+    window.addEventListener("bg-player-state-change", handleStateChange);
+    sync();
+    return () =>
+      window.removeEventListener("bg-player-state-change", handleStateChange);
+  }, []);
 
   const handleClick = () => {
-    window.dispatchEvent(new CustomEvent("bg-player-toggle"))
-  }
+    window.dispatchEvent(new CustomEvent("bg-player-toggle"));
+  };
 
   return (
     <button
@@ -348,21 +370,31 @@ function BgPlayerToggle() {
       id="bg-player-toggle"
       type="button"
     >
-      <span className={cn("bg-player-icon-play transition-opacity", playing && "opacity-0 hidden")}>
+      <span
+        className={cn(
+          "bg-player-icon-play transition-opacity",
+          playing && "opacity-0 hidden",
+        )}
+      >
         <Play className="size-5" />
       </span>
-      <span className={cn("bg-player-icon-pause transition-opacity", !playing && "opacity-0 hidden")}>
+      <span
+        className={cn(
+          "bg-player-icon-pause transition-opacity",
+          !playing && "opacity-0 hidden",
+        )}
+      >
         <Pause className="size-5" />
       </span>
     </button>
-  )
+  );
 }
 
 function MusicToggle() {
-  const t = useTranslations("HeaderActions")
+  const t = useTranslations("HeaderActions");
   const handleClick = () => {
-    window.dispatchEvent(new CustomEvent("music-player-toggle"))
-  }
+    window.dispatchEvent(new CustomEvent("music-player-toggle"));
+  };
 
   return (
     <button
@@ -375,20 +407,20 @@ function MusicToggle() {
     >
       <Music className="size-5" />
     </button>
-  )
+  );
 }
 
 function DesktopSearchBar({ onSearch }: { onSearch: (query: string) => void }) {
-  const t = useTranslations("SearchPanel")
-  const [query, setQuery] = useState("")
+  const t = useTranslations("SearchPanel");
+  const [query, setQuery] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (query.trim()) {
-      onSearch(query.trim())
-      setQuery("")
+      onSearch(query.trim());
+      setQuery("");
     }
-  }
+  };
 
   return (
     <form
@@ -406,7 +438,7 @@ function DesktopSearchBar({ onSearch }: { onSearch: (query: string) => void }) {
         className="transition-all pl-10 text-sm bg-transparent outline-0 h-full w-40 active:w-60 focus:w-60 text-black/50 dark:text-white/50 placeholder:text-black/30 dark:placeholder:text-white/30"
       />
     </form>
-  )
+  );
 }
 
 function SearchPanel({
@@ -414,36 +446,36 @@ function SearchPanel({
   onClose,
   onSearch,
 }: {
-  isOpen: boolean
-  onClose: () => void
-  onSearch: (query: string) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onSearch: (query: string) => void;
 }) {
-  const t = useTranslations("SearchPanel")
-  const [query, setQuery] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
+  const t = useTranslations("SearchPanel");
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      inputRef.current?.focus()
+      inputRef.current?.focus();
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (query.trim()) {
-      onSearch(query.trim())
-      setQuery("")
-      onClose()
+      onSearch(query.trim());
+      setQuery("");
+      onClose();
     }
-  }
+  };
 
   return (
     <div
       id="search-panel"
       className={cn(
-          "float-panel search-panel absolute top-full right-0 mt-2 left-4 md:left-[unset] md:w-[30rem] shadow-2xl rounded-2xl p-2 z-50",
-          !isOpen && "float-panel-closed",
-        )}
+        "float-panel search-panel absolute top-full right-0 mt-2 left-4 md:left-[unset] md:w-[30rem] shadow-2xl rounded-2xl p-2 z-50",
+        !isOpen && "float-panel-closed",
+      )}
     >
       <form
         onSubmit={handleSubmit}
@@ -467,7 +499,7 @@ function SearchPanel({
         <div className="lg:hidden">{t("hint")}</div>
       </div>
     </div>
-  )
+  );
 }
 
 function MobileNavMenu({
@@ -476,45 +508,49 @@ function MobileNavMenu({
   onClose,
   locales,
 }: {
-  links: NavBarLink[]
-  isOpen: boolean
-  onClose: () => void
-  locales: ReadonlyArray<LocaleOption>
+  links: NavBarLink[];
+  isOpen: boolean;
+  onClose: () => void;
+  locales: ReadonlyArray<LocaleOption>;
 }) {
-  const t = useTranslations("Nav")
-  const tHeader = useTranslations("HeaderActions")
-  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const t = useTranslations("Nav");
+  const tHeader = useTranslations("HeaderActions");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggleExpand = (key: string) => {
     setExpanded((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(key)) {
-        next.delete(key)
+        next.delete(key);
       } else {
-        next.add(key)
+        next.add(key);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   return (
     <div
       id="nav-menu-panel"
       className={cn(
-          "float-panel transition-all fixed right-4 top-full mt-2 px-2 py-2 max-h-[80vh] overflow-y-auto z-[90] w-72",
-          !isOpen && "float-panel-closed",
-        )}
+        "float-panel transition-all fixed right-4 top-full mt-2 px-2 py-2 max-h-[80vh] overflow-y-auto z-[90] w-72",
+        !isOpen && "float-panel-closed",
+      )}
     >
       {links.map((link) => {
-        const Icon = link.icon
-        const hasChildren = link.children && link.children.length > 0
-        const isExpanded = expanded.has(link.i18nKey)
-        const linkLabel = t(link.i18nKey)
+        const Icon = link.icon;
+        const hasChildren = link.children && link.children.length > 0;
+        const isExpanded = expanded.has(link.i18nKey);
+        const linkLabel = t(link.i18nKey);
 
         return (
           <div key={link.i18nKey} className="mobile-menu-item">
             {hasChildren ? (
-              <div className="mobile-dropdown" data-expanded={isExpanded} data-mobile-dropdown>
+              <div
+                className="mobile-dropdown"
+                data-expanded={isExpanded}
+                data-mobile-dropdown
+              >
                 <button
                   onClick={() => toggleExpand(link.i18nKey)}
                   className="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8 w-full text-left hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
@@ -530,29 +566,35 @@ function MobileNavMenu({
                 </button>
                 <div className="mobile-submenu" data-mobile-submenu>
                   {link.children!.map((child) => {
-                    const ChildIcon = child.icon
+                    const ChildIcon = child.icon;
                     return (
                       <button
                         key={`${child.i18nKey}-${child.url}`}
                         onClick={() => {
                           if (!child.external) {
-                            window.location.href = child.url
+                            window.location.href = child.url;
                           } else {
-                            window.open(child.url, "_blank", "noopener,noreferrer")
+                            window.open(
+                              child.url,
+                              "_blank",
+                              "noopener,noreferrer",
+                            );
                           }
-                          onClose()
+                          onClose();
                         }}
                         className="group flex justify-between items-center py-2 pl-6 pr-1 rounded-lg gap-8 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition w-full text-left"
                       >
                         <div className="flex items-center transition text-black/60 dark:text-white/60 font-medium group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
-                          {ChildIcon && <ChildIcon className="size-[1.1rem] mr-2" />}
+                          {ChildIcon && (
+                            <ChildIcon className="size-[1.1rem] mr-2" />
+                          )}
                           {t(child.i18nKey)}
                         </div>
                         {child.external && (
                           <ArrowUpRight className="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1 size-3" />
                         )}
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -560,11 +602,11 @@ function MobileNavMenu({
               <button
                 onClick={() => {
                   if (!link.external) {
-                    window.location.href = link.url
+                    window.location.href = link.url;
                   } else {
-                    window.open(link.url, "_blank", "noopener,noreferrer")
+                    window.open(link.url, "_blank", "noopener,noreferrer");
                   }
-                  onClose()
+                  onClose();
                 }}
                 className="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition w-full text-left"
               >
@@ -572,18 +614,22 @@ function MobileNavMenu({
                   {Icon && <Icon className="size-[1.1rem] mr-2" />}
                   {linkLabel}
                 </div>
-                {!link.external && <ChevronRight className="transition text-[1.25rem] text-[var(--primary)] size-5" />}
+                {!link.external && (
+                  <ChevronRight className="transition text-[1.25rem] text-[var(--primary)] size-5" />
+                )}
                 {link.external && (
                   <ArrowUpRight className="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1 size-3" />
                 )}
               </button>
             )}
           </div>
-        )
+        );
       })}
 
       <div className="mt-3 border-t border-black/10 pt-3 dark:border-white/10">
-        <p className="mb-2 text-xs font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">{tHeader("language")}</p>
+        <p className="mb-2 text-xs font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">
+          {tHeader("language")}
+        </p>
         <LanguageSwitcher
           locales={locales}
           className="flex flex-col gap-1"
@@ -594,80 +640,83 @@ function MobileNavMenu({
         />
       </div>
     </div>
-  )
+  );
 }
 
 function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
-  const tHeader = useTranslations("HeaderActions")
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
+  const tHeader = useTranslations("HeaderActions");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // 优先使用数据库存储的站点标题，回退到 config 配置
-  const navbarTitle = siteTitle || siteConfig.navbar.title || siteConfig.title
+  const navbarTitle = siteTitle || siteConfig.navbar.title || siteConfig.title;
 
   // 当数据库存在自定义外链时，覆盖默认 navItems 中 "links" 下拉的 children
-  const effectiveNavItems = buildNavItems(navExternalLinks)
-  const pathname = usePathname()
-  const headerRef = useRef<HTMLElement>(null)
-  const searchButtonRef = useRef<HTMLButtonElement>(null)
-  const searchPanelRef = useRef<HTMLDivElement>(null)
-  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
-  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const effectiveNavItems = buildNavItems(navExternalLinks);
+  const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const searchPanelRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  const pathWithoutLocale = pathname.replace(/^\/(zh|en)(?=\/|$)/, "") || "/"
-  const isHomePageCheck = pathWithoutLocale === "/"
+  const pathWithoutLocale = pathname.replace(/^\/(zh|en)(?=\/|$)/, "") || "/";
+  const isHomePageCheck = pathWithoutLocale === "/";
 
   // Use "semi" transparent mode on home to match Slider screenshot (always glass bar)
-  const navbarTransparentMode = "semi"
-  const navbarEnableBlur = "true"
-  const navbarIsHome = String(isHomePageCheck)
-  const navbarFullWidth = String(siteConfig.navbar.widthFull ?? false)
+  const navbarTransparentMode = "semi";
+  const navbarEnableBlur = "true";
+  const navbarIsHome = String(isHomePageCheck);
+  const navbarFullWidth = String(siteConfig.navbar.widthFull ?? false);
 
   const handleSearch = useCallback((query: string) => {
-    if (typeof window === "undefined") return
-    window.location.href = `/search?q=${encodeURIComponent(query)}`
-  }, [])
+    if (typeof window === "undefined") return;
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+  }, []);
 
   // Scroll detection: add scrolled class when page scrolled
   useEffect(() => {
-    const navbar = document.getElementById("navbar")
-    if (!navbar) return
+    const navbar = document.getElementById("navbar");
+    if (!navbar) return;
 
-    let ticking = false
+    let ticking = false;
     const updateNavbarState = () => {
-      if (document.documentElement.classList.contains("is-page-transitioning")) {
-        navbar.classList.remove("scrolled")
-        ticking = false
-        return
+      if (
+        document.documentElement.classList.contains("is-page-transitioning")
+      ) {
+        navbar.classList.remove("scrolled");
+        ticking = false;
+        return;
       }
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
       if (scrollTop > 50) {
-        navbar.classList.add("scrolled")
+        navbar.classList.add("scrolled");
       } else {
-        navbar.classList.remove("scrolled")
+        navbar.classList.remove("scrolled");
       }
-      ticking = false
-    }
+      ticking = false;
+    };
 
     const requestTick = () => {
       if (!ticking) {
-        requestAnimationFrame(updateNavbarState)
-        ticking = true
+        requestAnimationFrame(updateNavbarState);
+        ticking = true;
       }
-    }
+    };
 
-    window.addEventListener("scroll", requestTick, { passive: true })
-    updateNavbarState()
+    window.addEventListener("scroll", requestTick, { passive: true });
+    updateNavbarState();
 
     return () => {
-      window.removeEventListener("scroll", requestTick)
-    }
-  }, [])
+      window.removeEventListener("scroll", requestTick);
+    };
+  }, []);
 
   // Click outside to close mobile menu and search panel
   useEffect(() => {
     const handleDocumentClick = (event: MouseEvent) => {
-      const target = event.target as Node
+      const target = event.target as Node;
 
       if (
         mobileMenuOpen &&
@@ -676,7 +725,7 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
         !mobileMenuRef.current.contains(target) &&
         !mobileMenuButtonRef.current.contains(target)
       ) {
-        setMobileMenuOpen(false)
+        setMobileMenuOpen(false);
       }
 
       if (
@@ -686,28 +735,32 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
         !searchPanelRef.current.contains(target) &&
         !searchButtonRef.current.contains(target)
       ) {
-        setSearchOpen(false)
+        setSearchOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("click", handleDocumentClick)
-    return () => document.removeEventListener("click", handleDocumentClick)
-  }, [mobileMenuOpen, searchOpen])
+    document.addEventListener("click", handleDocumentClick);
+    return () => document.removeEventListener("click", handleDocumentClick);
+  }, [mobileMenuOpen, searchOpen]);
 
   // Close mobile menu on route change
   useEffect(() => {
     startTransition(() => {
-      setMobileMenuOpen(false)
-      setSearchOpen(false)
-    })
-  }, [pathname])
+      setMobileMenuOpen(false);
+      setSearchOpen(false);
+    });
+  }, [pathname]);
 
   return (
     <header
       id="navbar"
       ref={headerRef}
-      className="z-50"
-      style={{ "--navbar-glass-blur": `${navbarBlur}px` } as React.CSSProperties}
+      // light-adapt：浅色模式下导航卡片（#navbar > div 在浅色下取 --card-bg 纯白）
+      // 的内部文字补偿作用域，见 globals.css 亮色适配块
+      className="light-adapt z-50"
+      style={
+        { "--navbar-glass-blur": `${navbarBlur}px` } as React.CSSProperties
+      }
       data-transparent-mode={navbarTransparentMode}
       data-enable-blur={navbarEnableBlur}
       data-is-home={navbarIsHome}
@@ -721,32 +774,34 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
               href="/"
               className="btn-plain scale-animation rounded-lg h-13 px-3 md:px-5 font-bold active:scale-95 flex items-center shrink-0"
             >
-            <div
-              className={cn(
-                "flex flex-row items-center text-md",
-                siteConfig.navbar.followTheme ? "text-[var(--primary)]" : "text-black dark:text-white"
-              )}
-              style={{ fontFamily: "var(--font-navbar-title, inherit)" }}
-              suppressHydrationWarning
-            >
-              {siteConfig.navbar.logo?.type === "icon" ? (
-                <Home className="text-[1.75rem] mb-1 mr-2 size-7" />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src="/slider/images/slider.ico"
-                  alt={siteConfig.navbar.logo?.alt || navbarTitle}
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 mb-1 mr-2 object-contain"
-                  loading="eager"
-                  decoding="sync"
-                  suppressHydrationWarning
-                />
-              )}
-              <span suppressHydrationWarning>{navbarTitle}</span>
-            </div>
-          </Link>
+              <div
+                className={cn(
+                  "flex flex-row items-center text-md",
+                  siteConfig.navbar.followTheme
+                    ? "text-[var(--primary)]"
+                    : "text-black dark:text-white",
+                )}
+                style={{ fontFamily: "var(--font-navbar-title, inherit)" }}
+                suppressHydrationWarning
+              >
+                {siteConfig.navbar.logo?.type === "icon" ? (
+                  <Home className="text-[1.75rem] mb-1 mr-2 size-7" />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src="/slider/images/slider.ico"
+                    alt={siteConfig.navbar.logo?.alt || navbarTitle}
+                    width={28}
+                    height={28}
+                    className="h-7 w-7 mb-1 mr-2 object-contain"
+                    loading="eager"
+                    decoding="sync"
+                    suppressHydrationWarning
+                  />
+                )}
+                <span suppressHydrationWarning>{navbarTitle}</span>
+              </div>
+            </Link>
 
             {/* Middle navigation menu - flush against the logo */}
             <div className="hidden lg:flex items-center">
@@ -774,13 +829,21 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
               id="nav-menu-switch"
               type="button"
             >
-              {mobileMenuOpen ? <X className="size-5" /> : <MenuIcon className="size-5" />}
+              {mobileMenuOpen ? (
+                <X className="size-5" />
+              ) : (
+                <MenuIcon className="size-5" />
+              )}
             </button>
           </div>
         </div>
 
         <div ref={searchPanelRef}>
-          <SearchPanel isOpen={searchOpen} onClose={() => setSearchOpen(false)} onSearch={handleSearch} />
+          <SearchPanel
+            isOpen={searchOpen}
+            onClose={() => setSearchOpen(false)}
+            onSearch={handleSearch}
+          />
         </div>
 
         <div ref={mobileMenuRef}>
@@ -793,8 +856,8 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }
 
-export { Header }
-export type { HeaderProps }
+export { Header };
+export type { HeaderProps };

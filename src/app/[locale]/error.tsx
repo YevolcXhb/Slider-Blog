@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { AlertTriangle, RotateCcw, Home } from "lucide-react"
+import { useEffect } from "react";
+import { AlertTriangle, RotateCcw, Home } from "lucide-react";
 
-import { Link } from "@/i18n/routing"
-import { GlassCard } from "@/components/ui/glass-card"
-import { GlassButton } from "@/components/ui/glass-button"
-import { useErrorCopy } from "./error-copy"
+import { Link } from "@/i18n/routing";
+import { GlassCard } from "@/components/ui/glass-card";
+import { GlassButton } from "@/components/ui/glass-button";
+import { useErrorCopy } from "./error-copy";
 
 interface ErrorProps {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }
 
 /**
@@ -19,10 +19,10 @@ interface ErrorProps {
  */
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
-    console.error("Route rendering failed:", error)
-  }, [error])
+    console.error("Route rendering failed:", error);
+  }, [error]);
 
-  const m = useErrorCopy()
+  const m = useErrorCopy();
 
   return (
     <div className="mx-auto flex w-full max-w-2xl items-center justify-center py-24">
@@ -32,16 +32,14 @@ export default function Error({ error, reset }: ErrorProps) {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-white/90">{m.title}</h1>
-          <p className="max-w-md text-sm leading-relaxed text-white/60">
+          <h1 className="text-2xl font-bold text-90">{m.title}</h1>
+          <p className="max-w-md text-sm leading-relaxed text-50">
             {m.description}
           </p>
         </div>
 
         {error.digest && (
-          <p className="font-mono text-xs text-white/30">
-            {m.errorId(error.digest)}
-          </p>
+          <p className="font-mono text-xs text-30">{m.errorId(error.digest)}</p>
         )}
 
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -58,5 +56,5 @@ export default function Error({ error, reset }: ErrorProps) {
         </div>
       </GlassCard>
     </div>
-  )
+  );
 }

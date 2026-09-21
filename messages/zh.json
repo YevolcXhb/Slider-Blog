@@ -175,6 +175,7 @@
     "email": "邮箱",
     "password": "密码",
     "invalidCredentials": "邮箱或密码错误",
+    "signInMisconfigured": "登录服务配置有误，请联系管理员检查部署设置",
     "unexpectedError": "发生意外错误，请重试",
     "signingIn": "登录中...",
     "signIn": "登录",

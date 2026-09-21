@@ -1,10 +1,10 @@
-import { Home, Compass } from "lucide-react"
-import { getTranslations } from "next-intl/server"
+import { Home, Compass } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 export default async function NotFound() {
-  const t = await getTranslations("NotFound")
+  const t = await getTranslations("NotFound");
 
   return (
     <div className="mx-auto flex w-full max-w-2xl items-center justify-center py-24 px-4">
@@ -36,7 +36,7 @@ export default async function NotFound() {
           href="/"
           className={cn(
             "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium",
-            "bg-(--primary) text-white dark:text-black/70",
+            "bg-(--primary) text-white dark:text-black/70", // 白字压在 --primary 饱和色块上，浅色/深色都必须保留
             "hover:bg-(--primary)/90 active:scale-95 transition-all",
           )}
         >
@@ -45,5 +45,5 @@ export default async function NotFound() {
         </a>
       </div>
     </div>
-  )
+  );
 }
