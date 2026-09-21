@@ -27,11 +27,7 @@ function getStringFromFormData(formData: FormData, key: string): string {
   return value;
 }
 
-function validateOptionalUrl(
-  url: string,
-  field: string,
-  maxLength = 255,
-): string | undefined {
+function validateOptionalUrl(url: string, field: string, maxLength = 255): string | undefined {
   const trimmed = url.trim();
   if (!trimmed) return undefined;
   return validateSafeUrl(trimmed, field, { allowRelative: true, maxLength });
@@ -48,15 +44,8 @@ export async function createAlbum(formData: FormData) {
 
   const description = getStringFromFormData(formData, "description").trim();
   validateContentLength(description, "description", 10_000);
-  const cover = validateOptionalUrl(
-    getStringFromFormData(formData, "cover"),
-    "cover",
-  );
-  const sortOrder = parseFiniteInt(
-    getStringFromFormData(formData, "sort_order"),
-    0,
-    "sort_order",
-  );
+  const cover = validateOptionalUrl(getStringFromFormData(formData, "cover"), "cover");
+  const sortOrder = parseFiniteInt(getStringFromFormData(formData, "sort_order"), 0, "sort_order");
 
   await prisma.galleryAlbum.create({
     data: {
@@ -87,15 +76,8 @@ export async function updateAlbum(id: number, formData: FormData) {
 
   const description = getStringFromFormData(formData, "description").trim();
   validateContentLength(description, "description", 10_000);
-  const cover = validateOptionalUrl(
-    getStringFromFormData(formData, "cover"),
-    "cover",
-  );
-  const sortOrder = parseFiniteInt(
-    getStringFromFormData(formData, "sort_order"),
-    0,
-    "sort_order",
-  );
+  const cover = validateOptionalUrl(getStringFromFormData(formData, "cover"), "cover");
+  const sortOrder = parseFiniteInt(getStringFromFormData(formData, "sort_order"), 0, "sort_order");
 
   await prisma.galleryAlbum.update({
     where: { id: albumId },
@@ -160,15 +142,8 @@ export async function createPhoto(formData: FormData) {
   const title = getStringFromFormData(formData, "title").trim();
   const description = getStringFromFormData(formData, "description").trim();
   validateContentLength(description, "description", 10_000);
-  const thumbnail = validateOptionalUrl(
-    getStringFromFormData(formData, "thumbnail"),
-    "thumbnail",
-  );
-  const sortOrder = parseFiniteInt(
-    getStringFromFormData(formData, "sort_order"),
-    0,
-    "sort_order",
-  );
+  const thumbnail = validateOptionalUrl(getStringFromFormData(formData, "thumbnail"), "thumbnail");
+  const sortOrder = parseFiniteInt(getStringFromFormData(formData, "sort_order"), 0, "sort_order");
 
   await prisma.galleryPhoto.create({
     data: {
@@ -223,15 +198,8 @@ export async function updatePhoto(id: number, formData: FormData) {
   const title = getStringFromFormData(formData, "title").trim();
   const description = getStringFromFormData(formData, "description").trim();
   validateContentLength(description, "description", 10_000);
-  const thumbnail = validateOptionalUrl(
-    getStringFromFormData(formData, "thumbnail"),
-    "thumbnail",
-  );
-  const sortOrder = parseFiniteInt(
-    getStringFromFormData(formData, "sort_order"),
-    0,
-    "sort_order",
-  );
+  const thumbnail = validateOptionalUrl(getStringFromFormData(formData, "thumbnail"), "thumbnail");
+  const sortOrder = parseFiniteInt(getStringFromFormData(formData, "sort_order"), 0, "sort_order");
 
   await prisma.galleryPhoto.update({
     where: { id: photoId },

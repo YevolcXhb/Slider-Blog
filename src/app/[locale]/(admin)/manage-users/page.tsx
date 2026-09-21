@@ -23,11 +23,7 @@ export async function generateMetadata({
   return { title: t("title") };
 }
 
-export default async function UsersAdminPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function UsersAdminPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const session = await requireAdmin(locale, "/manage-users");
 

@@ -36,15 +36,14 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
   const filterTags = searchParams.getAll("tag");
   const filterCategories = searchParams.getAll("category");
   const uncategorizedParam = searchParams.get("uncategorized");
-  const filterUncategorized =
-    uncategorizedParam === "true" || uncategorizedParam === "1";
+  const filterUncategorized = uncategorizedParam === "true" || uncategorizedParam === "1";
 
   const [collapsedYears, setCollapsedYears] = useState<Set<number>>(() => {
     const foldArticle = siteConfig.foldArticle !== false;
     if (!foldArticle || posts.length === 0) return new Set();
-    const years = Array.from(
-      new Set(posts.map((p) => new Date(p.publishedAt).getFullYear())),
-    ).sort((a, b) => b - a);
+    const years = Array.from(new Set(posts.map((p) => new Date(p.publishedAt).getFullYear()))).sort(
+      (a, b) => b - a,
+    );
     if (years.length <= 1) return new Set();
     return new Set(years.slice(1));
   });
@@ -84,8 +83,7 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
       .filter((group) => group.posts.length > 0);
   }, [grouped, filterTags, filterCategories, filterUncategorized]);
 
-  const hasFilter =
-    filterTags.length > 0 || filterCategories.length > 0 || filterUncategorized;
+  const hasFilter = filterTags.length > 0 || filterCategories.length > 0 || filterUncategorized;
   const totalVisible = filtered.reduce((sum, g) => sum + g.posts.length, 0);
 
   const toggleYear = (year: number) => {
@@ -120,29 +118,24 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
   }
 
   return (
-    <div className="card-base px-4 md:px-8 py-6">
+    <div className="card-base px-4 py-6 md:px-8">
       {hasFilter && primaryFilter && (
         <div id="archive-filter-header" className="mb-5">
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-            <div className="min-w-0 text-sm text-75">
+            <div className="text-75 min-w-0 text-sm">
               <Link
                 href={primaryFilter.isTag ? "/tags" : "/categories"}
                 locale={locale}
-                className="text-50 hover:text-(--primary) transition-colors"
+                className="text-50 transition-colors hover:text-(--primary)"
               >
                 {primaryFilter.label}
               </Link>
-              <span className="mx-2 text-30">/</span>
-              <span
-                id="archive-filter-values"
-                className="font-semibold text-(--primary)"
-              >
-                {primaryFilter.values
-                  .map((v) => (primaryFilter.isTag ? `#${v}` : v))
-                  .join(" / ")}
+              <span className="text-30 mx-2">/</span>
+              <span id="archive-filter-values" className="font-semibold text-(--primary)">
+                {primaryFilter.values.map((v) => (primaryFilter.isTag ? `#${v}` : v)).join(" / ")}
               </span>
               {secondaryFilters.length > 0 && (
-                <span id="archive-filter-secondary" className="ml-2 text-50">
+                <span id="archive-filter-secondary" className="text-50 ml-2">
                   ·{" "}
                   {secondaryFilters
                     .map(
@@ -153,9 +146,8 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
                 </span>
               )}
             </div>
-            <div className="shrink-0 text-xs text-50">
-              {totalVisible}{" "}
-              {totalVisible === 1 ? i18n.postCount : i18n.postsCount}
+            <div className="text-50 shrink-0 text-xs">
+              {totalVisible} {totalVisible === 1 ? i18n.postCount : i18n.postsCount}
             </div>
           </div>
         </div>
@@ -173,16 +165,16 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
             <button
               type="button"
               onClick={() => toggleYear(group.year)}
-              className="archive-year-toggle flex flex-row w-full items-center h-15 cursor-pointer rounded-lg hover:bg-(--btn-plain-bg-hover) transition-colors group/yr"
+              className="archive-year-toggle group/yr flex h-15 w-full cursor-pointer flex-row items-center rounded-lg transition-colors hover:bg-(--btn-plain-bg-hover)"
               aria-expanded={!collapsed}
             >
-              <div className="w-[15%] md:w-[10%] transition text-2xl font-bold text-right text-75 group-hover/yr:text-(--primary)">
+              <div className="text-75 w-[15%] text-right text-2xl font-bold transition group-hover/yr:text-(--primary) md:w-[10%]">
                 {group.year}
               </div>
               <div className="w-[15%] md:w-[10%]">
-                <div className="h-3 w-3 bg-none rounded-full outline-(--primary) mx-auto -outline-offset-2 z-50 outline-3" />
+                <div className="z-50 mx-auto h-3 w-3 rounded-full bg-none outline-3 -outline-offset-2 outline-(--primary)" />
               </div>
-              <div className="w-[70%] md:w-[80%] transition text-left text-50 flex items-center gap-2 group-hover/yr:text-(--primary)">
+              <div className="text-50 flex w-[70%] items-center gap-2 text-left transition group-hover/yr:text-(--primary) md:w-[80%]">
                 <span className="archive-year-count">{group.posts.length}</span>{" "}
                 <span className="archive-year-count-label">
                   {group.posts.length === 1 ? i18n.postCount : i18n.postsCount}
@@ -194,17 +186,13 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
                   )}
                 >
                   <svg
-                    className="w-4 h-4"
+                    className="h-4 w-4"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="3"
                   >
-                    <path
-                      d="M6 9l6 6 6-6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                    <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
               </div>
@@ -222,23 +210,23 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
                     data-tags={JSON.stringify(post.tags.map((t) => t.name))}
                     data-category={post.category?.name || ""}
                   >
-                    <div className="flex flex-row justify-start items-center h-full">
-                      <div className="w-[15%] md:w-[10%] transition text-sm text-right text-50">
+                    <div className="flex h-full flex-row items-center justify-start">
+                      <div className="text-50 w-[15%] text-right text-sm transition md:w-[10%]">
                         {formatDate(post.publishedAt)}
                       </div>
-                      <div className="w-[15%] md:w-[10%] relative dash-line h-full flex items-center">
-                        <div className="transition-all mx-auto w-1 h-1 rounded-sm group-hover:h-5 bg-[oklch(0.5_0.05_var(--hue))] group-hover:bg-(--primary) outline-4 z-50 outline-(--card-bg) group-hover:outline-(--btn-plain-bg-hover) group-active:outline-(--btn-plain-bg-active)" />
+                      <div className="dash-line relative flex h-full w-[15%] items-center md:w-[10%]">
+                        <div className="z-50 mx-auto h-1 w-1 rounded-sm bg-[oklch(0.5_0.05_var(--hue))] outline-4 outline-(--card-bg) transition-all group-hover:h-5 group-hover:bg-(--primary) group-hover:outline-(--btn-plain-bg-hover) group-active:outline-(--btn-plain-bg-active)" />
                       </div>
-                      <div className="w-[70%] md:max-w-[65%] md:w-[65%] text-left font-bold group-hover:translate-x-1 transition-all group-hover:text-(--primary) text-75 pr-8 whitespace-nowrap text-ellipsis overflow-hidden flex items-center gap-2">
+                      <div className="text-75 flex w-[70%] items-center gap-2 overflow-hidden pr-8 text-left font-bold text-ellipsis whitespace-nowrap transition-all group-hover:translate-x-1 group-hover:text-(--primary) md:w-[65%] md:max-w-[65%]">
                         {post.category && (
-                          <span className="shrink-0 inline-block text-xs font-medium px-1.5 py-0.5 rounded-sm bg-[oklch(0.95_0.025_var(--hue))] dark:bg-[oklch(0.25_0.025_var(--hue))] text-(--primary) group-hover:bg-(--primary) group-hover:text-white transition-colors">
+                          <span className="inline-block shrink-0 rounded-sm bg-[oklch(0.95_0.025_var(--hue))] px-1.5 py-0.5 text-xs font-medium text-(--primary) transition-colors group-hover:bg-(--primary) group-hover:text-white dark:bg-[oklch(0.25_0.025_var(--hue))]">
                             {/* 保留白字：hover 时 px 块变成 --primary 饱和色，白字压色块 */}
                             {post.category.name}
                           </span>
                         )}
                         <span className="truncate">{post.title}</span>
                       </div>
-                      <div className="hidden md:block md:w-[15%] text-left text-sm transition whitespace-nowrap text-ellipsis overflow-hidden text-30">
+                      <div className="text-30 hidden overflow-hidden text-left text-sm text-ellipsis whitespace-nowrap transition md:block md:w-[15%]">
                         {formatTag(post.tags)}
                       </div>
                     </div>
@@ -251,7 +239,7 @@ export function ArchivePanel({ posts, locale, i18n }: ArchivePanelProps) {
       })}
 
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-50">
+        <div className="text-50 py-12 text-center">
           {filtered.length} {i18n.postsCount}
         </div>
       )}

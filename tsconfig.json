@@ -30,5 +30,10 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "NapCatQQ-main（仅用于参考UI风格）", "Slider（仅用于参考）", "prisma/seed.ts"]
+  "exclude": [
+    "node_modules",
+    "NapCatQQ-main（仅用于参考UI风格）",
+    "Slider（仅用于参考）",
+    "prisma/seed.ts"
+  ]
 }

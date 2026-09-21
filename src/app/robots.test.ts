@@ -77,9 +77,8 @@ describe("robots", () => {
     process.env.NEXT_PUBLIC_SITE_URL = "javascript:alert(1)";
     vi.resetModules();
     vi.doMock("@/config/slider-config", async () => {
-      const actual = await vi.importActual<typeof import("@/config/slider-config")>(
-        "@/config/slider-config",
-      );
+      const actual =
+        await vi.importActual<typeof import("@/config/slider-config")>("@/config/slider-config");
       return { ...actual, siteConfig: { ...actual.siteConfig, site_url: "  " } };
     });
     const mod = await import("@/app/robots");

@@ -36,22 +36,22 @@ export default async function AdminLayout({
       <ThemeSettingsProvider initialSettings={themeSettings}>
         <style dangerouslySetInnerHTML={{ __html: buildThemeCss(themeSettings) }} />
         <div className="relative flex min-h-screen">
-        <PageBackground />
-        {/* 顶部页面切换进度条 */}
-        <ProgressBar />
+          <PageBackground />
+          {/* 顶部页面切换进度条 */}
+          <ProgressBar />
 
-        {/* 侧边栏（客户端组件，在 Suspense 外部调用 usePageTransition） */}
-        <AdminSidebar />
+          {/* 侧边栏（客户端组件，在 Suspense 外部调用 usePageTransition） */}
+          <AdminSidebar />
 
-        {/* Main Content
+          {/* Main Content
             Suspense fallback={null}：导航时保持旧内容显示，不显示白屏/骨架屏
             新页面数据就绪后由 React concurrent 模式自动切换，配合进度条实现 SPA 式体验
             移动端：顶部为 3.5rem 汉堡栏，主内容全宽；桌面端：左侧 16rem 侧边栏 */}
-        <main className="admin-content relative z-10 min-h-screen flex-1 p-4 pt-20 md:ml-[17rem] md:p-8 md:pt-10 xl:p-10">
-          <div className="mx-auto w-full max-w-[1440px]">
-            <Suspense fallback={null}>{children}</Suspense>
-          </div>
-        </main>
+          <main className="admin-content relative z-10 min-h-screen flex-1 p-4 pt-20 md:ml-[17rem] md:p-8 md:pt-10 xl:p-10">
+            <div className="mx-auto w-full max-w-[1440px]">
+              <Suspense fallback={null}>{children}</Suspense>
+            </div>
+          </main>
         </div>
       </ThemeSettingsProvider>
     </ThemeProvider>

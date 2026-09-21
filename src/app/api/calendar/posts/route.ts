@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
 
-import { getPublishedPostsForArchive } from "@/server/queries/post"
-import { safeDbQuery } from "@/lib/safe-db"
-import { getClientIp } from "@/lib/client-ip"
-import { rateLimit } from "@/lib/rate-limit"
+import { getPublishedPostsForArchive } from "@/server/queries/post";
+import { safeDbQuery } from "@/lib/safe-db";
+import { getClientIp } from "@/lib/client-ip";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * 公开归档日历数据（归档页 / 日历组件匿名调用）。
@@ -30,20 +30,17 @@ export async function GET(request: NextRequest) {
     // 限流放在取数之前：先消费配额，超限直接 429，不产生任何数据库开销。
     // IP 取信统一走 getClientIp（优先 x-real-ip 并做形态校验），
     // 避免伪造 x-forwarded-for 首段绕过限流。
-    const ip = getClientIp(request.headers)
+    const ip = getClientIp(request.headers);
     try {
-      await rateLimit(ip, "api")
+      await rateLimit(ip, "api");
     } catch {
-      return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429 },
-      )
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    const { searchParams } = new URL(request.url)
-    const locale = searchParams.get("locale") || "zh"
+    const { searchParams } = new URL(request.url);
+    const locale = searchParams.get("locale") || "zh";
 
-    const posts = await safeDbQuery(() => getPublishedPostsForArchive(locale), [])
+    const posts = await safeDbQuery(() => getPublishedPostsForArchive(locale), []);
 
     return NextResponse.json(
       posts.map((post) => ({
@@ -54,9 +51,9 @@ export async function GET(request: NextRequest) {
         locale: post.locale,
         url: `/${post.locale}/blog/${post.slug}`,
       })),
-    )
+    );
   } catch (error) {
-    console.error("Failed to fetch calendar posts:", error)
-    return NextResponse.json([], { status: 500 })
+    console.error("Failed to fetch calendar posts:", error);
+    return NextResponse.json([], { status: 500 });
   }
 }

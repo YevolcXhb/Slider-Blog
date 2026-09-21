@@ -19,9 +19,7 @@ import { resolveUploadDir } from "@/lib/upload-dir";
  * 【失败语义】任何异常都吞掉。删除文件是「删除内容」的副作用，
  * 文件不存在 / 被占用 / 权限不足都不应让管理端的删除操作失败。
  */
-export async function deleteUploadedFileByUrl(
-  url: string | null | undefined,
-): Promise<void> {
+export async function deleteUploadedFileByUrl(url: string | null | undefined): Promise<void> {
   if (typeof url !== "string") return;
   const trimmed = url.trim();
   if (!trimmed) return;

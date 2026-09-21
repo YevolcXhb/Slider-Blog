@@ -98,14 +98,10 @@ export async function saveUploadedImage(file: File): Promise<SavedImage> {
     throw new Error("Invalid file type: SVG is not supported");
   }
   if (metadata.width > MAX_DIMENSION || metadata.height > MAX_DIMENSION) {
-    throw new Error(
-      `Image dimensions too large: max ${MAX_DIMENSION}x${MAX_DIMENSION}`,
-    );
+    throw new Error(`Image dimensions too large: max ${MAX_DIMENSION}x${MAX_DIMENSION}`);
   }
   if (metadata.width * metadata.height > MAX_PIXELS) {
-    throw new Error(
-      `Image has too many pixels: max ${MAX_PIXELS.toLocaleString("en-US")}`,
-    );
+    throw new Error(`Image has too many pixels: max ${MAX_PIXELS.toLocaleString("en-US")}`);
   }
   // 动画图片（GIF/APNG/WebP）的每一帧都会参与解码，总像素量必须按帧数放大，
   // 否则一个多帧动图可以绕过上面的单帧上限。

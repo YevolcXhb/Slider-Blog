@@ -78,8 +78,15 @@ describe("normalizeCallbackUrl", () => {
 
   it("归一化结果永远可以直接交给 router.push（不以 // 开头）", () => {
     const inputs = [
-      "/zh/dashboard", "/dashboard", "/en/x", "/zh", "//evil.com", "/\\evil.com",
-      "/zh/../../etc", "/zh//double", "/en/blog?x=//y",
+      "/zh/dashboard",
+      "/dashboard",
+      "/en/x",
+      "/zh",
+      "//evil.com",
+      "/\\evil.com",
+      "/zh/../../etc",
+      "/zh//double",
+      "/en/blog?x=//y",
     ];
     for (const input of inputs) {
       const out = normalizeCallbackUrl(input, LOCALES);

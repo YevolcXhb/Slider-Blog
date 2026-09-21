@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface SiteInfoCollapseProps {
-  expandText: string
-  collapseText: string
-  children: React.ReactNode
+  expandText: string;
+  collapseText: string;
+  children: React.ReactNode;
 }
 
 function SiteInfoCollapse({ expandText, collapseText, children }: SiteInfoCollapseProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <div>
@@ -28,7 +28,7 @@ function SiteInfoCollapse({ expandText, collapseText, children }: SiteInfoCollap
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
-        className="site-info-toggle-btn btn-plain rounded-lg w-full h-8 flex items-center justify-center gap-1.5 mt-1 text-[var(--primary)] text-sm cursor-pointer"
+        className="site-info-toggle-btn btn-plain mt-1 flex h-8 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg text-sm text-[var(--primary)]"
         aria-expanded={expanded}
         aria-label={expanded ? collapseText : expandText}
         title={expanded ? collapseText : expandText}
@@ -40,13 +40,11 @@ function SiteInfoCollapse({ expandText, collapseText, children }: SiteInfoCollap
           )}
           aria-hidden="true"
         />
-        <span className="site-info-toggle-text">
-          {expanded ? collapseText : expandText}
-        </span>
+        <span className="site-info-toggle-text">{expanded ? collapseText : expandText}</span>
       </button>
     </div>
-  )
+  );
 }
 
-export { SiteInfoCollapse }
-export default SiteInfoCollapse
+export { SiteInfoCollapse };
+export default SiteInfoCollapse;

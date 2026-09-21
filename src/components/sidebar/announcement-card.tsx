@@ -1,21 +1,21 @@
-import { Megaphone } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { Megaphone } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import type { AnnouncementItem } from "@/server/queries/site"
+import type { AnnouncementItem } from "@/server/queries/site";
 
 interface AnnouncementCardProps {
-  announcements: AnnouncementItem[]
+  announcements: AnnouncementItem[];
 }
 
 function AnnouncementCard({ announcements }: AnnouncementCardProps) {
-  const t = useTranslations("Widgets")
+  const t = useTranslations("Widgets");
 
   if (announcements.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <div className="glass-card rounded-2xl border-pink-200 dark:border-pink-400/20 bg-gradient-to-r from-pink-100/80 to-white/70 dark:from-pink-400/5 dark:to-transparent p-5">
+    <div className="glass-card rounded-2xl border-pink-200 bg-gradient-to-r from-pink-100/80 to-white/70 p-5 dark:border-pink-400/20 dark:from-pink-400/5 dark:to-transparent">
       <div className="mb-3 flex items-center gap-2">
         <Megaphone className="size-4 text-pink-500 dark:text-pink-400" />
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white/90">
@@ -37,8 +37,8 @@ function AnnouncementCard({ announcements }: AnnouncementCardProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export { AnnouncementCard }
-export default AnnouncementCard
+export { AnnouncementCard };
+export default AnnouncementCard;

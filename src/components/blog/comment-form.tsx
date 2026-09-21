@@ -1,58 +1,52 @@
-"use client"
+"use client";
 
-import { useState, useCallback } from "react"
-import { useTranslations } from "next-intl"
-import { Loader2, AlertCircle, CheckCircle2, MessageSquare, CornerDownRight } from "lucide-react"
+import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import { Loader2, AlertCircle, CheckCircle2, MessageSquare, CornerDownRight } from "lucide-react";
 
-import { GlassInput } from "@/components/ui/glass-input"
-import { GlassButton } from "@/components/ui/glass-button"
-import { useComment } from "@/hooks/use-comment"
-import { getActionErrorMessage } from "@/lib/action-error"
+import { GlassInput } from "@/components/ui/glass-input";
+import { GlassButton } from "@/components/ui/glass-button";
+import { useComment } from "@/hooks/use-comment";
+import { getActionErrorMessage } from "@/lib/action-error";
 
 interface CommentFormProps {
-  postId: number
-  parentId?: number
-  replyTo?: string
-  onCancel?: () => void
-  onSuccess?: () => void
+  postId: number;
+  parentId?: number;
+  replyTo?: string;
+  onCancel?: () => void;
+  onSuccess?: () => void;
 }
 
-export function CommentForm({
-  postId,
-  parentId,
-  replyTo,
-  onCancel,
-  onSuccess,
-}: CommentFormProps) {
-  const t = useTranslations("Blog")
+export function CommentForm({ postId, parentId, replyTo, onCancel, onSuccess }: CommentFormProps) {
+  const t = useTranslations("Blog");
   // 服务端校验失败以 `action_error:<key>` 形式回传（见 src/lib/action-error.ts），
   // 必须用 getActionErrorMessage 解析前缀再翻译；直接渲染 error 会让用户看到裸错误码。
-  const tErr = useTranslations("AdminErrors")
+  const tErr = useTranslations("AdminErrors");
 
-  const { submitComment, loading, error } = useComment(postId)
+  const { submitComment, loading, error } = useComment(postId);
 
-  const [content, setContent] = useState("")
-  const [authorName, setAuthorName] = useState("")
-  const [success, setSuccess] = useState<string | null>(null)
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const [content, setContent] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [success, setSuccess] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const isReply = !!parentId
+  const isReply = !!parentId;
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      setValidationError(null)
-      setSuccess(null)
+      e.preventDefault();
+      setValidationError(null);
+      setSuccess(null);
 
-      const trimmedContent = content.trim()
+      const trimmedContent = content.trim();
       if (!trimmedContent) {
-        setValidationError(t("comments.contentRequired"))
-        return
+        setValidationError(t("comments.contentRequired"));
+        return;
       }
 
       if (!authorName.trim()) {
-        setValidationError(t("comments.nameRequired"))
-        return
+        setValidationError(t("comments.nameRequired"));
+        return;
       }
 
       try {
@@ -60,34 +54,30 @@ export function CommentForm({
           content: trimmedContent,
           author_name: authorName.trim(),
           parent_id: parentId,
-        })
+        });
 
-        setSuccess(t("comments.posted"))
-        setContent("")
+        setSuccess(t("comments.posted"));
+        setContent("");
         if (!isReply) {
-          setAuthorName("")
+          setAuthorName("");
         }
-        onSuccess?.()
+        onSuccess?.();
       } catch {
         // error surfaced via useComment hook
       }
     },
     [content, authorName, isReply, parentId, submitComment, t, onSuccess],
-  )
+  );
 
   return (
-    <div className={isReply ? "ml-12 mt-3" : ""}>
+    <div className={isReply ? "mt-3 ml-12" : ""}>
       <div className="flex items-start gap-3">
         {/* Avatar placeholder */}
-        <div className="hidden sm:flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--primary)/15 text-sm font-bold text-(--primary)">
-          {isReply ? (
-            <CornerDownRight className="size-4" />
-          ) : (
-            <MessageSquare className="size-4" />
-          )}
+        <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--primary)/15 text-sm font-bold text-(--primary) sm:flex">
+          {isReply ? <CornerDownRight className="size-4" /> : <MessageSquare className="size-4" />}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {success && (
             <div className="mb-3 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="size-4 shrink-0" />
@@ -128,12 +118,10 @@ export function CommentForm({
 
             <textarea
               id="comment-content"
-              className="w-full rounded-xl border border-(--line-divider) bg-(--btn-regular-bg) px-4 py-3 text-sm text-foreground transition-all placeholder:text-(--content-meta) focus:outline-none focus:ring-2 focus:ring-(--primary)/40 focus:border-(--primary)/30 resize-none"
+              className="text-foreground w-full resize-none rounded-xl border border-(--line-divider) bg-(--btn-regular-bg) px-4 py-3 text-sm transition-all placeholder:text-(--content-meta) focus:border-(--primary)/30 focus:ring-2 focus:ring-(--primary)/40 focus:outline-none"
               rows={isReply ? 3 : 4}
               placeholder={
-                isReply
-                  ? t("comments.replyPlaceholder")
-                  : t("comments.contentPlaceholder")
+                isReply ? t("comments.replyPlaceholder") : t("comments.contentPlaceholder")
               }
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -146,17 +134,12 @@ export function CommentForm({
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="px-4 py-2 text-sm text-(--content-meta) hover:text-foreground transition-colors rounded-lg"
+                  className="hover:text-foreground rounded-lg px-4 py-2 text-sm text-(--content-meta) transition-colors"
                 >
                   {t("comments.cancel")}
                 </button>
               )}
-              <GlassButton
-                type="submit"
-                variant="primary"
-                size="sm"
-                disabled={loading}
-              >
+              <GlassButton type="submit" variant="primary" size="sm" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
@@ -171,5 +154,5 @@ export function CommentForm({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -22,19 +22,11 @@ const SRC_DIR = path.join(ROOT, "src");
 
 type Messages = Record<string, unknown>;
 
-const zh = JSON.parse(
-  fs.readFileSync(path.join(MESSAGES_DIR, "zh.json"), "utf8"),
-) as Messages;
-const en = JSON.parse(
-  fs.readFileSync(path.join(MESSAGES_DIR, "en.json"), "utf8"),
-) as Messages;
+const zh = JSON.parse(fs.readFileSync(path.join(MESSAGES_DIR, "zh.json"), "utf8")) as Messages;
+const en = JSON.parse(fs.readFileSync(path.join(MESSAGES_DIR, "en.json"), "utf8")) as Messages;
 
 /** 递归展开为 "A.b.c" -> 叶子类型（数组也算叶子）。 */
-function expand(
-  obj: Messages,
-  prefix = "",
-  out = new Map<string, string>(),
-): Map<string, string> {
+function expand(obj: Messages, prefix = "", out = new Map<string, string>()): Map<string, string> {
   for (const [key, value] of Object.entries(obj)) {
     const dotted = prefix ? `${prefix}.${key}` : key;
     if (value !== null && typeof value === "object" && !Array.isArray(value)) {
@@ -76,8 +68,44 @@ function collectSourceFiles(dir: string, acc: string[] = []): string[] {
  * 因此改为逐字符扫描：只在字符串/模板字面量之外识别注释。
  */
 function stripComments(source: string): string {
-  const REGEX_POS_PUNCT = new Set(["", "(", ",", "=", ":", "[", "!", "&", "|", "?", "{", "}", ";", "+", "-", "*", "%", "^", "~", "<", ">"]);
-  const REGEX_POS_WORD = new Set(["return", "typeof", "instanceof", "in", "of", "new", "delete", "void", "case", "do", "else", "yield", "await"]);
+  const REGEX_POS_PUNCT = new Set([
+    "",
+    "(",
+    ",",
+    "=",
+    ":",
+    "[",
+    "!",
+    "&",
+    "|",
+    "?",
+    "{",
+    "}",
+    ";",
+    "+",
+    "-",
+    "*",
+    "%",
+    "^",
+    "~",
+    "<",
+    ">",
+  ]);
+  const REGEX_POS_WORD = new Set([
+    "return",
+    "typeof",
+    "instanceof",
+    "in",
+    "of",
+    "new",
+    "delete",
+    "void",
+    "case",
+    "do",
+    "else",
+    "yield",
+    "await",
+  ]);
 
   let out = "";
   let i = 0;
@@ -86,9 +114,7 @@ function stripComments(source: string): string {
   let lastWord = "";
 
   const isRegexPosition = () =>
-    lastWord !== ""
-      ? REGEX_POS_WORD.has(lastWord)
-      : REGEX_POS_PUNCT.has(prevSignificant);
+    lastWord !== "" ? REGEX_POS_WORD.has(lastWord) : REGEX_POS_PUNCT.has(prevSignificant);
 
   while (i < source.length) {
     const ch = source[i];
@@ -252,9 +278,7 @@ describe("代码引用的 i18n 键都存在", () => {
         const zhHit = candidates.find((c) => lookup(zh, c) !== undefined);
         const enHit = candidates.find((c) => lookup(en, c) !== undefined);
         if (!zhHit || !enHit) {
-          problems.push(
-            `${rel(file)}: t("${key}") 解析失败 (候选: ${candidates.join(", ")})`,
-          );
+          problems.push(`${rel(file)}: t("${key}") 解析失败 (候选: ${candidates.join(", ")})`);
         }
       }
     }

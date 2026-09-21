@@ -18,18 +18,18 @@
  * 读不到再退回 URL 首段，最后兜底中文。为了 SSR/水合一致，服务端一律用
  * 默认语言渲染，客户端挂载后 detectLocale() 会读到 <html lang> 再更新一次。
  */
-const FALLBACK_LOCALE = "zh"
-const SUPPORTED_LOCALES = ["zh", "en"] as const
+const FALLBACK_LOCALE = "zh";
+const SUPPORTED_LOCALES = ["zh", "en"] as const;
 
-export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export interface ErrorCopy {
-  title: string
-  description: string
-  errorId: (digest: string) => string
-  retry: string
-  backHome: string
-  backToBlog: string
+  title: string;
+  description: string;
+  errorId: (digest: string) => string;
+  retry: string;
+  backHome: string;
+  backToBlog: string;
 }
 
 export const ERROR_MESSAGES: Record<SupportedLocale, ErrorCopy> = {
@@ -50,48 +50,46 @@ export const ERROR_MESSAGES: Record<SupportedLocale, ErrorCopy> = {
     backHome: "Back to home",
     backToBlog: "Back to blog",
   },
-}
+};
 
 /** 文章加载失败专用文案（Error.blogTitle / Error.blogDescription）。 */
-export const BLOG_ERROR_MESSAGES: Record<
-  SupportedLocale,
-  { title: string; description: string }
-> = {
-  zh: {
-    title: "文章加载失败",
-    description: "加载这篇文章时发生了意外错误。请重试，或返回博客列表。",
-  },
-  en: {
-    title: "Failed to load article",
-    // prettier-ignore
-    description: "An unexpected error occurred while loading this article. Please try again, or return to the blog listing.",
-  },
-}
+export const BLOG_ERROR_MESSAGES: Record<SupportedLocale, { title: string; description: string }> =
+  {
+    zh: {
+      title: "文章加载失败",
+      description: "加载这篇文章时发生了意外错误。请重试，或返回博客列表。",
+    },
+    en: {
+      title: "Failed to load article",
+      // prettier-ignore
+      description: "An unexpected error occurred while loading this article. Please try again, or return to the blog listing.",
+    },
+  };
 
 export function detectLocale(): SupportedLocale {
   if (typeof document !== "undefined") {
-    const fromHtml = document.documentElement.lang
+    const fromHtml = document.documentElement.lang;
     if (SUPPORTED_LOCALES.includes(fromHtml as SupportedLocale)) {
-      return fromHtml as SupportedLocale
+      return fromHtml as SupportedLocale;
     }
-    const firstSegment = window.location.pathname.split("/")[1]
+    const firstSegment = window.location.pathname.split("/")[1];
     if (SUPPORTED_LOCALES.includes(firstSegment as SupportedLocale)) {
-      return firstSegment as SupportedLocale
+      return firstSegment as SupportedLocale;
     }
   }
-  return FALLBACK_LOCALE
+  return FALLBACK_LOCALE;
 }
 
 /** 服务端渲染固定用默认语言，避免水合不一致；客户端挂载后按 <html lang> 取值。 */
 export function useErrorLocale(): SupportedLocale {
-  return typeof document === "undefined" ? FALLBACK_LOCALE : detectLocale()
+  return typeof document === "undefined" ? FALLBACK_LOCALE : detectLocale();
 }
 
 export function useErrorCopy(): ErrorCopy {
-  return ERROR_MESSAGES[useErrorLocale()]
+  return ERROR_MESSAGES[useErrorLocale()];
 }
 
 export function useBlogErrorCopy() {
-  const locale = useErrorLocale()
-  return { ...ERROR_MESSAGES[locale], ...BLOG_ERROR_MESSAGES[locale] }
+  const locale = useErrorLocale();
+  return { ...ERROR_MESSAGES[locale], ...BLOG_ERROR_MESSAGES[locale] };
 }

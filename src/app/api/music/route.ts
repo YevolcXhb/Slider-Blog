@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
 
-import { getMusicList } from "@/server/queries/site"
-import { safeDbQuery } from "@/lib/safe-db"
-import { getClientIp } from "@/lib/client-ip"
-import { rateLimit } from "@/lib/rate-limit"
+import { getMusicList } from "@/server/queries/site";
+import { safeDbQuery } from "@/lib/safe-db";
+import { getClientIp } from "@/lib/client-ip";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * 公开音乐列表（前台首页 / 音乐页匿名调用）。
@@ -33,23 +33,20 @@ export async function GET(request: NextRequest) {
     // 限流放在取数之前：先消费配额，超限直接 429，不产生任何数据库开销。
     // IP 取信统一走 getClientIp（优先 x-real-ip 并做形态校验），
     // 避免伪造 x-forwarded-for 首段绕过限流。
-    const ip = getClientIp(request.headers)
+    const ip = getClientIp(request.headers);
     try {
-      await rateLimit(ip, "api")
+      await rateLimit(ip, "api");
     } catch {
-      return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429 },
-      )
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     // 取数必须走 unstable_cache 包裹的 getMusicList：它才是本路由的 DB 命中
     // 节流点（revalidate 3600、tags ["music"]）。若改回音乐模块里那个未缓存的
     // 裸查询版本，在动态渲染下会退化成每请求一次 findMany。
-    const musicList = await safeDbQuery(getMusicList, [])
-    return NextResponse.json(musicList)
+    const musicList = await safeDbQuery(getMusicList, []);
+    return NextResponse.json(musicList);
   } catch (error) {
-    console.error("Failed to fetch music list:", error)
-    return NextResponse.json([], { status: 500 })
+    console.error("Failed to fetch music list:", error);
+    return NextResponse.json([], { status: 500 });
   }
 }

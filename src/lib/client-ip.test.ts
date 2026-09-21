@@ -31,15 +31,13 @@ describe("getClientIp", () => {
   });
 
   it("x-forwarded-for 只有一段时原样返回", () => {
-    expect(getClientIp(headersOf({ "x-forwarded-for": "198.51.100.9" }))).toBe(
-      "198.51.100.9",
-    );
+    expect(getClientIp(headersOf({ "x-forwarded-for": "198.51.100.9" }))).toBe("198.51.100.9");
   });
 
   it("忽略分段两侧空白", () => {
-    expect(
-      getClientIp(headersOf({ "x-forwarded-for": "  198.51.100.5  , 10.0.0.1" })),
-    ).toBe("198.51.100.5");
+    expect(getClientIp(headersOf({ "x-forwarded-for": "  198.51.100.5  , 10.0.0.1" }))).toBe(
+      "198.51.100.5",
+    );
     expect(getClientIp(headersOf({ "x-real-ip": "  203.0.113.9 " }))).toBe("203.0.113.9");
   });
 
@@ -53,9 +51,9 @@ describe("getClientIp", () => {
 
   it("IPv6 方括号形式被剥离", () => {
     expect(getClientIp(headersOf({ "x-real-ip": "[::1]" }))).toBe("::1");
-    expect(
-      getClientIp(headersOf({ "x-forwarded-for": "[2001:db8::1], 10.0.0.1" })),
-    ).toBe("2001:db8::1");
+    expect(getClientIp(headersOf({ "x-forwarded-for": "[2001:db8::1], 10.0.0.1" }))).toBe(
+      "2001:db8::1",
+    );
   });
 
   it("接受不带方括号的 IPv6", () => {
@@ -73,9 +71,7 @@ describe("getClientIp", () => {
   });
 
   it("空字符串请求头返回 unknown", () => {
-    expect(getClientIp(headersOf({ "x-real-ip": "", "x-forwarded-for": "" }))).toBe(
-      "unknown",
-    );
+    expect(getClientIp(headersOf({ "x-real-ip": "", "x-forwarded-for": "" }))).toBe("unknown");
     expect(getClientIp(headersOf({ "x-forwarded-for": "   " }))).toBe("unknown");
   });
 
@@ -111,9 +107,7 @@ describe("getClientIp", () => {
     // 注意：Headers 构造时会剥离首尾空白，且禁止 \u0000 等控制字符，
     // 因此这里只能用内部含空格的形态验证 hasControlOrSpace 分支。
     expect(getClientIp(headersOf({ "x-real-ip": "1.2. 3.4" }))).toBe("unknown");
-    expect(getClientIp(headersOf({ "x-forwarded-for": "1.2. 3.4, 5.6.7.8" }))).toBe(
-      "unknown",
-    );
+    expect(getClientIp(headersOf({ "x-forwarded-for": "1.2. 3.4, 5.6.7.8" }))).toBe("unknown");
   });
 
   it("x-real-ip 与 x-forwarded-for 都非法时返回 unknown", () => {

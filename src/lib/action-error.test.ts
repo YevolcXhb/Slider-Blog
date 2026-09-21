@@ -29,16 +29,10 @@ describe("ACTION_ERROR_PREFIX", () => {
 describe("getActionErrorMessage", () => {
   it("带前缀的消息交给翻译函数，并传入 messageKey", () => {
     const t = vi.fn((key: string) => `translated:${key}`) as unknown as ErrorTranslator;
-    const result = getActionErrorMessage(
-      t,
-      `${ACTION_ERROR_PREFIX}invalidId`,
-      "fallback",
-    );
+    const result = getActionErrorMessage(t, `${ACTION_ERROR_PREFIX}invalidId`, "fallback");
     expect(result).toBe("translated:invalidId");
     expect(t).toHaveBeenCalledTimes(1);
-    expect((t as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][0]).toBe(
-      "invalidId",
-    );
+    expect((t as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][0]).toBe("invalidId");
   });
 
   it("调用翻译函数时带上 defaultValue 作为兜底", () => {

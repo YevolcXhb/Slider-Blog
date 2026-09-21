@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   Music,
   Pause,
@@ -14,23 +14,20 @@ import {
   Repeat1,
   Shuffle,
   ChevronDown,
-} from "lucide-react"
-import { motion, AnimatePresence } from "motion/react"
-import Image from "next/image"
-import { useTranslations } from "next-intl"
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
 
-import { cn } from "@/lib/utils"
-import {
-  loadPlaylist,
-  useMusicPlayer,
-} from "@/lib/music-player-store"
-import type { MusicItem } from "@/server/queries/site"
+import { cn } from "@/lib/utils";
+import { loadPlaylist, useMusicPlayer } from "@/lib/music-player-store";
+import type { MusicItem } from "@/server/queries/site";
 
 function formatTime(time: number): string {
-  if (isNaN(time) || !isFinite(time)) return "0:00"
-  const minutes = Math.floor(time / 60)
-  const seconds = Math.floor(time % 60)
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  if (isNaN(time) || !isFinite(time)) return "0:00";
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function CoverImage({
@@ -39,28 +36,28 @@ function CoverImage({
   isPlaying,
   size = "md",
 }: {
-  cover: string | null
-  title: string
-  isPlaying: boolean
-  size?: "sm" | "md" | "lg"
+  cover: string | null;
+  title: string;
+  isPlaying: boolean;
+  size?: "sm" | "md" | "lg";
 }) {
   const sizeMap = {
     sm: "size-12",
     md: "size-14",
     lg: "size-40 sm:size-48",
-  }
+  };
   const iconMap = {
     sm: "size-5",
     md: "size-6",
     lg: "size-16",
-  }
-  const sizeClasses = sizeMap[size]
-  const iconSize = iconMap[size]
+  };
+  const sizeClasses = sizeMap[size];
+  const iconSize = iconMap[size];
 
   return (
     <div className={`relative ${sizeClasses} shrink-0`}>
       <div
-        className={`absolute inset-0 rounded-full overflow-hidden shadow-lg border-2 border-white dark:border-neutral-700 bg-[var(--primary)]/10 flex items-center justify-center ${isPlaying ? "animate-spin-slow" : ""}`}
+        className={`absolute inset-0 flex items-center justify-center overflow-hidden rounded-full border-2 border-white bg-[var(--primary)]/10 shadow-lg dark:border-neutral-700 ${isPlaying ? "animate-spin-slow" : ""}`}
         style={{ animationPlayState: isPlaying ? "running" : "paused" }}
       >
         {cover ? (
@@ -70,16 +67,16 @@ function CoverImage({
             fill
             sizes={size === "sm" ? "48px" : size === "md" ? "64px" : "256px"}
             unoptimized
-            className="object-cover relative z-10"
+            className="relative z-10 object-cover"
           />
         ) : (
-          <div className="flex size-full items-center justify-center bg-gradient-to-br from-pink-200/80 via-rose-100/80 to-frost-200/80 dark:from-pink-500/30 dark:via-rose-500/20 dark:to-frost-500/30">
+          <div className="to-frost-200/80 dark:to-frost-500/30 flex size-full items-center justify-center bg-gradient-to-br from-pink-200/80 via-rose-100/80 dark:from-pink-500/30 dark:via-rose-500/20">
             <Music className={`${iconSize} text-pink-400/60 dark:text-pink-400/40`} />
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function ProgressBar({
@@ -89,49 +86,57 @@ function ProgressBar({
   onSeekPreview,
   onSeekEnd,
 }: {
-  progress: number
-  duration: number
-  onSeekStart: () => void
-  onSeekPreview: (value: number) => void
-  onSeekEnd: (value: number) => void
+  progress: number;
+  duration: number;
+  onSeekStart: () => void;
+  onSeekPreview: (value: number) => void;
+  onSeekEnd: (value: number) => void;
 }) {
-  const t = useTranslations("Player")
+  const t = useTranslations("Player");
   // 进度直接来自 store（拖拽时由 seekPreview 实时更新 store.progress）
-  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0
-  const containerRef = useRef<HTMLDivElement>(null)
-  const isDraggingRef = useRef(false)
+  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const fractionFromEvent = (clientX: number): number | null => {
-    const el = containerRef.current
-    if (!el) return null
-    const rect = el.getBoundingClientRect()
-    if (rect.width <= 0) return null
-    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-  }
+    const el = containerRef.current;
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0) return null;
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse" && e.button !== 0) return
-    e.preventDefault()
-    isDraggingRef.current = true
-    onSeekStart()
-    const f = fractionFromEvent(e.clientX)
-    if (f !== null) onSeekPreview(f * duration)
-    try { e.currentTarget.setPointerCapture(e.pointerId) } catch { /* ignore */ }
-  }
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    isDraggingRef.current = true;
+    onSeekStart();
+    const f = fractionFromEvent(e.clientX);
+    if (f !== null) onSeekPreview(f * duration);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return
-    const f = fractionFromEvent(e.clientX)
-    if (f !== null) onSeekPreview(f * duration)
-  }
+    if (!isDraggingRef.current) return;
+    const f = fractionFromEvent(e.clientX);
+    if (f !== null) onSeekPreview(f * duration);
+  };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return
-    isDraggingRef.current = false
-    const f = fractionFromEvent(e.clientX)
-    if (f !== null) onSeekEnd(f * duration)
-    try { e.currentTarget.releasePointerCapture(e.pointerId) } catch { /* ignore */ }
-  }
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    const f = fractionFromEvent(e.clientX);
+    if (f !== null) onSeekEnd(f * duration);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  };
 
   return (
     <div className="px-1">
@@ -149,16 +154,16 @@ function ProgressBar({
         aria-valuenow={Math.round(progressPercent)}
       >
         <div
-          className="progress-bar absolute left-0 top-0 h-full rounded-full bg-[var(--primary)] transition-[width] duration-100"
+          className="progress-bar absolute top-0 left-0 h-full rounded-full bg-[var(--primary)] transition-[width] duration-100"
           style={{ width: `${progressPercent}%` }}
         />
         <div
-          className="progress-thumb absolute top-1/2 size-3 -translate-y-1/2 rounded-full bg-[var(--primary)] ring-2 ring-white dark:ring-neutral-800 shadow-sm"
+          className="progress-thumb absolute top-1/2 size-3 -translate-y-1/2 rounded-full bg-[var(--primary)] shadow-sm ring-2 ring-white dark:ring-neutral-800"
           style={{ left: `calc(${progressPercent}% - 6px)` }}
         />
       </div>
     </div>
-  )
+  );
 }
 
 function VolumeControl({
@@ -167,61 +172,73 @@ function VolumeControl({
   onToggleMute,
   onVolumeChange,
 }: {
-  volume: number
-  isMuted: boolean
-  onToggleMute: () => void
-  onVolumeChange: (value: number) => void
+  volume: number;
+  isMuted: boolean;
+  onToggleMute: () => void;
+  onVolumeChange: (value: number) => void;
 }) {
-  const t = useTranslations("Player")
+  const t = useTranslations("Player");
   // 音量直接来自 store，拖拽时实时调用 onVolumeChange 同步 store + audio
-  const displayVolume = isMuted ? 0 : volume
-  const containerRef = useRef<HTMLDivElement>(null)
-  const isDraggingRef = useRef(false)
+  const displayVolume = isMuted ? 0 : volume;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const fractionFromEvent = (clientX: number): number | null => {
-    const el = containerRef.current
-    if (!el) return null
-    const rect = el.getBoundingClientRect()
-    if (rect.width <= 0) return null
-    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-  }
+    const el = containerRef.current;
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0) return null;
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse" && e.button !== 0) return
-    e.preventDefault()
-    isDraggingRef.current = true
-    const f = fractionFromEvent(e.clientX)
-    if (f !== null) onVolumeChange(f)
-    try { e.currentTarget.setPointerCapture(e.pointerId) } catch { /* ignore */ }
-  }
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    isDraggingRef.current = true;
+    const f = fractionFromEvent(e.clientX);
+    if (f !== null) onVolumeChange(f);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return
-    const f = fractionFromEvent(e.clientX)
-    if (f !== null) onVolumeChange(f)
-  }
+    if (!isDraggingRef.current) return;
+    const f = fractionFromEvent(e.clientX);
+    if (f !== null) onVolumeChange(f);
+  };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return
-    isDraggingRef.current = false
-    const f = fractionFromEvent(e.clientX)
-    if (f !== null) onVolumeChange(f)
-    try { e.currentTarget.releasePointerCapture(e.pointerId) } catch { /* ignore */ }
-  }
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    const f = fractionFromEvent(e.clientX);
+    if (f !== null) onVolumeChange(f);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  };
 
   return (
     <div className="flex items-center gap-1">
       <button
         onClick={onToggleMute}
-        className="p-1 rounded-md text-neutral-400 hover:text-[var(--primary)] transition-colors"
+        className="rounded-md p-1 text-neutral-400 transition-colors hover:text-[var(--primary)]"
         aria-label={isMuted ? t("unmute") : t("mute")}
         title={t("volume")}
       >
-        {isMuted || displayVolume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+        {isMuted || displayVolume === 0 ? (
+          <VolumeX className="size-4" />
+        ) : (
+          <Volume2 className="size-4" />
+        )}
       </button>
       <div
         ref={containerRef}
-        className="vol-container h-1 w-16 bg-neutral-300/50 dark:bg-neutral-500/40 rounded-full cursor-pointer relative touch-none"
+        className="vol-container relative h-1 w-16 cursor-pointer touch-none rounded-full bg-neutral-300/50 dark:bg-neutral-500/40"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -233,12 +250,12 @@ function VolumeControl({
         aria-valuenow={Math.round(displayVolume * 100)}
       >
         <div
-          className="vol-bar absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full transition-[width] duration-75"
+          className="vol-bar absolute top-0 left-0 h-full rounded-full bg-[var(--primary)] transition-[width] duration-75"
           style={{ width: `${displayVolume * 100}%` }}
         />
       </div>
     </div>
-  )
+  );
 }
 
 function PlaylistDrawer({
@@ -248,13 +265,13 @@ function PlaylistDrawer({
   isPlaying,
   onPlayTrack,
 }: {
-  isOpen: boolean
-  playlist: MusicItem[]
-  currentIndex: number
-  isPlaying: boolean
-  onPlayTrack: (i: number) => void
+  isOpen: boolean;
+  playlist: MusicItem[];
+  currentIndex: number;
+  isPlaying: boolean;
+  onPlayTrack: (i: number) => void;
 }) {
-  const t = useTranslations("Player")
+  const t = useTranslations("Player");
   return (
     <AnimatePresence>
       {isOpen && (
@@ -265,10 +282,10 @@ function PlaylistDrawer({
           transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           className="grid"
         >
-          <div className="overflow-hidden min-h-0">
-            <div className="mt-2 pt-2 border-t border-neutral-100 dark:border-white/5 mx-1">
+          <div className="min-h-0 overflow-hidden">
+            <div className="mx-1 mt-2 border-t border-neutral-100 pt-2 dark:border-white/5">
               <div
-                className="playlist-container max-h-48 overflow-y-auto custom-scrollbar pr-1 pb-1 relative"
+                className="playlist-container custom-scrollbar relative max-h-48 overflow-y-auto pr-1 pb-1"
                 role="listbox"
                 aria-label={t("playlist")}
               >
@@ -277,36 +294,57 @@ function PlaylistDrawer({
                     key={track.id}
                     onClick={() => onPlayTrack(index)}
                     className={cn(
-                      "playlist-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group w-full text-left",
-                      index === currentIndex && "bg-neutral-100 dark:bg-white/10"
+                      "playlist-item group flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-white/5",
+                      index === currentIndex && "bg-neutral-100 dark:bg-white/10",
                     )}
                     role="option"
                     aria-selected={index === currentIndex}
                     aria-current={index === currentIndex}
                   >
-                    <div className="size-8 rounded-md overflow-hidden shrink-0 relative bg-neutral-200 dark:bg-neutral-700">
+                    <div className="relative size-8 shrink-0 overflow-hidden rounded-md bg-neutral-200 dark:bg-neutral-700">
                       {track.cover ? (
-                        <Image src={track.cover} alt={track.title} fill sizes="32px" unoptimized className="object-cover" />
+                        <Image
+                          src={track.cover}
+                          alt={track.title}
+                          fill
+                          sizes="32px"
+                          unoptimized
+                          className="object-cover"
+                        />
                       ) : (
                         <div className="flex size-full items-center justify-center">
                           <Music className="size-3 text-neutral-400 dark:text-white/40" />
                         </div>
                       )}
                       {index === currentIndex && isPlaying && (
-                        <div className="absolute inset-0 bg-[var(--primary)]/20 flex items-center justify-center">
-                          <div className="flex items-end gap-[2px] h-3.5">
-                            <span className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar" style={{ animationDuration: "0.8s" }} />
-                            <span className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar" style={{ animationDuration: "0.6s", animationDelay: "0.15s" }} />
-                            <span className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar" style={{ animationDuration: "1s", animationDelay: "0.3s" }} />
+                        <div className="absolute inset-0 flex items-center justify-center bg-[var(--primary)]/20">
+                          <div className="flex h-3.5 items-end gap-[2px]">
+                            <span
+                              className="animate-eq-bar w-[3px] rounded-sm bg-[var(--primary)]"
+                              style={{ animationDuration: "0.8s" }}
+                            />
+                            <span
+                              className="animate-eq-bar w-[3px] rounded-sm bg-[var(--primary)]"
+                              style={{ animationDuration: "0.6s", animationDelay: "0.15s" }}
+                            />
+                            <span
+                              className="animate-eq-bar w-[3px] rounded-sm bg-[var(--primary)]"
+                              style={{ animationDuration: "1s", animationDelay: "0.3s" }}
+                            />
                           </div>
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={cn("text-xs font-bold truncate group-hover:text-[var(--primary)] transition-colors", index === currentIndex && "text-[var(--primary)]")}>
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className={cn(
+                          "truncate text-xs font-bold transition-colors group-hover:text-[var(--primary)]",
+                          index === currentIndex && "text-[var(--primary)]",
+                        )}
+                      >
                         {track.title}
                       </div>
-                      <div className="text-[10px] text-neutral-400 truncate">{track.artist}</div>
+                      <div className="truncate text-[10px] text-neutral-400">{track.artist}</div>
                     </div>
                   </button>
                 ))}
@@ -316,7 +354,7 @@ function PlaylistDrawer({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 function PlayerCard({
@@ -341,55 +379,51 @@ function PlayerCard({
   onToggleExpanded,
   onPlayTrack,
 }: {
-  playlist: MusicItem[]
-  currentIndex: number
-  isPlaying: boolean
-  progress: number
-  duration: number
-  volume: number
-  isMuted: boolean
-  playMode: "sequence" | "repeat" | "shuffle"
-  isExpanded: boolean
-  onTogglePlay: () => void
-  onNext: () => void
-  onPrev: () => void
-  onSeekStart: () => void
-  onSeekPreview: (value: number) => void
-  onSeekEnd: (value: number) => void
-  onVolumeChange: (value: number) => void
-  onToggleMute: () => void
-  onCycleMode: () => void
-  onToggleExpanded: () => void
-  onPlayTrack: (i: number) => void
+  playlist: MusicItem[];
+  currentIndex: number;
+  isPlaying: boolean;
+  progress: number;
+  duration: number;
+  volume: number;
+  isMuted: boolean;
+  playMode: "sequence" | "repeat" | "shuffle";
+  isExpanded: boolean;
+  onTogglePlay: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+  onSeekStart: () => void;
+  onSeekPreview: (value: number) => void;
+  onSeekEnd: (value: number) => void;
+  onVolumeChange: (value: number) => void;
+  onToggleMute: () => void;
+  onCycleMode: () => void;
+  onToggleExpanded: () => void;
+  onPlayTrack: (i: number) => void;
 }) {
-  const t = useTranslations("Player")
-  const tWidgets = useTranslations("Widgets")
-  const currentTrack = playlist[currentIndex] || null
-  const [showPlaylist, setShowPlaylist] = useState(false)
-  const cardRef = useRef<HTMLDivElement>(null)
+  const t = useTranslations("Player");
+  const tWidgets = useTranslations("Widgets");
+  const currentTrack = playlist[currentIndex] || null;
+  const [showPlaylist, setShowPlaylist] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isExpanded) return
+    if (!isExpanded) return;
 
     const handlePointerDown = (e: PointerEvent) => {
       if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
-        onToggleExpanded()
+        onToggleExpanded();
       }
-    }
+    };
 
-    document.addEventListener("pointerdown", handlePointerDown)
-    return () => document.removeEventListener("pointerdown", handlePointerDown)
-  }, [isExpanded, onToggleExpanded])
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isExpanded, onToggleExpanded]);
 
-  if (!currentTrack) return null
+  if (!currentTrack) return null;
 
-  const ModeIcon = playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat
+  const ModeIcon = playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat;
   const modeTitle =
-    playMode === "sequence"
-      ? t("sequence")
-      : playMode === "repeat"
-        ? t("repeat")
-        : t("shuffle")
+    playMode === "sequence" ? t("sequence") : playMode === "repeat" ? t("repeat") : t("shuffle");
 
   return (
     <motion.div
@@ -407,33 +441,44 @@ function PlayerCard({
         // 剩下高度变化，不会出现整块跳位。
         "fixed right-4 bottom-24 z-40 overflow-hidden shadow-2xl",
         isExpanded
-          ? "w-80 sm:w-96 rounded-2xl glass-card p-4"
-          : "w-64 rounded-2xl glass-card p-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+          ? "glass-card w-80 rounded-2xl p-4 sm:w-96"
+          : "glass-card w-64 cursor-pointer rounded-2xl p-2 hover:scale-[1.02] active:scale-[0.98]",
       )}
       onClick={!isExpanded ? onToggleExpanded : undefined}
     >
       {!isExpanded ? (
         <div className="flex items-center gap-3">
-          <CoverImage cover={currentTrack.cover} title={currentTrack.title} isPlaying={isPlaying} size="sm" />
+          <CoverImage
+            cover={currentTrack.cover}
+            title={currentTrack.title}
+            isPlaying={isPlaying}
+            size="sm"
+          />
           <div className="min-w-0 flex-1 pr-1">
-            <p className="truncate text-sm font-semibold text-neutral-800 dark:text-neutral-100">{currentTrack.title}</p>
-            <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">{currentTrack.artist}</p>
+            <p className="truncate text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+              {currentTrack.title}
+            </p>
+            <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+              {currentTrack.artist}
+            </p>
           </div>
           <button
             onClick={(e) => {
-              e.stopPropagation()
-              onTogglePlay()
+              e.stopPropagation();
+              onTogglePlay();
             }}
             className="flex size-9 items-center justify-center rounded-full bg-[var(--primary)] text-white transition-transform hover:scale-105 active:scale-95"
             aria-label={isPlaying ? tWidgets("pause") : tWidgets("play")}
           >
-            {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
+            {isPlaying ? <Pause className="size-4" /> : <Play className="ml-0.5 size-4" />}
           </button>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{t("title")}</span>
+            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+              {t("title")}
+            </span>
             <button
               onClick={onToggleExpanded}
               className="rounded-lg p-1 text-neutral-400 transition-colors hover:bg-black/5 hover:text-neutral-700 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white"
@@ -445,41 +490,63 @@ function PlayerCard({
 
           {/* Top Row: Cover & Info */}
           <div className="flex items-center gap-3 px-1">
-            <CoverImage cover={currentTrack.cover} title={currentTrack.title} isPlaying={isPlaying} size="md" />
-            <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-              <div className="flex items-center justify-between overflow-hidden gap-2">
-                <div className="flex-1 min-w-0 overflow-hidden relative">
-                  <h3 className="font-bold text-base text-neutral-800 dark:text-neutral-100 leading-tight truncate" title={currentTrack.title}>
+            <CoverImage
+              cover={currentTrack.cover}
+              title={currentTrack.title}
+              isPlaying={isPlaying}
+              size="md"
+            />
+            <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+              <div className="flex items-center justify-between gap-2 overflow-hidden">
+                <div className="relative min-w-0 flex-1 overflow-hidden">
+                  <h3
+                    className="truncate text-base leading-tight font-bold text-neutral-800 dark:text-neutral-100"
+                    title={currentTrack.title}
+                  >
                     {currentTrack.title}
                   </h3>
                 </div>
               </div>
               <div className="min-w-0 overflow-hidden">
-                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate" title={currentTrack.artist}>
+                <p
+                  className="truncate text-xs font-medium text-neutral-500 dark:text-neutral-400"
+                  title={currentTrack.artist}
+                >
                   {currentTrack.artist}
                 </p>
               </div>
-              <div className="flex items-center gap-3 text-neutral-400 h-5 mt-0.5">
-                <div className="text-[10px] font-mono flex items-center gap-1 shrink-0 h-full">
+              <div className="mt-0.5 flex h-5 items-center gap-3 text-neutral-400">
+                <div className="flex h-full shrink-0 items-center gap-1 font-mono text-[10px]">
                   <span>{formatTime(progress)}</span>
                   <span className="opacity-50">/</span>
                   <span>{formatTime(duration)}</span>
                 </div>
                 <div className="ml-auto">
-                  <VolumeControl volume={volume} isMuted={isMuted} onToggleMute={onToggleMute} onVolumeChange={onVolumeChange} />
+                  <VolumeControl
+                    volume={volume}
+                    isMuted={isMuted}
+                    onToggleMute={onToggleMute}
+                    onVolumeChange={onVolumeChange}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <ProgressBar progress={progress} duration={duration} onSeekStart={onSeekStart} onSeekPreview={onSeekPreview} onSeekEnd={onSeekEnd} />
+          <ProgressBar
+            progress={progress}
+            duration={duration}
+            onSeekStart={onSeekStart}
+            onSeekPreview={onSeekPreview}
+            onSeekEnd={onSeekEnd}
+          />
 
           {/* Controls Row */}
           <div className="flex items-center justify-between px-1 select-none">
             <button
               onClick={onCycleMode}
-              className="p-2 rounded-lg text-neutral-400 hover:text-[var(--primary)] transition-colors active:scale-95"
+              className="rounded-lg p-2 text-neutral-400 transition-colors hover:text-[var(--primary)] active:scale-95"
               title={modeTitle}
               aria-label={modeTitle}
             >
@@ -487,21 +554,21 @@ function PlayerCard({
             </button>
             <button
               onClick={onPrev}
-              className="p-2 rounded-lg text-neutral-600 dark:text-neutral-300 hover:text-[var(--primary)] transition-colors active:scale-95"
+              className="rounded-lg p-2 text-neutral-600 transition-colors hover:text-[var(--primary)] active:scale-95 dark:text-neutral-300"
               aria-label={t("previous")}
             >
               <SkipBack className="size-6" />
             </button>
             <button
               onClick={onTogglePlay}
-              className="size-12 rounded-full bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)] text-[var(--primary)] flex items-center justify-center transition-all active:scale-95"
+              className="flex size-12 items-center justify-center rounded-full bg-[var(--btn-regular-bg)] text-[var(--primary)] transition-all hover:bg-[var(--btn-regular-bg-hover)] active:scale-95 active:bg-[var(--btn-regular-bg-active)]"
               aria-label={isPlaying ? tWidgets("pause") : tWidgets("play")}
             >
-              {isPlaying ? <Pause className="size-6" /> : <Play className="size-6 ml-0.5" />}
+              {isPlaying ? <Pause className="size-6" /> : <Play className="ml-0.5 size-6" />}
             </button>
             <button
               onClick={onNext}
-              className="p-2 rounded-lg text-neutral-600 dark:text-neutral-300 hover:text-[var(--primary)] transition-colors active:scale-95"
+              className="rounded-lg p-2 text-neutral-600 transition-colors hover:text-[var(--primary)] active:scale-95 dark:text-neutral-300"
               aria-label={t("next")}
             >
               <SkipForward className="size-6" />
@@ -509,8 +576,10 @@ function PlayerCard({
             <button
               onClick={() => setShowPlaylist((prev) => !prev)}
               className={cn(
-                "p-2 rounded-lg transition-colors active:scale-95",
-                showPlaylist ? "text-[var(--primary)]" : "text-neutral-400 hover:text-[var(--primary)]"
+                "rounded-lg p-2 transition-colors active:scale-95",
+                showPlaylist
+                  ? "text-[var(--primary)]"
+                  : "text-neutral-400 hover:text-[var(--primary)]",
               )}
               aria-label={t("playlist")}
               title={t("playlist")}
@@ -530,12 +599,12 @@ function PlayerCard({
         </div>
       )}
     </motion.div>
-  )
+  );
 }
 
 function GlobalPlayer() {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [visible, setVisible] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   const {
     state,
@@ -549,20 +618,30 @@ function GlobalPlayer() {
     setVolume,
     toggleMute,
     cyclePlayMode,
-  } = useMusicPlayer()
+  } = useMusicPlayer();
 
-  const { playlist, currentIndex, isPlaying, progress, duration, volume, isMuted, playMode, isLoaded } = state
+  const {
+    playlist,
+    currentIndex,
+    isPlaying,
+    progress,
+    duration,
+    volume,
+    isMuted,
+    playMode,
+    isLoaded,
+  } = state;
 
   // 监听导航栏的显示/隐藏切换
   useEffect(() => {
-    const handleToggle = () => setVisible((prev) => !prev)
-    window.addEventListener("music-player-toggle", handleToggle)
-    return () => window.removeEventListener("music-player-toggle", handleToggle)
-  }, [])
+    const handleToggle = () => setVisible((prev) => !prev);
+    window.addEventListener("music-player-toggle", handleToggle);
+    return () => window.removeEventListener("music-player-toggle", handleToggle);
+  }, []);
 
   // 从 /api/music 拉取播放列表并喂入共享 store（先到先得）
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
     fetch("/api/music")
       .then((res) => (res.ok ? res.json() : null))
       .then((tracks: MusicItem[] | null) => {
@@ -570,23 +649,23 @@ function GlobalPlayer() {
         // 500 的 JSON 错误体）时，finally 分支会把 store 重置成空列表，
         // 而成功分支又可能在 unmount 之后才写入，晚到的网络结果会覆盖掉
         // 更新的状态。两个分支都在 mounted 为 false 时直接放弃。
-        if (!mounted) return
-        loadPlaylist(Array.isArray(tracks) ? tracks : [])
+        if (!mounted) return;
+        loadPlaylist(Array.isArray(tracks) ? tracks : []);
       })
       .catch(() => {
-        if (!mounted) return
-        loadPlaylist([])
-      })
+        if (!mounted) return;
+        loadPlaylist([]);
+      });
     return () => {
-      mounted = false
-    }
-  }, [])
+      mounted = false;
+    };
+  }, []);
 
   const toggleExpanded = useCallback(() => {
-    setIsExpanded((prev) => !prev)
-  }, [])
+    setIsExpanded((prev) => !prev);
+  }, []);
 
-  if (!isLoaded) return null
+  if (!isLoaded) return null;
 
   return (
     <>
@@ -615,8 +694,8 @@ function GlobalPlayer() {
         />
       )}
     </>
-  )
+  );
 }
 
-export { GlobalPlayer }
-export default GlobalPlayer
+export { GlobalPlayer };
+export default GlobalPlayer;

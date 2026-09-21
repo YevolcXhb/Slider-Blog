@@ -1,29 +1,29 @@
-import type { Metadata } from "next"
-import { Suspense } from "react"
-import { notFound } from "next/navigation"
-import { getTranslations } from "next-intl/server"
-import { ArrowLeft, ImageIcon } from "lucide-react"
-import Image from "next/image"
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { ArrowLeft, ImageIcon } from "lucide-react";
+import Image from "next/image";
 
-import { Link } from "@/i18n/routing"
-import { siteConfig } from "@/config/slider-config"
-import { getGalleryAlbumById } from "@/server/queries/site"
-import { PhotoCard } from "@/components/pages/gallery/photo-card"
+import { Link } from "@/i18n/routing";
+import { siteConfig } from "@/config/slider-config";
+import { getGalleryAlbumById } from "@/server/queries/site";
+import { PhotoCard } from "@/components/pages/gallery/photo-card";
 
 export const metadata: Metadata = {
   title: "Album",
   description: "Photo album",
-}
+};
 
-export const revalidate = 300
+export const revalidate = 300;
 
 interface AlbumPageProps {
   params: Promise<{
-    album: string
-  }>
+    album: string;
+  }>;
 }
 
-type AlbumDetail = NonNullable<Awaited<ReturnType<typeof getGalleryAlbumById>>>
+type AlbumDetail = NonNullable<Awaited<ReturnType<typeof getGalleryAlbumById>>>;
 
 /**
  * 取相册，并把"这个 id 没有相册"归一化成 null。
@@ -36,66 +36,66 @@ type AlbumDetail = NonNullable<Awaited<ReturnType<typeof getGalleryAlbumById>>>
  */
 export default async function AlbumPage({ params }: AlbumPageProps) {
   if (!siteConfig.pages.gallery) {
-    notFound()
+    notFound();
   }
 
-  const { album: albumId } = await params
+  const { album: albumId } = await params;
 
   // 同 blog/[slug]：notFound() 必须发生在 <Suspense> 之前，否则 200 已经发出，
   // 不存在的相册会被搜索引擎当有效页面收录。
-  const album = await getGalleryAlbumById(albumId)
+  const album = await getGalleryAlbumById(albumId);
   if (!album) {
-    notFound()
+    notFound();
   }
 
   return (
     <Suspense fallback={null}>
       <AlbumPageContent album={album} />
     </Suspense>
-  )
+  );
 }
 
 async function AlbumPageContent({ album }: { album: AlbumDetail }) {
-  const t = await getTranslations("Gallery")
+  const t = await getTranslations("Gallery");
 
-  const cover = album.cover || (album.photos.length > 0 ? album.photos[0].url : null)
+  const cover = album.cover || (album.photos.length > 0 ? album.photos[0].url : null);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="w-full rounded-(--radius-large) overflow-hidden relative">
+      <div className="relative w-full overflow-hidden rounded-(--radius-large)">
         {cover ? (
-          <div className="relative w-full aspect-[3/1] min-h-[200px] max-h-[360px] overflow-hidden">
+          <div className="relative aspect-[3/1] max-h-[360px] min-h-[200px] w-full overflow-hidden">
             <Image
               src={cover}
               alt={album.name}
               fill
               sizes="100vw"
               unoptimized
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
               priority
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
 
             <Link
               href="/gallery"
-              className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-sm text-white/90 hover:text-white bg-black/30 hover:bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg transition-colors"
+              className="absolute top-4 left-4 inline-flex items-center gap-1.5 rounded-lg bg-black/30 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
             >
-              <ArrowLeft className="text-base size-4" />
+              <ArrowLeft className="size-4 text-base" />
               {t("galleryBackToAlbums")}
             </Link>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-2 drop-shadow-lg">
+            <div className="absolute right-0 bottom-0 left-0 p-6">
+              <div className="mb-2 text-2xl font-bold text-white drop-shadow-lg sm:text-3xl">
                 {album.name}
               </div>
               {album.description && (
-                <p className="text-sm text-white/75 leading-relaxed mb-2 max-w-2xl line-clamp-2">
+                <p className="mb-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-white/75">
                   {album.description}
                 </p>
               )}
-              <div className="flex items-center gap-4 text-sm text-white/80 flex-wrap">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-white/80">
                 <span className="inline-flex items-center gap-1">
-                  <ImageIcon className="text-sm size-4" />
+                  <ImageIcon className="size-4 text-sm" />
                   {album.photos.length} {t("galleryPhotos")}
                 </span>
               </div>
@@ -105,17 +105,17 @@ async function AlbumPageContent({ album }: { album: AlbumDetail }) {
           <div className="card-base px-6 py-4">
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1 text-sm text-(--primary) hover:underline mb-3"
+              className="mb-3 inline-flex items-center gap-1 text-sm text-(--primary) hover:underline"
             >
-              <ArrowLeft className="text-base size-4" />
+              <ArrowLeft className="size-4 text-base" />
               {t("galleryBackToAlbums")}
             </Link>
-            <div className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+            <div className="text-2xl font-bold text-neutral-900 sm:text-3xl dark:text-neutral-100">
               {album.name}
             </div>
-            <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400 mt-2 flex-wrap">
+            <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
               <span className="inline-flex items-center gap-1">
-                <ImageIcon className="text-sm size-4" />
+                <ImageIcon className="size-4 text-sm" />
                 {album.photos.length} {t("galleryPhotos")}
               </span>
             </div>
@@ -123,8 +123,8 @@ async function AlbumPageContent({ album }: { album: AlbumDetail }) {
         )}
       </div>
 
-      <div className="w-full rounded-(--radius-large) overflow-hidden relative">
-        <div className="card-base z-10 px-6 py-6 relative w-full">
+      <div className="relative w-full overflow-hidden rounded-(--radius-large)">
+        <div className="card-base relative z-10 w-full px-6 py-6">
           {album.photos.length > 0 ? (
             <div
               className="gallery-masonry"
@@ -144,12 +144,12 @@ async function AlbumPageContent({ album }: { album: AlbumDetail }) {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
-              <ImageIcon className="text-6xl mb-4 opacity-50 size-16" />
+              <ImageIcon className="mb-4 size-16 text-6xl opacity-50" />
               <p className="text-lg">{t("galleryNoPhotos")}</p>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

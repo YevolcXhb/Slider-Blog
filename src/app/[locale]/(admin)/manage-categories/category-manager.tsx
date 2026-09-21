@@ -38,13 +38,9 @@ type EditableItem = {
   name: string;
 };
 
-export default function CategoryManager({
-  initialCategories,
-  initialTags,
-}: CategoryManagerProps) {
+export default function CategoryManager({ initialCategories, initialTags }: CategoryManagerProps) {
   const t = useTranslations("AdminCategories");
-  const [categories, setCategories] =
-    useState<CategoryItem[]>(initialCategories);
+  const [categories, setCategories] = useState<CategoryItem[]>(initialCategories);
   const [tags, setTags] = useState<TagItem[]>(initialTags);
   const [editingItem, setEditingItem] = useState<EditableItem | null>(null);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -52,34 +48,23 @@ export default function CategoryManager({
 
   // ---- Category Handlers ----
 
-  const handleAddCategory = useCallback(
-    async (formData: FormData) => {
-      const name = formData.get("name") as string;
-      if (!name?.trim()) return;
+  const handleAddCategory = useCallback(async (formData: FormData) => {
+    const name = formData.get("name") as string;
+    if (!name?.trim()) return;
 
-      await createCategory(formData);
-      setNewCategoryName("");
-    },
-    [],
-  );
+    await createCategory(formData);
+    setNewCategoryName("");
+  }, []);
 
-  const handleUpdateCategory = useCallback(
-    async (id: number, formData: FormData) => {
-      await updateCategory(id, formData);
-      setEditingItem(null);
-    },
-    [],
-  );
+  const handleUpdateCategory = useCallback(async (id: number, formData: FormData) => {
+    await updateCategory(id, formData);
+    setEditingItem(null);
+  }, []);
 
-  const handleDeleteCategory = useCallback(
-    async (id: number) => {
-      await deleteCategory(id);
-      setCategories((prev) =>
-        prev.filter((c) => Number(c.id) !== id),
-      );
-    },
-    [],
-  );
+  const handleDeleteCategory = useCallback(async (id: number) => {
+    await deleteCategory(id);
+    setCategories((prev) => prev.filter((c) => Number(c.id) !== id));
+  }, []);
 
   // ---- Tag Handlers ----
 
@@ -91,21 +76,15 @@ export default function CategoryManager({
     setNewTagName("");
   }, []);
 
-  const handleUpdateTag = useCallback(
-    async (id: number, formData: FormData) => {
-      await updateTag(id, formData);
-      setEditingItem(null);
-    },
-    [],
-  );
+  const handleUpdateTag = useCallback(async (id: number, formData: FormData) => {
+    await updateTag(id, formData);
+    setEditingItem(null);
+  }, []);
 
-  const handleDeleteTag = useCallback(
-    async (id: number) => {
-      await deleteTag(id);
-      setTags((prev) => prev.filter((t) => Number(t.id) !== id));
-    },
-    [],
-  );
+  const handleDeleteTag = useCallback(async (id: number) => {
+    await deleteTag(id);
+    setTags((prev) => prev.filter((t) => Number(t.id) !== id));
+  }, []);
 
   // ---- Shared ----
 
@@ -119,12 +98,10 @@ export default function CategoryManager({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white/90 md:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl dark:text-white/90">
           {t("title")}
         </h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-white/50">
-          {t("subtitle")}
-        </p>
+        <p className="mt-1 text-sm text-gray-600 dark:text-white/50">{t("subtitle")}</p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -146,7 +123,7 @@ export default function CategoryManager({
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
               placeholder={t("new_category_placeholder")}
-              className="min-w-0 flex-1 rounded-xl border border-black/10 dark:border-white/20 bg-gray-100/70 dark:bg-white/5 px-4 py-2 text-sm text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:border-gray-400 dark:focus:border-white/40 focus:outline-none"
+              className="min-w-0 flex-1 rounded-xl border border-black/10 bg-gray-100/70 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none dark:border-white/20 dark:bg-white/5 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-white/40"
             />
             <GlassButton
               type="submit"
@@ -163,35 +140,31 @@ export default function CategoryManager({
           {categories.length > 0 ? (
             <div className="space-y-2">
               {categories.map((category) => {
-                const isEditing =
-                  editingItem?.id === `category-${category.id.toString()}`;
+                const isEditing = editingItem?.id === `category-${category.id.toString()}`;
 
                 if (isEditing) {
                   return (
                     <form
                       key={category.id.toString()}
-                      action={handleUpdateCategory.bind(
-                        null,
-                        Number(category.id),
-                      )}
-                      className="flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/20 bg-gray-100/70 dark:bg-white/5 p-3"
+                      action={handleUpdateCategory.bind(null, Number(category.id))}
+                      className="flex items-center gap-2 rounded-xl border border-black/10 bg-gray-100/70 p-3 dark:border-white/20 dark:bg-white/5"
                     >
                       <input
                         name="name"
                         defaultValue={editingItem?.name}
-                        className="min-w-0 flex-1 rounded-lg border border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 px-3 py-1.5 text-sm text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:border-gray-400 dark:focus:border-white/40 focus:outline-none"
+                        className="min-w-0 flex-1 rounded-lg border border-black/5 bg-white/70 px-3 py-1.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-white/40"
                         autoFocus
                       />
                       <button
                         type="submit"
-                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-green-600 dark:text-green-400/80 transition-colors hover:bg-green-500/10 hover:text-green-600 dark:hover:text-green-400"
+                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-500/10 hover:text-green-600 dark:text-green-400/80 dark:hover:text-green-400"
                       >
                         <Check className="size-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={cancelEditing}
-                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-white/50 transition-colors hover:bg-gray-200/70 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-white/70"
+                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:text-white/50 dark:hover:bg-white/5 dark:hover:text-white/70"
                       >
                         <X className="size-3.5" />
                       </button>
@@ -202,36 +175,28 @@ export default function CategoryManager({
                 return (
                   <div
                     key={category.id.toString()}
-                    className="flex items-center justify-between rounded-xl border border-black/5 dark:border-white/5 bg-gray-50/70 dark:bg-white/[0.02] px-4 py-3 transition-colors hover:border-black/10 dark:hover:border-white/10"
+                    className="flex items-center justify-between rounded-xl border border-black/5 bg-gray-50/70 px-4 py-3 transition-colors hover:border-black/10 dark:border-white/5 dark:bg-white/[0.02] dark:hover:border-white/10"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-medium text-gray-900 dark:text-white/90">
                         {category.name}
                       </span>
-                      <span className="rounded-full bg-gray-100/70 dark:bg-white/10 px-2 py-0.5 text-xs text-gray-500 dark:text-white/50">
+                      <span className="rounded-full bg-gray-100/70 px-2 py-0.5 text-xs text-gray-500 dark:bg-white/10 dark:text-white/50">
                         {category._count.posts}{" "}
-                        {category._count.posts === 1
-                          ? t("post")
-                          : t("posts")}
+                        {category._count.posts === 1 ? t("post") : t("posts")}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() =>
-                          startEditing(
-                            "category",
-                            category.id,
-                            category.name,
-                          )
-                        }
-                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-white/50 transition-colors hover:bg-gray-200/70 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white/70"
+                        onClick={() => startEditing("category", category.id, category.name)}
+                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white/70"
                       >
                         <Pencil className="size-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteCategory(Number(category.id))}
-                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-red-500/60 dark:text-red-400/60 transition-colors hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-400"
+                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-red-500/60 transition-colors hover:bg-red-500/10 hover:text-red-500 dark:text-red-400/60 dark:hover:text-red-400"
                       >
                         <Trash2 className="size-3.5" />
                       </button>
@@ -253,9 +218,7 @@ export default function CategoryManager({
             <div className="flex size-10 items-center justify-center rounded-xl bg-gray-100/70 dark:bg-white/10">
               <Tags className="size-5 text-gray-700 dark:text-white/70" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white/90">
-              {t("tags")}
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white/90">{t("tags")}</h2>
           </div>
 
           {/* Add Tag Form */}
@@ -265,14 +228,9 @@ export default function CategoryManager({
               value={newTagName}
               onChange={(e) => setNewTagName(e.target.value)}
               placeholder={t("new_tag_placeholder")}
-              className="min-w-0 flex-1 rounded-xl border border-black/10 dark:border-white/20 bg-gray-100/70 dark:bg-white/5 px-4 py-2 text-sm text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:border-gray-400 dark:focus:border-white/40 focus:outline-none"
+              className="min-w-0 flex-1 rounded-xl border border-black/10 bg-gray-100/70 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none dark:border-white/20 dark:bg-white/5 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-white/40"
             />
-            <GlassButton
-              type="submit"
-              variant="primary"
-              size="sm"
-              disabled={!newTagName.trim()}
-            >
+            <GlassButton type="submit" variant="primary" size="sm" disabled={!newTagName.trim()}>
               <Plus className="size-4" />
               {t("add_tag")}
             </GlassButton>
@@ -282,32 +240,31 @@ export default function CategoryManager({
           {tags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => {
-                const isEditing =
-                  editingItem?.id === `tag-${tag.id.toString()}`;
+                const isEditing = editingItem?.id === `tag-${tag.id.toString()}`;
 
                 if (isEditing) {
                   return (
                     <form
                       key={tag.id.toString()}
                       action={handleUpdateTag.bind(null, Number(tag.id))}
-                      className="flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/20 bg-gray-100/70 dark:bg-white/5 p-2"
+                      className="flex items-center gap-2 rounded-xl border border-black/10 bg-gray-100/70 p-2 dark:border-white/20 dark:bg-white/5"
                     >
                       <input
                         name="name"
                         defaultValue={editingItem?.name}
-                        className="w-28 rounded-lg border border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 px-3 py-1.5 text-sm text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:border-gray-400 dark:focus:border-white/40 focus:outline-none"
+                        className="w-28 rounded-lg border border-black/5 bg-white/70 px-3 py-1.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-white/40"
                         autoFocus
                       />
                       <button
                         type="submit"
-                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-green-600 dark:text-green-400/80 transition-colors hover:bg-green-500/10 hover:text-green-600 dark:hover:text-green-400"
+                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-500/10 hover:text-green-600 dark:text-green-400/80 dark:hover:text-green-400"
                       >
                         <Check className="size-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={cancelEditing}
-                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-white/50 transition-colors hover:bg-gray-200/70 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-white/70"
+                        className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:text-white/50 dark:hover:bg-white/5 dark:hover:text-white/70"
                       >
                         <X className="size-3.5" />
                       </button>
@@ -318,7 +275,7 @@ export default function CategoryManager({
                 return (
                   <div
                     key={tag.id.toString()}
-                    className="group flex items-center gap-2 rounded-xl border border-black/5 dark:border-white/10 bg-gray-50/70 dark:bg-white/[0.03] px-3 py-2 transition-colors hover:border-black/10 dark:hover:border-white/20"
+                    className="group flex items-center gap-2 rounded-xl border border-black/5 bg-gray-50/70 px-3 py-2 transition-colors hover:border-black/10 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
                   >
                     <span className="text-sm text-gray-800 dark:text-white/80">{tag.name}</span>
                     <span className="text-xs text-gray-500 dark:text-white/40">
@@ -326,17 +283,15 @@ export default function CategoryManager({
                     </span>
                     <div className="ml-1 hidden gap-0.5 group-hover:flex">
                       <button
-                        onClick={() =>
-                          startEditing("tag", tag.id, tag.name)
-                        }
-                        className="flex items-center rounded-lg p-1 text-gray-400 dark:text-white/40 transition-colors hover:bg-gray-200/70 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white/70"
+                        onClick={() => startEditing("tag", tag.id, tag.name)}
+                        className="flex items-center rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white/70"
                       >
                         <Pencil className="size-3" />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteTag(Number(tag.id))}
-                        className="flex items-center rounded-lg p-1 text-red-500/40 dark:text-red-400/40 transition-colors hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-400"
+                        className="flex items-center rounded-lg p-1 text-red-500/40 transition-colors hover:bg-red-500/10 hover:text-red-500 dark:text-red-400/40 dark:hover:text-red-400"
                       >
                         <Trash2 className="size-3" />
                       </button>

@@ -40,10 +40,7 @@ const ALLOWED_KEYS = new Set([
 
 // 各字段校验规则（P2-009）：
 // 值类型、长度、日期格式、URL 协议与数量上限
-const FIELD_VALIDATORS: Record<
-  string,
-  (value: string) => string
-> = {
+const FIELD_VALIDATORS: Record<string, (value: string) => string> = {
   profile_name: (v) => {
     if (v.length > 50) throw new ValidationError("profileNameTooLong");
     return v;
@@ -160,9 +157,7 @@ export async function saveSocialLinks(formData: FormData) {
         name,
         url,
         icon:
-          typeof obj.icon === "string" && obj.icon.length <= MAX_ICON_LENGTH
-            ? obj.icon
-            : "link",
+          typeof obj.icon === "string" && obj.icon.length <= MAX_ICON_LENGTH ? obj.icon : "link",
         showName: obj.showName !== false,
       };
     })
@@ -220,8 +215,7 @@ export async function saveNavExternalLinks(formData: FormData) {
       return {
         // i18nKey 可选；若不提供则使用 name 作为显示文本
         i18nKey: typeof obj.i18nKey === "string" ? obj.i18nKey.slice(0, 100) : "",
-        name:
-          typeof obj.name === "string" ? obj.name.slice(0, MAX_NAME_LENGTH) : "",
+        name: typeof obj.name === "string" ? obj.name.slice(0, MAX_NAME_LENGTH) : "",
         url,
         icon:
           typeof obj.icon === "string" && obj.icon.length <= MAX_ICON_LENGTH
@@ -280,14 +274,8 @@ export async function saveThemeSettings(formData: FormData) {
 
   const hueRaw = getStringFromFormData(formData, "theme_hue");
   const postLayout = getStringFromFormData(formData, "theme_post_layout");
-  const cardBorderShadowRaw = getStringFromFormData(
-    formData,
-    "theme_card_border_shadow",
-  );
-  const cardThemeColoredRaw = getStringFromFormData(
-    formData,
-    "theme_card_theme_colored",
-  );
+  const cardBorderShadowRaw = getStringFromFormData(formData, "theme_card_border_shadow");
+  const cardThemeColoredRaw = getStringFromFormData(formData, "theme_card_theme_colored");
 
   const hue = Number(hueRaw);
   if (!Number.isFinite(hue) || hue < 0 || hue > 360) {
@@ -297,8 +285,7 @@ export async function saveThemeSettings(formData: FormData) {
     throw new ValidationError("themePostLayoutInvalid");
   }
 
-  const toBool = (raw: string): boolean =>
-    raw === "1" || raw === "on" || raw === "true";
+  const toBool = (raw: string): boolean => raw === "1" || raw === "on" || raw === "true";
 
   const value = JSON.stringify({
     hue,

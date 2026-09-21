@@ -135,10 +135,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
       const title = String(formData.get("title") ?? "").trim();
       const artist = String(formData.get("artist") ?? "").trim();
       if (!url || !title || !artist) return;
-      const ok = await runAction(
-        () => updateMusic(Number(id), formData),
-        t("updated"),
-      );
+      const ok = await runAction(() => updateMusic(Number(id), formData), t("updated"));
       if (!ok) return;
       const album = String(formData.get("album") ?? "").trim();
       const cover = String(formData.get("cover") ?? "").trim();
@@ -187,9 +184,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
       const ok = await runAction(() => toggleMusicPublish(Number(id)));
       if (ok) {
         setMusic((prev) =>
-          prev.map((m) =>
-            m.id === id ? { ...m, is_published: m.is_published ? 0 : 1 } : m,
-          ),
+          prev.map((m) => (m.id === id ? { ...m, is_published: m.is_published ? 0 : 1 } : m)),
         );
       }
     },
@@ -240,8 +235,10 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
       {/* Header */}
       <div className="admin-page-header">
         <div>
-        <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">{t("title")}</h1>
-        <p className="mt-1 text-sm text-white/50">{t("subtitle")}</p>
+          <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">
+            {t("title")}
+          </h1>
+          <p className="mt-1 text-sm text-white/50">{t("subtitle")}</p>
         </div>
       </div>
 
@@ -272,9 +269,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
         <form action={handleCreate} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="min-w-0 space-y-1.5">
-              <label className="block text-sm font-medium text-white/70">
-                {t("title_label")}
-              </label>
+              <label className="block text-sm font-medium text-white/70">{t("title_label")}</label>
               <input
                 name="title"
                 value={newTitle}
@@ -284,9 +279,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
               />
             </div>
             <div className="min-w-0 space-y-1.5">
-              <label className="block text-sm font-medium text-white/70">
-                {t("artist_label")}
-              </label>
+              <label className="block text-sm font-medium text-white/70">{t("artist_label")}</label>
               <input
                 name="artist"
                 value={newArtist}
@@ -297,9 +290,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/70">
-              {t("url_label")}
-            </label>
+            <label className="block text-sm font-medium text-white/70">{t("url_label")}</label>
             <input
               name="url"
               value={newUrl}
@@ -310,9 +301,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
           </div>
           <div className="flex flex-wrap items-end gap-4">
             <div className="min-w-0 flex-1 space-y-1.5">
-              <label className="block text-sm font-medium text-white/70">
-                {t("album_label")}
-              </label>
+              <label className="block text-sm font-medium text-white/70">{t("album_label")}</label>
               <input
                 name="album"
                 value={newAlbum}
@@ -322,9 +311,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
               />
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">
-              <label className="block text-sm font-medium text-white/70">
-                {t("cover_label")}
-              </label>
+              <label className="block text-sm font-medium text-white/70">{t("cover_label")}</label>
               <input
                 name="cover"
                 value={newCover}
@@ -335,9 +322,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/70">
-              {t("lrc_label")}
-            </label>
+            <label className="block text-sm font-medium text-white/70">{t("lrc_label")}</label>
             <textarea
               name="lrc"
               value={newLrc}
@@ -375,9 +360,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
               type="submit"
               variant="primary"
               size="sm"
-              disabled={
-                !newUrl.trim() || !newTitle.trim() || !newArtist.trim()
-              }
+              disabled={!newUrl.trim() || !newTitle.trim() || !newArtist.trim()}
             >
               <Plus className="size-4" />
               {t("create")}
@@ -431,10 +414,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
                     <Pencil className="size-4" />
                     {t("edit")}
                   </div>
-                  <form
-                    action={handleUpdate.bind(null, item.id)}
-                    className="space-y-4"
-                  >
+                  <form action={handleUpdate.bind(null, item.id)} className="space-y-4">
                     <div className="flex flex-wrap items-end gap-4">
                       <div className="min-w-0 flex-1 space-y-1.5">
                         <label className="block text-sm font-medium text-white/70">
@@ -555,27 +535,16 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-base font-semibold text-white/90">
-                        {item.title}
-                      </span>
-                      <span className="text-sm text-white/60">
-                        {item.artist}
-                      </span>
+                      <span className="text-base font-semibold text-white/90">{item.title}</span>
+                      <span className="text-sm text-white/60">{item.artist}</span>
                     </div>
-                    {item.album && (
-                      <p className="text-xs text-white/50">{item.album}</p>
-                    )}
-                    <p
-                      className="max-w-full truncate text-xs text-white/40"
-                      title={item.url}
-                    >
+                    {item.album && <p className="text-xs text-white/50">{item.album}</p>}
+                    <p className="max-w-full truncate text-xs text-white/40" title={item.url}>
                       {item.url}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-white/50">
-                    <span className="rounded-full bg-white/10 px-2 py-0.5">
-                      #{item.sort_order}
-                    </span>
+                    <span className="rounded-full bg-white/10 px-2 py-0.5">#{item.sort_order}</span>
                     <span
                       className={`rounded-full px-2 py-0.5 ${
                         item.is_published === 1
@@ -583,9 +552,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
                           : "bg-gray-500/20 text-gray-400"
                       }`}
                     >
-                      {item.is_published === 1
-                        ? t("published")
-                        : t("unpublished")}
+                      {item.is_published === 1 ? t("published") : t("unpublished")}
                     </span>
                   </div>
                 </div>
@@ -650,9 +617,7 @@ export default function MusicManager({ initialMusic }: MusicManagerProps) {
         </div>
       ) : (
         <GlassCard>
-          <p className="py-8 text-center text-sm text-white/30">
-            {t("no_music")}
-          </p>
+          <p className="py-8 text-center text-sm text-white/30">{t("no_music")}</p>
         </GlassCard>
       )}
     </div>

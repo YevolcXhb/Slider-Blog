@@ -80,10 +80,7 @@ export const getSiteLaunchDate = unstable_cache(
  */
 export function calcRunningDays(launchDate: Date | null): number {
   if (!launchDate) return 0;
-  return Math.max(
-    0,
-    Math.floor((Date.now() - launchDate.getTime()) / (1000 * 60 * 60 * 24)),
-  );
+  return Math.max(0, Math.floor((Date.now() - launchDate.getTime()) / (1000 * 60 * 60 * 24)));
 }
 
 export interface MusicItem {
@@ -152,9 +149,7 @@ export interface SidebarStats {
 
 function serializeBigInt<T>(data: T): T {
   return JSON.parse(
-    JSON.stringify(data, (_, value) =>
-      typeof value === "bigint" ? value.toString() : value,
-    ),
+    JSON.stringify(data, (_, value) => (typeof value === "bigint" ? value.toString() : value)),
   ) as T;
 }
 
@@ -304,10 +299,7 @@ export const getThemeSettings = unstable_cache(
  * 侧栏的 (1, 3) 与动态页的 (1, itemsPerPage) 是两个独立缓存条目。
  */
 export const getMoments = unstable_cache(
-  async (
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<{ items: MomentItem[]; total: number }> => {
+  async (page: number = 1, limit: number = 10): Promise<{ items: MomentItem[]; total: number }> => {
     const [items, total] = await Promise.all([
       prisma.dynamic.findMany({
         where: { status: 1 },
@@ -475,9 +467,7 @@ function readPackageInfo(): { version: string; nextVersion: string } {
   let blogVersion = "0.1.0";
   let nextVersion = "16.2.12";
   try {
-    const pkg = JSON.parse(
-      readFileSync(join(process.cwd(), "package.json"), "utf-8"),
-    );
+    const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf-8"));
     blogVersion = pkg.version || blogVersion;
     const nextDep = pkg.dependencies?.next;
     if (nextDep) nextVersion = nextDep.replace(/^[^\d]*/, "");
@@ -537,30 +527,23 @@ export const getSiteInfoData = unstable_cache(
 
 export const getSidebarStats = unstable_cache(
   async (): Promise<SidebarStatsWithDate> => {
-    const [
-      totalPosts,
-      totalCategories,
-      totalTags,
-      viewAgg,
-      totalComments,
-      latestPost,
-      launchDate,
-    ] = await Promise.all([
-      prisma.post.count({ where: { status: 1 } }),
-      prisma.category.count(),
-      prisma.tag.count(),
-      prisma.post.aggregate({
-        _sum: { view_count: true },
-        where: { status: 1 },
-      }),
-      prisma.comment.count({ where: { status: 1 } }),
-      prisma.post.findFirst({
-        where: { status: 1 },
-        orderBy: [{ updated_at: "desc" }, { published_at: "desc" }, { created_at: "desc" }],
-        select: { updated_at: true, published_at: true, created_at: true },
-      }),
-      getSiteLaunchDate(),
-    ]);
+    const [totalPosts, totalCategories, totalTags, viewAgg, totalComments, latestPost, launchDate] =
+      await Promise.all([
+        prisma.post.count({ where: { status: 1 } }),
+        prisma.category.count(),
+        prisma.tag.count(),
+        prisma.post.aggregate({
+          _sum: { view_count: true },
+          where: { status: 1 },
+        }),
+        prisma.comment.count({ where: { status: 1 } }),
+        prisma.post.findFirst({
+          where: { status: 1 },
+          orderBy: [{ updated_at: "desc" }, { published_at: "desc" }, { created_at: "desc" }],
+          select: { updated_at: true, published_at: true, created_at: true },
+        }),
+        getSiteLaunchDate(),
+      ]);
 
     // 字数口径与管理后台统一为「全站正文字符数」SQL 聚合（见 stats.ts 的
     // queryTotalContentChars 注释）。这里不再 findMany 把全站 content_mdx 拉回 Node
@@ -574,7 +557,7 @@ export const getSidebarStats = unstable_cache(
     const runningDays = calcRunningDays(launchDate);
 
     const lastPostDate = latestPost
-      ? latestPost.updated_at ?? latestPost.published_at ?? latestPost.created_at
+      ? (latestPost.updated_at ?? latestPost.published_at ?? latestPost.created_at)
       : null;
 
     return {
@@ -712,9 +695,7 @@ export const getSidebarProfile = unstable_cache(
       avatar: "/slider/favicon/head.png",
       bio: "Hello，I'm Slider.",
       location: "Internet",
-      socialLinks: [
-        { name: "GitHub", url: "https://github.com/YevolcXhb", icon: "github" },
-      ],
+      socialLinks: [{ name: "GitHub", url: "https://github.com/YevolcXhb", icon: "github" }],
     };
 
     try {

@@ -1,6 +1,6 @@
-import { Sidebar } from "./sidebar"
-import { getSidebarStats, getMoments, getSiteInfoData } from "@/server/queries/site"
-import { safeDbQuery } from "@/lib/safe-db"
+import { Sidebar } from "./sidebar";
+import { getSidebarStats, getMoments, getSiteInfoData } from "@/server/queries/site";
+import { safeDbQuery } from "@/lib/safe-db";
 
 async function RightSidebar() {
   const [stats, momentsResult, siteInfo] = await Promise.all([
@@ -40,7 +40,7 @@ async function RightSidebar() {
         siteInfoCollapse: "Collapse",
       },
     }),
-  ])
+  ]);
 
   return (
     <Sidebar
@@ -51,8 +51,8 @@ async function RightSidebar() {
         siteInfo,
       }}
     />
-  )
+  );
 }
 
-export { RightSidebar }
-export default RightSidebar
+export { RightSidebar };
+export default RightSidebar;

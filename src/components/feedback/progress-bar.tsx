@@ -4,5 +4,5 @@
  * 配合 usePageTransition 钩子在页面切换时触发动画
  */
 export function ProgressBar() {
-  return <div id="progress-bar" aria-hidden="true" />
+  return <div id="progress-bar" aria-hidden="true" />;
 }

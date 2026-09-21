@@ -5,11 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/server/actions/auth";
 import { UserRole } from "@/types/user";
 import { auth } from "@/lib/auth";
-import {
-  parsePositiveBigIntId,
-  parseUserRole,
-  ValidationError,
-} from "@/lib/validation";
+import { parsePositiveBigIntId, parseUserRole, ValidationError } from "@/lib/validation";
 
 // ==================== Register Action ====================
 

@@ -1,24 +1,24 @@
-import { useTranslations } from "next-intl"
+import { useTranslations } from "next-intl";
 
-import { WidgetLayout } from "./widget-layout"
-import { ButtonLink } from "./button-link"
-import type { WidgetComponentConfig } from "@/types/sidebarConfig"
+import { WidgetLayout } from "./widget-layout";
+import { ButtonLink } from "./button-link";
+import type { WidgetComponentConfig } from "@/types/sidebarConfig";
 
 interface CategoryItem {
-  id: number
-  name: string
-  slug: string
-  _count?: { posts: number }
+  id: number;
+  name: string;
+  slug: string;
+  _count?: { posts: number };
 }
 
 interface CategoriesWidgetProps {
-  categories?: CategoryItem[]
-  widgetConfig?: WidgetComponentConfig
-  className?: string
-  style?: React.CSSProperties
+  categories?: CategoryItem[];
+  widgetConfig?: WidgetComponentConfig;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-const COLLAPSED_HEIGHT = "7.5rem"
+const COLLAPSED_HEIGHT = "7.5rem";
 
 function CategoriesWidget({
   categories = [],
@@ -26,10 +26,10 @@ function CategoriesWidget({
   className,
   style,
 }: CategoriesWidgetProps) {
-  const t = useTranslations("Widgets")
-  const collapseThreshold = widgetConfig?.specificConfig?.collapseThreshold
-  const showTitle = widgetConfig?.showTitle !== false
-  const isCollapsed = collapseThreshold ? categories.length > collapseThreshold : false
+  const t = useTranslations("Widgets");
+  const collapseThreshold = widgetConfig?.specificConfig?.collapseThreshold;
+  const showTitle = widgetConfig?.showTitle !== false;
+  const isCollapsed = collapseThreshold ? categories.length > collapseThreshold : false;
 
   return (
     <WidgetLayout
@@ -52,8 +52,8 @@ function CategoriesWidget({
         </ButtonLink>
       ))}
     </WidgetLayout>
-  )
+  );
 }
 
-export { CategoriesWidget, type CategoriesWidgetProps }
-export default CategoriesWidget
+export { CategoriesWidget, type CategoriesWidgetProps };
+export default CategoriesWidget;

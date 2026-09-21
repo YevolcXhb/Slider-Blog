@@ -1,25 +1,25 @@
-import { Suspense } from "react"
-import { MainGridLayout } from "@/components/layout/main-grid-layout"
-import { ThemeProvider } from "@/components/theme/theme-system"
-import { ThemeSettingsProvider } from "@/components/theme/theme-settings-context"
-import { SidebarHeadingsProvider } from "@/components/layout/sidebar-headings-context"
-import { type LocaleOption } from "@/components/layout/language-switcher"
-import { LeftSidebar } from "@/components/sidebar/left-sidebar"
-import { RightSidebar } from "@/components/sidebar/right-sidebar"
-import { AnnouncementToast } from "@/components/announcement/announcement-toast"
-import { buildThemeCss } from "@/lib/theme-css"
+import { Suspense } from "react";
+import { MainGridLayout } from "@/components/layout/main-grid-layout";
+import { ThemeProvider } from "@/components/theme/theme-system";
+import { ThemeSettingsProvider } from "@/components/theme/theme-settings-context";
+import { SidebarHeadingsProvider } from "@/components/layout/sidebar-headings-context";
+import { type LocaleOption } from "@/components/layout/language-switcher";
+import { LeftSidebar } from "@/components/sidebar/left-sidebar";
+import { RightSidebar } from "@/components/sidebar/right-sidebar";
+import { AnnouncementToast } from "@/components/announcement/announcement-toast";
+import { buildThemeCss } from "@/lib/theme-css";
 import {
   getActiveAnnouncements,
   getNavExternalLinks,
   getSiteInfoSettings,
   getThemeSettings,
   getHomepageVideoUrl,
-} from "@/server/queries/site"
+} from "@/server/queries/site";
 
 const locales: ReadonlyArray<LocaleOption> = [
   { code: "en", label: "EN" },
   { code: "zh", label: "中文" },
-]
+];
 
 function SidebarSkeleton() {
   return (
@@ -28,7 +28,7 @@ function SidebarSkeleton() {
       <div className="h-32 animate-pulse rounded-xl bg-white/5" />
       <div className="h-24 animate-pulse rounded-xl bg-white/5" />
     </div>
-  )
+  );
 }
 
 /**
@@ -40,15 +40,15 @@ function SidebarSkeleton() {
 async function PublicLayout({ children }: { children: React.ReactNode }) {
   // 读取管理员在后台配置的导航外链（GitHub、Slider云盘等）
   // 数据库为空时返回 null，Header 会回退到 slider-config.ts 的默认配置
-  const navExternalLinks = await getNavExternalLinks()
+  const navExternalLinks = await getNavExternalLinks();
   // 读取激活公告，用于客户端右上角弹窗提示
-  const announcements = await getActiveAnnouncements()
+  const announcements = await getActiveAnnouncements();
   // 主题外观（管理面板统一控制配色），首帧注入 <style> 避免 FOUC
-  const themeSettings = await getThemeSettings()
+  const themeSettings = await getThemeSettings();
   // 读取站点信息（标题、副标题、描述），用于 Header/Footer 等客户端组件
-  const siteInfo = await getSiteInfoSettings()
+  const siteInfo = await getSiteInfoSettings();
   // 首页背景视频直链（管理端配置，默认不配置则不播放视频）
-  const homepageVideoUrl = await getHomepageVideoUrl()
+  const homepageVideoUrl = await getHomepageVideoUrl();
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem storageKey="theme">
@@ -77,8 +77,8 @@ async function PublicLayout({ children }: { children: React.ReactNode }) {
         </SidebarHeadingsProvider>
       </ThemeSettingsProvider>
     </ThemeProvider>
-  )
+  );
 }
 
-export { PublicLayout }
-export default PublicLayout
+export { PublicLayout };
+export default PublicLayout;

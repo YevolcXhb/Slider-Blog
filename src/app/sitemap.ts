@@ -125,9 +125,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       prisma.post.findMany({
         where: { status: 1 },
         select: { slug: true, updated_at: true, published_at: true },
-      }) as Promise<
-        Array<{ slug: unknown; updated_at: unknown; published_at: unknown }>
-      >,
+      }) as Promise<Array<{ slug: unknown; updated_at: unknown; published_at: unknown }>>,
     [],
   );
 
@@ -143,10 +141,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     postPages.push({
       url: built.url,
-      lastModified:
-        toLastModified(post?.updated_at) ??
-        toLastModified(post?.published_at) ??
-        now,
+      lastModified: toLastModified(post?.updated_at) ?? toLastModified(post?.published_at) ?? now,
       changeFrequency: "weekly",
       priority: 0.8,
     });

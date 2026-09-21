@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 /**
  * 自定义主题管理系统
@@ -24,49 +24,47 @@ import {
   useLayoutEffect,
   useMemo,
   useState,
-} from "react"
+} from "react";
 
-export type Theme = "light" | "dark" | "system"
-export type ResolvedTheme = "light" | "dark"
+export type Theme = "light" | "dark" | "system";
+export type ResolvedTheme = "light" | "dark";
 
 export interface UseThemeProps {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-  resolvedTheme?: ResolvedTheme
-  forcedTheme?: Theme
-  themes: Theme[]
-  systemTheme?: ResolvedTheme
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  resolvedTheme?: ResolvedTheme;
+  forcedTheme?: Theme;
+  themes: Theme[];
+  systemTheme?: ResolvedTheme;
 }
 
-const DEFAULT_STORAGE_KEY = "theme"
-const DEFAULT_THEMES: Theme[] = ["light", "dark", "system"]
+const DEFAULT_STORAGE_KEY = "theme";
+const DEFAULT_THEMES: Theme[] = ["light", "dark", "system"];
 
-const ThemeContext = createContext<UseThemeProps | undefined>(undefined)
+const ThemeContext = createContext<UseThemeProps | undefined>(undefined);
 
 function getSystemTheme(): ResolvedTheme {
-  if (typeof window === "undefined") return "light"
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light"
+  if (typeof window === "undefined") return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function applyThemeToDom(theme: ResolvedTheme) {
-  const root = document.documentElement
-  root.classList.remove("light", "dark")
-  root.classList.add(theme)
-  root.style.colorScheme = theme
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(theme);
+  root.style.colorScheme = theme;
 }
 
 interface ThemeProviderProps {
-  children: React.ReactNode
-  defaultTheme?: Theme
-  enableSystem?: boolean
-  storageKey?: string
-  themes?: Theme[]
-  attribute?: string
-  value?: Record<string, string>
-  disableTransitionOnChange?: boolean
-  forcedTheme?: Theme
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+  enableSystem?: boolean;
+  storageKey?: string;
+  themes?: Theme[];
+  attribute?: string;
+  value?: Record<string, string>;
+  disableTransitionOnChange?: boolean;
+  forcedTheme?: Theme;
 }
 
 /**
@@ -86,58 +84,58 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   // 客户端首次渲染时直接从 localStorage 读取主题，避免水合后再切换导致的闪烁
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return defaultTheme
+    if (typeof window === "undefined") return defaultTheme;
     try {
-      const stored = localStorage.getItem(storageKey) as Theme | null
-      if (stored && themes.includes(stored)) return stored
+      const stored = localStorage.getItem(storageKey) as Theme | null;
+      if (stored && themes.includes(stored)) return stored;
     } catch {
       // 忽略 localStorage 访问错误
     }
-    return defaultTheme
-  })
+    return defaultTheme;
+  });
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => {
-    if (typeof window === "undefined") return "light"
-    return getSystemTheme()
-  })
+    if (typeof window === "undefined") return "light";
+    return getSystemTheme();
+  });
 
   // 监听系统主题变化
   useEffect(() => {
-    if (!enableSystem) return
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    if (!enableSystem) return;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
-      const next: ResolvedTheme = e.matches ? "dark" : "light"
-      setSystemTheme(next)
+      const next: ResolvedTheme = e.matches ? "dark" : "light";
+      setSystemTheme(next);
       if (theme === "system") {
-        applyThemeToDom(next)
+        applyThemeToDom(next);
       }
-    }
-    mediaQuery.addEventListener("change", handleChange)
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [theme, enableSystem])
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [theme, enableSystem]);
 
   const resolvedTheme: ResolvedTheme = useMemo(() => {
     if (forcedTheme && (forcedTheme === "light" || forcedTheme === "dark")) {
-      return forcedTheme
+      return forcedTheme;
     }
-    return theme === "system" ? systemTheme : (theme as ResolvedTheme)
-  }, [theme, systemTheme, forcedTheme])
+    return theme === "system" ? systemTheme : (theme as ResolvedTheme);
+  }, [theme, systemTheme, forcedTheme]);
 
   // useLayoutEffect 在浏览器绘制前执行，确保用户不会看到主题闪烁
   useLayoutEffect(() => {
-    applyThemeToDom(resolvedTheme)
-  }, [resolvedTheme])
+    applyThemeToDom(resolvedTheme);
+  }, [resolvedTheme]);
 
   const setTheme = useCallback(
     (next: Theme) => {
-      setThemeState(next)
+      setThemeState(next);
       try {
-        localStorage.setItem(storageKey, next)
+        localStorage.setItem(storageKey, next);
       } catch {
         // 忽略写入失败
       }
     },
     [storageKey],
-  )
+  );
 
   const value = useMemo<UseThemeProps>(
     () => ({
@@ -149,16 +147,16 @@ export function ThemeProvider({
       systemTheme: enableSystem ? systemTheme : undefined,
     }),
     [theme, setTheme, resolvedTheme, forcedTheme, themes, systemTheme, enableSystem],
-  )
+  );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 /**
  * 与 next-themes 同名 hook，保持现有调用点零成本迁移
  */
 export function useTheme(): UseThemeProps {
-  const ctx = useContext(ThemeContext)
+  const ctx = useContext(ThemeContext);
   if (!ctx) {
     // 在 Provider 外部使用时返回安全的默认值，避免崩溃
     return {
@@ -166,7 +164,7 @@ export function useTheme(): UseThemeProps {
       setTheme: () => {},
       themes: DEFAULT_THEMES,
       systemTheme: undefined,
-    }
+    };
   }
-  return ctx
+  return ctx;
 }

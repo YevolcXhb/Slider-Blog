@@ -95,9 +95,11 @@ type FakeRedisClient = ReturnType<typeof makeFakeRedisClient>;
 
 /** 读内存 limiter 的键数量（容量/降级断言用）。 */
 function memoryKeyCount(limiter: RateLimiterMemory): number {
-  const storage = (limiter as unknown as {
-    _memoryStorage?: { _storage?: Map<string, unknown> };
-  })._memoryStorage?._storage;
+  const storage = (
+    limiter as unknown as {
+      _memoryStorage?: { _storage?: Map<string, unknown> };
+    }
+  )._memoryStorage?._storage;
   return storage instanceof Map ? storage.size : -1;
 }
 
@@ -275,9 +277,9 @@ describe("RateLimiterRedis 端到端行为（假 client，离线）", () => {
       key: "slider-blog:rl:api:1.2.3.4",
     });
     // 构造函数里注册了 rlflxIncr 这个 Lua 命令（ioredis 路径依赖它）
-    expect(
-      client.commands.some((c) => c.kind === "definedCommand" && c.name === "rlflxIncr"),
-    ).toBe(true);
+    expect(client.commands.some((c) => c.kind === "definedCommand" && c.name === "rlflxIncr")).toBe(
+      true,
+    );
   });
 
   /**

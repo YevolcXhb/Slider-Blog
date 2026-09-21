@@ -78,10 +78,7 @@ function notFound() {
   });
 }
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ path: string[] }> },
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   let segments: string[];
   try {
     segments = (await params).path;

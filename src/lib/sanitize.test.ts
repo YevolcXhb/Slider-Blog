@@ -27,14 +27,14 @@ describe("sanitizeHTML（服务端分支）", () => {
   it("与旧行为形成对照：旧实现会输出 &lt;span", () => {
     const legacy = '<span class="katex">x</span>'.replace(
       /[<>&"']/g,
-      (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c] as string),
+      (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" })[c] as string,
     );
     expect(legacy).toContain("&lt;span");
     expect(sanitizeHTML('<span class="katex">x</span>')).not.toBe(legacy);
   });
 
   it("script 标签连同内容一起丢弃", () => {
-    const out = sanitizeHTML('<p>hi</p><script>alert(1)</script>');
+    const out = sanitizeHTML("<p>hi</p><script>alert(1)</script>");
     expect(out).toContain("<p>hi</p>");
     expect(out).not.toContain("script");
     expect(out).not.toContain("alert(1)");
@@ -65,7 +65,7 @@ describe("sanitizeHTML（服务端分支）", () => {
   it("属性值里的引号被转义，无法逃逸出新属性", () => {
     const out = sanitizeHTML('<a title=\'" onmouseover="alert(1)\' href="/x">go</a>');
     expect(out.toLowerCase()).not.toContain("onmouseover");
-    expect(out).toContain("href=\"/x\"");
+    expect(out).toContain('href="/x"');
   });
 
   it("img 的 src/alt 保留", () => {
@@ -80,16 +80,14 @@ describe("sanitizeHTML（服务端分支）", () => {
   });
 
   it("多次调用结果稳定（无状态泄漏）", () => {
-    const input = '<p>a</p><script>b</script>';
+    const input = "<p>a</p><script>b</script>";
     expect(sanitizeHTML(input)).toBe(sanitizeHTML(input));
   });
 });
 
 describe("sanitizePlainText", () => {
   it("转义所有 HTML 危险字符", () => {
-    expect(sanitizePlainText(`<b>&"'x`)).toBe(
-      "&lt;b&gt;&amp;&quot;&#39;x",
-    );
+    expect(sanitizePlainText(`<b>&"'x`)).toBe("&lt;b&gt;&amp;&quot;&#39;x");
   });
 
   it("不做标签识别，纯文本一律转义", () => {

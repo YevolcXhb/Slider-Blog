@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { motion, useSpring, useTransform } from "motion/react"
-import { useReadingProgress } from "@/hooks/use-reading-progress"
-import { cn } from "@/lib/utils"
+import { motion, useSpring, useTransform } from "motion/react";
+import { useReadingProgress } from "@/hooks/use-reading-progress";
+import { cn } from "@/lib/utils";
 
 interface ReadingProgressProps {
-  className?: string
+  className?: string;
 }
 
 function ReadingProgress({ className }: ReadingProgressProps) {
-  const rawProgress = useReadingProgress()
+  const rawProgress = useReadingProgress();
   const progress = useSpring(rawProgress, {
     stiffness: 80,
     damping: 20,
     restDelta: 0.5,
-  })
-  const width = useTransform(progress, (v) => `${v}%`)
+  });
+  const width = useTransform(progress, (v) => `${v}%`);
 
   return (
     <motion.div
@@ -28,7 +28,7 @@ function ReadingProgress({ className }: ReadingProgressProps) {
       style={{ width }}
       aria-hidden="true"
     />
-  )
+  );
 }
 
-export { ReadingProgress, type ReadingProgressProps }
+export { ReadingProgress, type ReadingProgressProps };

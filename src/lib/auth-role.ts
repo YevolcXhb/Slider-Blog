@@ -139,7 +139,8 @@ export async function syncTokenRole(
   if (!userId) return token;
 
   const now = options.now ?? Date.now();
-  const windowSeconds = options.windowSeconds ?? resolveRoleRefreshSeconds(process.env.AUTH_ROLE_REFRESH_SECONDS);
+  const windowSeconds =
+    options.windowSeconds ?? resolveRoleRefreshSeconds(process.env.AUTH_ROLE_REFRESH_SECONDS);
   if (now - readLastRoleCheckAt(token) < windowSeconds * 1000) return token;
 
   const lookup = options.lookup;

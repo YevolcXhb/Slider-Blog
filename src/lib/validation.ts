@@ -28,10 +28,7 @@ export class ValidationError extends Error {
  *
  * 拒绝：NaN、Infinity、小数、负数、0、非数字字符串、超大数。
  */
-export function parsePositiveBigIntId(
-  value: unknown,
-  field = "id",
-): bigint {
+export function parsePositiveBigIntId(value: unknown, field = "id"): bigint {
   let num: number;
   if (typeof value === "string") {
     if (!/^\d+$/.test(value.trim())) {
@@ -54,11 +51,7 @@ export function parsePositiveBigIntId(
  * 将传入值解析为有限整数（用于 sort_order 等字段）。
  * 非严格模式：无法解析时返回 fallback（默认 0）。
  */
-export function parseFiniteInt(
-  value: unknown,
-  fallback = 0,
-  field = "sort_order",
-): number {
+export function parseFiniteInt(value: unknown, fallback = 0, field = "sort_order"): number {
   let num: number;
   if (typeof value === "string") {
     if (value.trim() === "") return fallback;
@@ -153,10 +146,7 @@ export function validateContentLength(
 /**
  * 校验日期格式为 YYYY-MM-DD（站点启动日期等）。
  */
-export function validateDateString(
-  value: string,
-  field = "date",
-): string {
+export function validateDateString(value: string, field = "date"): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     throw new ValidationError("invalidDate", field);
   }

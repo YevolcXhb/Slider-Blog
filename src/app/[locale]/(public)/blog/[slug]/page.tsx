@@ -1,26 +1,26 @@
-import { notFound } from "next/navigation"
-import type { Metadata } from "next"
-import { Suspense, cache } from "react"
-import { ReadingProgress } from "@/components/blog/reading-progress"
-import { ViewTracker } from "@/components/blog/view-tracker"
-import { PostPage } from "@/components/blog/post-page"
-import { PostHeadingsProvider } from "@/components/blog/post-headings-provider"
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { Suspense, cache } from "react";
+import { ReadingProgress } from "@/components/blog/reading-progress";
+import { ViewTracker } from "@/components/blog/view-tracker";
+import { PostPage } from "@/components/blog/post-page";
+import { PostHeadingsProvider } from "@/components/blog/post-headings-provider";
 import {
   getPostBySlug,
   getRelatedPosts,
   getAdjacentPosts,
   getRandomPosts,
-} from "@/server/queries/post"
-import { getApprovedComments } from "@/server/queries/comment"
-import { safeDbQuery } from "@/lib/safe-db"
-import { extractHeadingsFromMdx } from "@/utils/toc-shared"
+} from "@/server/queries/post";
+import { getApprovedComments } from "@/server/queries/comment";
+import { safeDbQuery } from "@/lib/safe-db";
+import { extractHeadingsFromMdx } from "@/utils/toc-shared";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-export const dynamicParams = true
+export const dynamicParams = true;
 
 interface BlogPostPageProps {
-  params: Promise<{ slug: string; locale: string }>
+  params: Promise<{ slug: string; locale: string }>;
 }
 
 /**
@@ -44,24 +44,22 @@ interface BlogPostPageProps {
 // 会让「刚发布的文章」或「刚下架的草稿」在 TTL 内继续以旧状态响应
 // （getPostBySlug 已过滤 status: 1，正确性优先于省这一次查询）。
 const getPostOrNull = cache(async (locale: string, rawSlug: string) => {
-  let slug = rawSlug
+  let slug = rawSlug;
   try {
     // 已经是解码态时 decodeURIComponent 是幂等的；只有含非法转义序列才会抛。
-    slug = decodeURIComponent(rawSlug)
+    slug = decodeURIComponent(rawSlug);
   } catch {
-    return null
+    return null;
   }
-  if (!slug) return null
-  return safeDbQuery(() => getPostBySlug(locale, slug), null)
-})
+  if (!slug) return null;
+  return safeDbQuery(() => getPostBySlug(locale, slug), null);
+});
 
-export async function generateMetadata({
-  params,
-}: BlogPostPageProps): Promise<Metadata> {
-  const { slug, locale } = await params
-  const post = await getPostOrNull(locale, slug)
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const { slug, locale } = await params;
+  const post = await getPostOrNull(locale, slug);
 
-  if (!post) return {}
+  if (!post) return {};
 
   return {
     title: post.title,
@@ -72,13 +70,13 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.published_at ?? undefined,
     },
-  }
+  };
 }
 
-type PostDetail = NonNullable<Awaited<ReturnType<typeof getPostBySlug>>>
+type PostDetail = NonNullable<Awaited<ReturnType<typeof getPostBySlug>>>;
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug, locale } = await params
+  const { slug, locale } = await params;
 
   // 存在性检查必须在任何 <Suspense> 边界之前完成：一旦某个 Suspense fallback
   // 开始渲染，响应头（含状态码 200）就已经发出，之后再调用 notFound() 只能注入
@@ -87,45 +85,42 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   // streaming.md 的 “Status codes” 一节。
   //
   // 解码与"找不到"的处理见 getPostOrNull。
-  const post = await getPostOrNull(locale, slug)
+  const post = await getPostOrNull(locale, slug);
   if (!post) {
-    notFound()
+    notFound();
   }
 
   return (
     <Suspense fallback={null}>
       <BlogPostPageContent post={post} locale={locale} />
     </Suspense>
-  )
+  );
 }
 
-async function BlogPostPageContent({
-  post,
-  locale,
-}: {
-  post: PostDetail
-  locale: string
-}) {
+async function BlogPostPageContent({ post, locale }: { post: PostDetail; locale: string }) {
   const [comments, relatedPosts, adjacent] = await Promise.all([
     safeDbQuery(() => getApprovedComments(post.id), []),
-    safeDbQuery(
-      () => getRelatedPosts(post.id, post.tags?.map((t) => t.id) ?? [], 5),
-      [],
-    ),
-    safeDbQuery(
-      () => getAdjacentPosts(locale, post.id, post.published_at ?? post.created_at),
-      { prev: null, next: null },
-    ),
-  ])
+    safeDbQuery(() => getRelatedPosts(post.id, post.tags?.map((t) => t.id) ?? [], 5), []),
+    safeDbQuery(() => getAdjacentPosts(locale, post.id, post.published_at ?? post.created_at), {
+      prev: null,
+      next: null,
+    }),
+  ]);
 
   // getRandomPosts 依赖 relatedPosts 的 ID 列表，必须串行
   // 但现在只取 limit 条（而非全表），开销已大幅降低
   const randomPosts = await safeDbQuery(
-    () => getRandomPosts(locale, post.id, relatedPosts.map((p) => p.id), 5),
+    () =>
+      getRandomPosts(
+        locale,
+        post.id,
+        relatedPosts.map((p) => p.id),
+        5,
+      ),
     [],
-  )
+  );
 
-  const headings = extractHeadingsFromMdx(post.content_mdx)
+  const headings = extractHeadingsFromMdx(post.content_mdx);
 
   return (
     <PostHeadingsProvider headings={headings} encrypted={false}>
@@ -142,5 +137,5 @@ async function BlogPostPageContent({
         nextPost={adjacent.next}
       />
     </PostHeadingsProvider>
-  )
+  );
 }

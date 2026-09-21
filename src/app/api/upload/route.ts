@@ -10,16 +10,10 @@ export async function POST(request: NextRequest) {
     // Authenticate — must be a logged-in admin (role=1)
     const session = await auth();
     if (!session?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     if (session.user.role !== UserRole.ADMIN) {
-      return NextResponse.json(
-        { error: "Forbidden: admin access required" },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Forbidden: admin access required" }, { status: 403 });
     }
 
     // 限流 key 用可信客户端 IP：getClientIp 优先 x-real-ip（由 Nginx/Caddy 覆盖写入），
@@ -28,10 +22,7 @@ export async function POST(request: NextRequest) {
     try {
       await rateLimit(ip, "api");
     } catch {
-      return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429 },
-      );
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     // Parse multipart/form-data
@@ -58,8 +49,7 @@ export async function POST(request: NextRequest) {
       const result = await saveUploadedImage(file);
       return NextResponse.json(result, { status: 200 });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Invalid file";
+      const message = error instanceof Error ? error.message : "Invalid file";
       // Distinguish validation errors (400) from unexpected failures (500).
       //
       // 只有「面向调用方的白名单文案」才允许回显，其余一律 500 通用文案。
@@ -86,16 +76,10 @@ export async function POST(request: NextRequest) {
         }
       }
       console.error("POST /api/upload save error:", error);
-      return NextResponse.json(
-        { error: "Failed to process upload" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Failed to process upload" }, { status: 500 });
     }
   } catch (error) {
     console.error("POST /api/upload error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

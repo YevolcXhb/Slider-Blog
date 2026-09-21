@@ -88,13 +88,7 @@ const KatexRenderer = lazy(() =>
   import("./katex-renderer").then((mod) => ({ default: mod.KatexRenderer })),
 );
 
-function KatexBlock({
-  code,
-  display = false,
-}: {
-  code: string;
-  display?: boolean;
-}) {
+function KatexBlock({ code, display = false }: { code: string; display?: boolean }) {
   return (
     <Suspense
       fallback={
@@ -123,9 +117,7 @@ function CodeBlock({ children, language }: CodeBlockProps) {
     async function highlight() {
       if (!language || language === "text" || language === "plaintext") {
         if (!cancelled) {
-          setHtml(
-            `<pre class="shiki"><code>${escapeHtml(children)}</code></pre>`,
-          );
+          setHtml(`<pre class="shiki"><code>${escapeHtml(children)}</code></pre>`);
         }
         return;
       }
@@ -140,9 +132,7 @@ function CodeBlock({ children, language }: CodeBlockProps) {
         if (!cancelled) setHtml(result);
       } catch {
         if (!cancelled) {
-          setHtml(
-            `<pre class="shiki"><code>${escapeHtml(children)}</code></pre>`,
-          );
+          setHtml(`<pre class="shiki"><code>${escapeHtml(children)}</code></pre>`);
         }
       }
     }
@@ -168,9 +158,7 @@ function CodeBlock({ children, language }: CodeBlockProps) {
     <div className="group relative my-6 overflow-hidden rounded-xl border border-black/10 bg-[#f6f8fa] dark:border-white/10 dark:bg-[#1e1e2e]">
       <div className="flex items-center justify-between border-b border-black/5 px-4 py-2 dark:border-white/5">
         {language ? (
-          <span className="text-xs font-medium text-black/40 dark:text-white/40">
-            {language}
-          </span>
+          <span className="text-xs font-medium text-black/40 dark:text-white/40">{language}</span>
         ) : (
           <span />
         )}
@@ -179,11 +167,7 @@ function CodeBlock({ children, language }: CodeBlockProps) {
           className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-black/40 transition-colors hover:bg-black/5 hover:text-black/60 dark:text-white/40 dark:hover:bg-white/5 dark:hover:text-white/60"
           aria-label={copied ? "Copied" : "Copy code"}
         >
-          {copied ? (
-            <Check className="size-3.5" />
-          ) : (
-            <Copy className="size-3.5" />
-          )}
+          {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
@@ -231,7 +215,7 @@ const codeComponents: MDXRemoteProps["components"] = {
     return (
       <code
         className={cn(
-          "rounded-md bg-black/5 px-1.5 py-0.5 text-sm font-mono text-90 dark:bg-white/10",
+          "text-90 rounded-md bg-black/5 px-1.5 py-0.5 font-mono text-sm dark:bg-white/10",
           className,
         )}
         {...rest}

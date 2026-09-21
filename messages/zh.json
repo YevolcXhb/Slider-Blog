@@ -31,11 +31,7 @@
   "Hero": {
     "browsePosts": "浏览文章",
     "exploreMore": "随便看看",
-    "subtitles": [
-      "记录技术、生活与思考",
-      "分享有趣的事物和学习心得",
-      "Amidst Silhouette of Dreams"
-    ]
+    "subtitles": ["记录技术、生活与思考", "分享有趣的事物和学习心得", "Amidst Silhouette of Dreams"]
   },
   "CategoryBar": {
     "archive": "归档",

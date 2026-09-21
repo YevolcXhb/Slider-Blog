@@ -143,8 +143,6 @@ describe("formatDate", () => {
   });
 
   it("未知 locale 走 en-US 分支", () => {
-    expect(formatDate("2024-06-15T12:00:00Z", "fr")).toBe(
-      formatDate("2024-06-15T12:00:00Z", "en"),
-    );
+    expect(formatDate("2024-06-15T12:00:00Z", "fr")).toBe(formatDate("2024-06-15T12:00:00Z", "en"));
   });
 });

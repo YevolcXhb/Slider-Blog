@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react"
-import Image from "next/image"
-import { X, ArrowUpRightFromSquare } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
+import { X, ArrowUpRightFromSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { cn } from "@/lib/utils"
-import { WidgetLayout } from "./widget-layout"
-import type { WidgetComponentConfig } from "@/types/sidebarConfig"
+import { cn } from "@/lib/utils";
+import { WidgetLayout } from "./widget-layout";
+import type { WidgetComponentConfig } from "@/types/sidebarConfig";
 
 interface AdvertisementWidgetProps {
-  widgetConfig?: WidgetComponentConfig
-  className?: string
-  style?: React.CSSProperties
+  widgetConfig?: WidgetComponentConfig;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 function useLocalStorageNumber(key: string) {
@@ -20,72 +20,64 @@ function useLocalStorageNumber(key: string) {
     () => () => {},
     () => Number.parseInt(localStorage.getItem(key) || "0", 10),
     () => 0,
-  )
+  );
 }
 
-function AdvertisementWidget({
-  widgetConfig,
-  className,
-  style,
-}: AdvertisementWidgetProps) {
-  const t = useTranslations("Widgets")
-  const showTitle = widgetConfig?.showTitle !== false
-  const adConfig = widgetConfig?.specificConfig?.ad
+function AdvertisementWidget({ widgetConfig, className, style }: AdvertisementWidgetProps) {
+  const t = useTranslations("Widgets");
+  const showTitle = widgetConfig?.showTitle !== false;
+  const adConfig = widgetConfig?.specificConfig?.ad;
 
-  const widgetId = useId()
-  const storageKey = adConfig ? `ad-display-${widgetId}` : ""
-  const displayCount = useLocalStorageNumber(storageKey)
+  const widgetId = useId();
+  const storageKey = adConfig ? `ad-display-${widgetId}` : "";
+  const displayCount = useLocalStorageNumber(storageKey);
 
-  const [closed, setClosed] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
+  const [closed, setClosed] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   const paddingStyle: React.CSSProperties = useMemo(() => {
-    if (!adConfig?.padding) return { padding: "1rem" }
-    const { all, top, right, bottom, left } = adConfig.padding
+    if (!adConfig?.padding) return { padding: "1rem" };
+    const { all, top, right, bottom, left } = adConfig.padding;
     if (all !== undefined) {
-      return { padding: all === "0" ? "0" : all }
+      return { padding: all === "0" ? "0" : all };
     }
     return {
       paddingTop: top,
       paddingRight: right,
       paddingBottom: bottom,
       paddingLeft: left,
-    }
-  }, [adConfig?.padding])
+    };
+  }, [adConfig?.padding]);
 
   useEffect(() => {
-    if (!storageKey) return
-    const count = adConfig?.displayCount ?? -1
+    if (!storageKey) return;
+    const count = adConfig?.displayCount ?? -1;
     if (count > 0) {
-      const currentCount = Number.parseInt(localStorage.getItem(storageKey) || "0", 10)
+      const currentCount = Number.parseInt(localStorage.getItem(storageKey) || "0", 10);
       if (currentCount < count) {
-        localStorage.setItem(storageKey, (currentCount + 1).toString())
+        localStorage.setItem(storageKey, (currentCount + 1).toString());
       }
     }
-  }, [storageKey, adConfig?.displayCount])
+  }, [storageKey, adConfig?.displayCount]);
 
-  if (!adConfig) return null
+  if (!adConfig) return null;
 
-  const count = adConfig.displayCount ?? -1
-  const displayCountReached = count > 0 ? displayCount >= count : false
+  const count = adConfig.displayCount ?? -1;
+  const displayCountReached = count > 0 ? displayCount >= count : false;
 
-  const isExpired = adConfig.expireDate
-    ? new Date() > new Date(adConfig.expireDate)
-    : false
-  if (isExpired || closed || displayCountReached) return null
+  const isExpired = adConfig.expireDate ? new Date() > new Date(adConfig.expireDate) : false;
+  if (isExpired || closed || displayCountReached) return null;
 
-  const useContentPadding = !adConfig.padding
+  const useContentPadding = !adConfig.padding;
 
-  const imageSrc = adConfig.image?.src.startsWith("/")
-    ? adConfig.image.src
-    : adConfig.image?.src
+  const imageSrc = adConfig.image?.src.startsWith("/") ? adConfig.image.src : adConfig.image?.src;
 
   function handleClose() {
-    if (!adConfig?.closable) return
-    setIsClosing(true)
+    if (!adConfig?.closable) return;
+    setIsClosing(true);
     window.setTimeout(() => {
-      setClosed(true)
-    }, 300)
+      setClosed(true);
+    }, 300);
   }
 
   return (
@@ -104,13 +96,13 @@ function AdvertisementWidget({
       {adConfig.closable && (
         <button
           type="button"
-          className="close-ad-btn absolute right-2 top-2 z-10 flex size-6 items-center justify-center rounded-full bg-neutral-200 text-neutral-500 opacity-0 transition-all duration-200 hover:bg-neutral-300 hover:text-neutral-700 group-hover:opacity-100 dark:bg-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-600 dark:hover:text-neutral-200"
+          className="close-ad-btn absolute top-2 right-2 z-10 flex size-6 items-center justify-center rounded-full bg-neutral-200 text-neutral-500 opacity-0 transition-all duration-200 group-hover:opacity-100 hover:bg-neutral-300 hover:text-neutral-700 dark:bg-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-600 dark:hover:text-neutral-200"
           title={t("close")}
           aria-label={t("close")}
           onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            handleClose()
+            e.preventDefault();
+            e.stopPropagation();
+            handleClose();
           }}
         >
           <X className="size-3.5" aria-hidden="true" />
@@ -174,8 +166,8 @@ function AdvertisementWidget({
         )}
       </div>
     </WidgetLayout>
-  )
+  );
 }
 
-export { AdvertisementWidget, type AdvertisementWidgetProps }
-export default AdvertisementWidget
+export { AdvertisementWidget, type AdvertisementWidgetProps };
+export default AdvertisementWidget;

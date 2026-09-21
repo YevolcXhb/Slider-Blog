@@ -50,9 +50,7 @@ describe("writeEnvValue / parseEnvFile round-trip", () => {
   });
 
   it("keeps unquoted values unquoted so shell parsing is unchanged", () => {
-    expect(writeEnvValue("mysql://user:pw@db:3306/app")).toBe(
-      "mysql://user:pw@db:3306/app",
-    );
+    expect(writeEnvValue("mysql://user:pw@db:3306/app")).toBe("mysql://user:pw@db:3306/app");
   });
 
   it("wraps and escapes values containing a double quote", () => {
@@ -89,9 +87,7 @@ describe("parseEnvFile", () => {
   });
 
   it("keeps leading whitespace after = for preserve-exact keys only", () => {
-    expect(parseEnvFile("DATABASE_URL=  spaced\n").DATABASE_URL).toBe(
-      "  spaced",
-    );
+    expect(parseEnvFile("DATABASE_URL=  spaced\n").DATABASE_URL).toBe("  spaced");
     // 非 preserve-exact 键沿用历史上更宽松的 trim 语义
     expect(parseEnvFile("SOME_KEY=  spaced  \n").SOME_KEY).toBe("spaced");
   });

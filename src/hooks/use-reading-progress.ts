@@ -8,19 +8,14 @@ export function useReadingProgress(): MotionValue<number> {
 
   useEffect(() => {
     function handleScroll() {
-      const scrollTop =
-        document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
       const scrollHeight =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
+        document.documentElement.scrollHeight - document.documentElement.clientHeight;
       if (scrollHeight <= 0) {
         progress.set(0);
         return;
       }
-      const value = Math.min(
-        100,
-        Math.round((scrollTop / scrollHeight) * 100),
-      );
+      const value = Math.min(100, Math.round((scrollTop / scrollHeight) * 100));
       progress.set(value);
     }
 

@@ -3,10 +3,7 @@ import { requireAdmin } from "@/server/require-admin";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import SettingsManager from "./settings-manager";
-import {
-  DEFAULT_THEME_SETTINGS,
-  type ThemeSettings,
-} from "@/lib/theme-css";
+import { DEFAULT_THEME_SETTINGS, type ThemeSettings } from "@/lib/theme-css";
 
 export interface ProfileSettings {
   profile_name: string;
@@ -53,11 +50,7 @@ export async function generateMetadata({
   return { title: t("title") };
 }
 
-export default async function SettingsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function SettingsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   await requireAdmin(locale, "/settings");
 

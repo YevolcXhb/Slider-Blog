@@ -1,14 +1,14 @@
-import { Suspense } from "react"
-import { getLocale } from "next-intl/server"
-import { BookOpen } from "lucide-react"
+import { Suspense } from "react";
+import { getLocale } from "next-intl/server";
+import { BookOpen } from "lucide-react";
 
-import { getPublishedPosts, getCategories } from "@/server/queries/post"
-import { safeDbQuery } from "@/lib/safe-db"
-import { PostCard } from "@/components/blog/post-card"
-import { CategoryBar } from "@/components/blog/category-bar"
-import type { Post } from "@/types/post"
+import { getPublishedPosts, getCategories } from "@/server/queries/post";
+import { safeDbQuery } from "@/lib/safe-db";
+import { PostCard } from "@/components/blog/post-card";
+import { CategoryBar } from "@/components/blog/category-bar";
+import type { Post } from "@/types/post";
 
-export const revalidate = 300
+export const revalidate = 300;
 
 // 用 Suspense 包裹，让路由切换时立即展示 loading.tsx 静态 shell
 export default function HomePage() {
@@ -16,27 +16,30 @@ export default function HomePage() {
     <Suspense fallback={null}>
       <HomePageContent />
     </Suspense>
-  )
+  );
 }
 
 async function HomePageContent() {
-  const locale = await getLocale()
+  const locale = await getLocale();
 
   const [postsResult, categories] = await Promise.all([
-    safeDbQuery(
-      () => getPublishedPosts(locale, 1, 8),
-      { items: [], total: 0, page: 1, limit: 8, totalPages: 0 } as {
-        items: Post[]
-        total: number
-        page: number
-        limit: number
-        totalPages: number
-      },
-    ),
+    safeDbQuery(() => getPublishedPosts(locale, 1, 8), {
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 8,
+      totalPages: 0,
+    } as {
+      items: Post[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }),
     safeDbQuery(getCategories, []),
-  ])
+  ]);
 
-  const posts = postsResult.items
+  const posts = postsResult.items;
 
   return (
     <section>
@@ -55,5 +58,5 @@ async function HomePageContent() {
         </div>
       )}
     </section>
-  )
+  );
 }

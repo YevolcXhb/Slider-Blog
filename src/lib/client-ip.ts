@@ -93,8 +93,7 @@ function normalize(raw: string | null | undefined): string | null {
   if (!first || first.length > MAX_IP_LENGTH) return null;
   if (hasControlOrSpace(first)) return null;
   // 剥掉 IPv6 的方括号形式，例如 [::1]
-  const bare =
-    first.startsWith("[") && first.endsWith("]") ? first.slice(1, -1) : first;
+  const bare = first.startsWith("[") && first.endsWith("]") ? first.slice(1, -1) : first;
   if (isIpv4(bare) || isIpv6(bare)) return bare;
   return null;
 }
@@ -105,8 +104,6 @@ function normalize(raw: string | null | undefined): string | null {
  */
 export function getClientIp(headers: Headers): string {
   return (
-    normalize(headers.get("x-real-ip")) ??
-    normalize(headers.get("x-forwarded-for")) ??
-    "unknown"
+    normalize(headers.get("x-real-ip")) ?? normalize(headers.get("x-forwarded-for")) ?? "unknown"
   );
 }

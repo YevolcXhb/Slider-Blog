@@ -1,24 +1,24 @@
-import { Suspense } from "react"
-import { getLocale } from "next-intl/server"
-import { getTranslations } from "next-intl/server"
+import { Suspense } from "react";
+import { getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
-import { getPublishedPostsForArchive } from "@/server/queries/post"
-import { ArchivePanel } from "@/components/pages/archive/archive-panel"
+import { getPublishedPostsForArchive } from "@/server/queries/post";
+import { ArchivePanel } from "@/components/pages/archive/archive-panel";
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export default function ArchivePage() {
   return (
     <Suspense fallback={null}>
       <ArchivePageContent />
     </Suspense>
-  )
+  );
 }
 
 async function ArchivePageContent() {
-  const locale = await getLocale()
-  const t = await getTranslations("Archive")
-  const posts = await getPublishedPostsForArchive(locale)
+  const locale = await getLocale();
+  const t = await getTranslations("Archive");
+  const posts = await getPublishedPostsForArchive(locale);
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,5 +38,5 @@ async function ArchivePageContent() {
         }}
       />
     </div>
-  )
+  );
 }

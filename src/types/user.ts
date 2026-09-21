@@ -16,25 +16,27 @@ export const LoginInput = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export const RegisterInput = z.object({
-  username: z
-    .string()
-    .min(2, "Username must be at least 2 characters")
-    .max(50, "Username is too long")
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Username can only contain letters, numbers, underscores, and hyphens",
-    ),
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password is too long"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+export const RegisterInput = z
+  .object({
+    username: z
+      .string()
+      .min(2, "Username must be at least 2 characters")
+      .max(50, "Username is too long")
+      .regex(
+        /^[a-zA-Z0-9_-]+$/,
+        "Username can only contain letters, numbers, underscores, and hyphens",
+      ),
+    email: z.string().email("Invalid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(128, "Password is too long"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 // ==================== Inferred Types ====================
 

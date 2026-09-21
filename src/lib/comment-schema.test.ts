@@ -190,12 +190,7 @@ describe("SubmitCommentSchema 对未知字段的 strict 拒绝行为", () => {
       author_name: "路人甲",
       parent_id: 3,
     });
-    expect(Object.keys(parsed).sort()).toEqual([
-      "author_name",
-      "content",
-      "parent_id",
-      "post_id",
-    ]);
+    expect(Object.keys(parsed).sort()).toEqual(["author_name", "content", "parent_id", "post_id"]);
     expect(parsed.author_name).toBe("路人甲");
   });
 });
@@ -219,12 +214,7 @@ describe("公开调用点只发送契约内的字段", () => {
     const call = hookSource.match(/submitCommentAction\(\{([\s\S]*?)\}\)/);
     expect(call).not.toBeNull();
     const keys = [...call![1].matchAll(/(?:^|\n)\s*([a-z_]+)\s*:/g)].map((m) => m[1]);
-    expect(keys.sort()).toEqual([
-      "author_name",
-      "content",
-      "parent_id",
-      "post_id",
-    ]);
+    expect(keys.sort()).toEqual(["author_name", "content", "parent_id", "post_id"]);
   });
 
   it("use-comment.ts 不含任何邮箱字段（strict 不会因它误伤正常提交）", () => {
@@ -261,7 +251,10 @@ describe("SubmitCommentSchema 不向调用方暴露 zod 英文默认文案", () 
     { label: "parent_id 非数字", input: { post_id: 1, content: "hi", parent_id: "x" } },
     { label: "author_name 类型错误", input: { post_id: 1, content: "hi", author_name: 5 } },
     { label: "author_name 为空串", input: { post_id: 1, content: "hi", author_name: "" } },
-    { label: "author_name 超长", input: { post_id: 1, content: "hi", author_name: "a".repeat(101) } },
+    {
+      label: "author_name 超长",
+      input: { post_id: 1, content: "hi", author_name: "a".repeat(101) },
+    },
     { label: "未知字段 author_email", input: { post_id: 1, content: "hi", author_email: "a@b.c" } },
     { label: "整个 body 为 null", input: null },
     { label: "整个 body 为字符串", input: "not-an-object" },
@@ -323,9 +316,7 @@ describe("SubmitCommentSchema 不向调用方暴露 zod 英文默认文案", () 
       author_email: "a@example.com",
     });
     expect(localized.success).toBe(false);
-    expect(localized.issues!.map((i) => i.message)).toEqual([
-      COMMENT_VALIDATION_ERROR_MESSAGE,
-    ]);
+    expect(localized.issues!.map((i) => i.message)).toEqual([COMMENT_VALIDATION_ERROR_MESSAGE]);
     expectNoZodEnglish(JSON.stringify(localized.issues));
   });
 
@@ -414,9 +405,9 @@ describe("SubmitCommentSchema 边界校验", () => {
   });
 
   it("content 恰好 10000 字符通过（上边界内）", () => {
-    expect(
-      SubmitCommentSchema.safeParse({ post_id: 1, content: "a".repeat(10000) }).success,
-    ).toBe(true);
+    expect(SubmitCommentSchema.safeParse({ post_id: 1, content: "a".repeat(10000) }).success).toBe(
+      true,
+    );
   });
 
   it("post_id 为非正数失败（0 与负数）", () => {
@@ -436,8 +427,6 @@ describe("SubmitCommentSchema 边界校验", () => {
   });
 
   it("author_name 缺省时为 undefined（可选字段）", () => {
-    expect(
-      SubmitCommentSchema.parse({ post_id: 1, content: "hi" }).author_name,
-    ).toBeUndefined();
+    expect(SubmitCommentSchema.parse({ post_id: 1, content: "hi" }).author_name).toBeUndefined();
   });
 });

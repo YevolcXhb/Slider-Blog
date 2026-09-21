@@ -1,72 +1,66 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { cn } from "@/lib/utils"
-import { sanitizeHTML } from "@/lib/sanitize"
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { sanitizeHTML } from "@/lib/sanitize";
 
 interface KatexRendererProps {
-  code: string
-  display?: boolean
-  className?: string
+  code: string;
+  display?: boolean;
+  className?: string;
 }
 
 function KatexRenderer({ code, display = false, className }: KatexRendererProps) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const [error, setError] = useState<string | null>(null)
+  const ref = useRef<HTMLSpanElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     async function render() {
       try {
-        const katex = await import("katex")
+        const katex = await import("katex");
 
         const html = katex.default.renderToString(code, {
           displayMode: display,
           throwOnError: false,
-        })
+        });
 
         if (!cancelled && ref.current) {
-          ref.current.innerHTML = sanitizeHTML(html)
+          ref.current.innerHTML = sanitizeHTML(html);
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to render formula")
+          setError(err instanceof Error ? err.message : "Failed to render formula");
         }
       }
     }
 
-    render()
+    render();
 
     return () => {
-      cancelled = true
-    }
-  }, [code, display])
+      cancelled = true;
+    };
+  }, [code, display]);
 
   if (error) {
     return (
       <span
-        className={cn(
-          "inline-block rounded bg-red-500/5 px-1 text-red-400",
-          className,
-        )}
+        className={cn("inline-block rounded bg-red-500/5 px-1 text-red-400", className)}
         title={error}
       >
         {code}
       </span>
-    )
+    );
   }
 
   return (
     <span
       ref={ref}
-      className={cn(
-        display && "my-4 flex justify-center",
-        className,
-      )}
+      className={cn(display && "my-4 flex justify-center", className)}
       aria-label={`Math formula: ${code}`}
     />
-  )
+  );
 }
 
-export { KatexRenderer, type KatexRendererProps }
+export { KatexRenderer, type KatexRendererProps };

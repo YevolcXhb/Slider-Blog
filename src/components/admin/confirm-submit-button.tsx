@@ -44,12 +44,7 @@ export function ConfirmSubmitButton({
         }
       }}
     >
-      <button
-        type="submit"
-        disabled={disabled}
-        className={className}
-        aria-label={ariaLabel}
-      >
+      <button type="submit" disabled={disabled} className={className} aria-label={ariaLabel}>
         {children}
       </button>
     </form>

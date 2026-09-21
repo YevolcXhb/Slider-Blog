@@ -21,7 +21,9 @@ export type { SessionRoleLookup } from "@/lib/auth-role";
 export { isTrustedAdminGateway };
 
 /** 鉴权回调的公共入参签名（从可复用实现上推导，避免与 next-auth 版本脱节） */
-type JwtCallbackParams = Parameters<NonNullable<NonNullable<typeof authConfig.callbacks>["jwt"]>>[0];
+type JwtCallbackParams = Parameters<
+  NonNullable<NonNullable<typeof authConfig.callbacks>["jwt"]>
+>[0];
 
 /**
  * 查库取用户最新角色（F9 的唯一数据库查询实现，可被调用方注入替身）。

@@ -1,13 +1,6 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import {
-  CalendarDays,
-  FileText,
-  Clock,
-  Eye,
-  Heart,
-  MessageCircle,
-} from "lucide-react";
+import { CalendarDays, FileText, Clock, Eye, Heart, MessageCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
@@ -109,9 +102,7 @@ function PostStats({
     "transition h-5 w-5 rounded-md bg-black/5 dark:bg-white/10 text-50 flex items-center justify-center mr-1.5";
 
   const socialMode =
-    viewCount !== undefined ||
-    likeCount !== undefined ||
-    commentCount !== undefined;
+    viewCount !== undefined || likeCount !== undefined || commentCount !== undefined;
 
   if (socialMode) {
     return (
@@ -182,9 +173,7 @@ function PostStats({
         />
       )}
 
-      {(hasPublished || hasWords) && hasMinutes && (
-        <span className={dividerClass}>|</span>
-      )}
+      {(hasPublished || hasWords) && hasMinutes && <span className={dividerClass}>|</span>}
 
       {hasMinutes && (
         <StatItem

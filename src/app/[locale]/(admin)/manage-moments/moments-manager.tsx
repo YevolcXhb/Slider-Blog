@@ -5,18 +5,7 @@ import { useTranslations } from "next-intl";
 import { useFormatter } from "next-intl";
 import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Check,
-  X,
-  Pin,
-  PinOff,
-  Eye,
-  EyeOff,
-  MapPin,
-} from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, Pin, PinOff, Eye, EyeOff, MapPin } from "lucide-react";
 import {
   createDynamic,
   updateDynamic,
@@ -116,10 +105,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
     async (id: string, formData: FormData) => {
       const content = String(formData.get("content") ?? "");
       if (!content.trim()) return;
-      const ok = await runAction(
-        () => updateDynamic(Number(id), formData),
-        t("updated"),
-      );
+      const ok = await runAction(() => updateDynamic(Number(id), formData), t("updated"));
       if (!ok) return;
       const imagesStr = String(formData.get("images") ?? "");
       const location = String(formData.get("location") ?? "");
@@ -167,9 +153,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
       const ok = await runAction(() => toggleDynamicPin(Number(id)));
       if (ok) {
         setMoments((prev) =>
-          prev.map((m) =>
-            m.id === id ? { ...m, is_pinned: m.is_pinned ? 0 : 1 } : m,
-          ),
+          prev.map((m) => (m.id === id ? { ...m, is_pinned: m.is_pinned ? 0 : 1 } : m)),
         );
       }
     },
@@ -192,7 +176,9 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white/90 md:text-4xl">{t("title")}</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-white/90 md:text-4xl">
+          {t("title")}
+        </h1>
         <p className="mt-1 text-sm text-white/50">{t("subtitle")}</p>
       </div>
 
@@ -216,14 +202,10 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
 
       {/* Create Form */}
       <GlassCard className="p-5 md:p-7">
-        <h2 className="mb-5 text-xl font-semibold text-white/90 md:text-2xl">
-          {t("new_moment")}
-        </h2>
+        <h2 className="mb-5 text-xl font-semibold text-white/90 md:text-2xl">{t("new_moment")}</h2>
         <form action={handleCreate} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/70">
-              {t("content_label")}
-            </label>
+            <label className="block text-sm font-medium text-white/70">{t("content_label")}</label>
             <textarea
               name="content"
               value={newContent}
@@ -234,9 +216,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/70">
-              {t("images_label")}
-            </label>
+            <label className="block text-sm font-medium text-white/70">{t("images_label")}</label>
             <textarea
               name="images"
               value={newImages}
@@ -269,12 +249,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
               />
               {t("pin_label")}
             </label>
-            <GlassButton
-              type="submit"
-              variant="primary"
-              size="sm"
-              disabled={!newContent.trim()}
-            >
+            <GlassButton type="submit" variant="primary" size="sm" disabled={!newContent.trim()}>
               <Plus className="size-4" />
               {t("create")}
             </GlassButton>
@@ -297,10 +272,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
                     <Pencil className="size-4" />
                     {t("editing")}
                   </div>
-                  <form
-                    action={handleUpdate.bind(null, item.id)}
-                    className="space-y-4"
-                  >
+                  <form action={handleUpdate.bind(null, item.id)} className="space-y-4">
                     <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-white/70">
                         {t("content_label")}
@@ -368,7 +340,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
 
             return (
               <GlassCard key={item.id}>
-                <p className="whitespace-pre-wrap break-words text-sm text-white/90">
+                <p className="text-sm break-words whitespace-pre-wrap text-white/90">
                   {item.content}
                 </p>
 
@@ -383,7 +355,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
                     {imageCount} {t("images_count")}
                   </span>
                   {item.is_pinned === 1 && (
-                    <span className="rounded-full bg-brand-pink/15 px-2 py-0.5 text-brand-pink">
+                    <span className="bg-brand-pink/15 text-brand-pink rounded-full px-2 py-0.5">
                       {t("pinned")}
                     </span>
                   )}
@@ -464,9 +436,7 @@ export default function MomentsManager({ initialMoments }: MomentsManagerProps) 
         </div>
       ) : (
         <GlassCard>
-          <p className="py-8 text-center text-sm text-white/30">
-            {t("no_moments")}
-          </p>
+          <p className="py-8 text-center text-sm text-white/30">{t("no_moments")}</p>
         </GlassCard>
       )}
     </div>

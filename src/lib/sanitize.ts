@@ -20,10 +20,44 @@ import DOMPurify from "dompurify";
 // Default config: strip scripts, event handlers, and dangerous attributes
 const DEFAULT_CONFIG = {
   ALLOWED_TAGS: [
-    "a", "b", "i", "em", "strong", "u", "p", "br", "hr", "blockquote",
-    "code", "pre", "ul", "ol", "li", "h1", "h2", "h3", "h4", "h5", "h6",
-    "img", "table", "thead", "tbody", "tr", "th", "td", "div", "span",
-    "sup", "sub", "del", "ins", "mark", "abbr", "cite", "q",
+    "a",
+    "b",
+    "i",
+    "em",
+    "strong",
+    "u",
+    "p",
+    "br",
+    "hr",
+    "blockquote",
+    "code",
+    "pre",
+    "ul",
+    "ol",
+    "li",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "img",
+    "table",
+    "thead",
+    "tbody",
+    "tr",
+    "th",
+    "td",
+    "div",
+    "span",
+    "sup",
+    "sub",
+    "del",
+    "ins",
+    "mark",
+    "abbr",
+    "cite",
+    "q",
   ],
   ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "id", "target", "rel", "width", "height"],
   ALLOW_DATA_ATTR: false,
@@ -92,7 +126,6 @@ function sanitizeWithoutDom(dirty: string): string {
   );
 }
 
-
 /**
  * 遍历属性区文本，把每个属性的名字与值成对交给 visit。
  *
@@ -100,10 +133,7 @@ function sanitizeWithoutDom(dirty: string): string {
  * 任何字符（含 `onmouseover=`）都留在值内部，不会再被当成一个新属性的起点 ——
  * 这是"值里藏引号"这类畸形输入不会额外泄漏属性的原因。
  */
-function forEachAttribute(
-  rawAttrs: string,
-  visit: (name: string, value: string) => void,
-): void {
+function forEachAttribute(rawAttrs: string, visit: (name: string, value: string) => void): void {
   const attrRe =
     /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*"([^"]*)"|([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*'([^']*)'|([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*([^\s"'>]+)|([a-zA-Z_:][-a-zA-Z0-9_:.]*)/g;
   let m: RegExpExecArray | null;
@@ -172,7 +202,15 @@ export function sanitizeHTML(dirty: string): string {
 
 // Lightweight sanitizer for plain-text content (comments) — escapes everything
 export function sanitizePlainText(dirty: string): string {
-  return dirty.replace(/[<>&"']/g, (c) => ({
-    "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;",
-  }[c] as string));
+  return dirty.replace(
+    /[<>&"']/g,
+    (c) =>
+      ({
+        "<": "&lt;",
+        ">": "&gt;",
+        "&": "&amp;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c] as string,
+  );
 }

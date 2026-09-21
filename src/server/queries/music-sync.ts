@@ -1,7 +1,7 @@
-"use server"
+"use server";
 
-import { prisma } from "@/lib/prisma"
-import { parseMusicInfoFromUrl } from "@/lib/parse-music-info"
+import { prisma } from "@/lib/prisma";
+import { parseMusicInfoFromUrl } from "@/lib/parse-music-info";
 
 /**
  * 音乐元数据的显式维护入口（仅管理员/后台脚本调用）。
@@ -19,21 +19,21 @@ export async function syncMusicMetadataFromUrls(): Promise<number> {
   const musics = await prisma.music.findMany({
     where: { OR: [{ title: "" }, { artist: "" }] },
     select: { id: true, url: true },
-  })
+  });
 
-  if (musics.length === 0) return 0
+  if (musics.length === 0) return 0;
 
   const updates = musics.map((m) => {
-    const info = parseMusicInfoFromUrl(m.url)
+    const info = parseMusicInfoFromUrl(m.url);
     return prisma.music.update({
       where: { id: m.id },
       data: {
         title: info.title || "未知歌曲",
         artist: info.artist || "",
       },
-    })
-  })
+    });
+  });
 
-  await prisma.$transaction(updates)
-  return updates.length
+  await prisma.$transaction(updates);
+  return updates.length;
 }

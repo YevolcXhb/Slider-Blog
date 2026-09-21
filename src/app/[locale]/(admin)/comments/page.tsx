@@ -35,13 +35,7 @@ export default async function CommentsPage({ searchParams, params }: CommentsPag
 
   const { filter, page } = await searchParams;
   const activeFilter =
-    filter === "pending"
-      ? 0
-      : filter === "approved"
-        ? 1
-        : filter === "rejected"
-          ? 2
-          : null;
+    filter === "pending" ? 0 : filter === "approved" ? 1 : filter === "rejected" ? 2 : null;
   const currentPage = Math.max(1, Number(page) || 1);
 
   const where = activeFilter !== null ? { status: activeFilter } : {};
@@ -90,17 +84,12 @@ export default async function CommentsPage({ searchParams, params }: CommentsPag
           const isActive =
             tab.value === null
               ? activeFilter === null
-              : (STATUS_FILTERS as Record<string, number>)[tab.value] ===
-                activeFilter;
+              : (STATUS_FILTERS as Record<string, number>)[tab.value] === activeFilter;
 
           return (
             <Link
               key={tab.value ?? "all"}
-              href={
-                tab.value
-                  ? `/comments?filter=${tab.value}`
-                  : "/comments"
-              }
+              href={tab.value ? `/comments?filter=${tab.value}` : "/comments"}
               className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-white/15 text-white"
@@ -120,30 +109,26 @@ export default async function CommentsPage({ searchParams, params }: CommentsPag
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-white/10 text-white/50">
-                  <th className="px-6 pb-3 pt-4 font-medium">{t("author")}</th>
-                  <th className="px-4 pb-3 pt-4 font-medium">{t("content")}</th>
-                  <th className="px-4 pb-3 pt-4 font-medium">{t("post")}</th>
-                  <th className="px-4 pb-3 pt-4 font-medium">{t("status")}</th>
-                  <th className="px-4 pb-3 pt-4 font-medium">{t("date")}</th>
-                  <th className="px-6 pb-3 pt-4 text-right font-medium">
-                    {t("actions")}
-                  </th>
+                  <th className="px-6 pt-4 pb-3 font-medium">{t("author")}</th>
+                  <th className="px-4 pt-4 pb-3 font-medium">{t("content")}</th>
+                  <th className="px-4 pt-4 pb-3 font-medium">{t("post")}</th>
+                  <th className="px-4 pt-4 pb-3 font-medium">{t("status")}</th>
+                  <th className="px-4 pt-4 pb-3 font-medium">{t("date")}</th>
+                  <th className="px-6 pt-4 pb-3 text-right font-medium">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody>
                 {comments.map((comment, index) => (
                   <tr
                     key={comment.id.toString()}
-                    className={`border-b border-white/5 backdrop-blur-sm transition-colors hover:bg-white/5 last:border-0 ${
+                    className={`border-b border-white/5 backdrop-blur-sm transition-colors last:border-0 hover:bg-white/5 ${
                       index % 2 === 0 ? "bg-white/[0.02]" : ""
                     }`}
                   >
                     {/* Author */}
                     <td className="px-6 py-4">
                       <p className="font-medium text-white/90">
-                        {comment.user?.username ??
-                          comment.author_name ??
-                          t("anonymous")}
+                        {comment.user?.username ?? comment.author_name ?? t("anonymous")}
                       </p>
                       {(comment.user?.email ?? comment.author_email) && (
                         <p className="mt-0.5 text-xs text-white/40">
@@ -162,16 +147,13 @@ export default async function CommentsPage({ searchParams, params }: CommentsPag
                     </td>
 
                     {/* Post */}
-                    <td className="px-4 py-4 text-white/50">
-                      {comment.post.title}
-                    </td>
+                    <td className="px-4 py-4 text-white/50">{comment.post.title}</td>
 
                     {/* Status */}
                     <td className="px-4 py-4">
                       <span
                         className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          STATUS_STYLES[comment.status] ??
-                          "bg-gray-500/20 text-gray-400"
+                          STATUS_STYLES[comment.status] ?? "bg-gray-500/20 text-gray-400"
                         }`}
                       >
                         {statusLabel(comment.status)}
@@ -235,9 +217,7 @@ export default async function CommentsPage({ searchParams, params }: CommentsPag
           <div className="flex flex-col items-center justify-center py-16">
             <MessageSquare className="mb-3 size-8 text-white/20" />
             <p className="text-sm text-white/30">
-              {activeFilter !== null
-                ? t("no_comments_filtered")
-                : t("no_comments_empty")}
+              {activeFilter !== null ? t("no_comments_filtered") : t("no_comments_empty")}
             </p>
           </div>
         )}

@@ -26,7 +26,7 @@ import { getClientIp } from "@/lib/client-ip";
 
 function h(init: Record<string, string>): Headers {
   return new Headers(init);
-};
+}
 
 describe("isIpv6 收窄 —— 垃圾形态必须被拒绝", () => {
   const junk = [
@@ -78,9 +78,9 @@ describe("isIpv6 收窄 —— 合法形态必须继续放行", () => {
 
 describe("isIpv6 收窄 —— x-forwarded-for 回退路径同样受约束", () => {
   it("x-real-ip 为垃圾 IPv6 时回退到合法 x-forwarded-for", () => {
-    expect(
-      getClientIp(h({ "x-real-ip": "::::", "x-forwarded-for": "203.0.113.7" })),
-    ).toBe("203.0.113.7");
+    expect(getClientIp(h({ "x-real-ip": "::::", "x-forwarded-for": "203.0.113.7" }))).toBe(
+      "203.0.113.7",
+    );
   });
 
   it("x-forwarded-for 首段为垃圾 IPv6 时返回 unknown", () => {

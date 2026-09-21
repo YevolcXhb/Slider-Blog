@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { Clock, Pin } from "lucide-react"
-import Link from "next/link"
+import { Clock, Pin } from "lucide-react";
+import Link from "next/link";
 
-import type { MomentItem } from "@/server/queries/site"
-import { formatDate } from "@/lib/utils"
-import { useLocale, useTranslations } from "next-intl"
+import type { MomentItem } from "@/server/queries/site";
+import { formatDate } from "@/lib/utils";
+import { useLocale, useTranslations } from "next-intl";
 
 interface RecentMomentsCardProps {
-  moments: MomentItem[]
+  moments: MomentItem[];
 }
 
 function RecentMomentsCard({ moments }: RecentMomentsCardProps) {
-  const locale = useLocale()
-  const t = useTranslations("Widgets")
+  const locale = useLocale();
+  const t = useTranslations("Widgets");
 
   if (moments.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -32,13 +32,13 @@ function RecentMomentsCard({ moments }: RecentMomentsCardProps) {
         </Link>
       </div>
       <div className="relative space-y-4 pl-2">
-        <div className="absolute left-[7px] top-2 h-[calc(100%-16px)] w-px bg-gradient-to-b from-pink-200 to-transparent dark:from-pink-500/30" />
+        <div className="absolute top-2 left-[7px] h-[calc(100%-16px)] w-px bg-gradient-to-b from-pink-200 to-transparent dark:from-pink-500/30" />
         {moments.slice(0, 4).map((moment) => (
           <div key={moment.id} className="relative pl-4">
             <div
-              className={`absolute left-0 top-1.5 size-3 rounded-full ring-2 ${
+              className={`absolute top-1.5 left-0 size-3 rounded-full ring-2 ${
                 moment.isPinned
-                  ? "bg-gradient-to-br from-pink-400 to-frost-400 ring-pink-100 dark:ring-pink-500/30"
+                  ? "to-frost-400 bg-gradient-to-br from-pink-400 ring-pink-100 dark:ring-pink-500/30"
                   : "bg-white ring-pink-200 dark:bg-neutral-800 dark:ring-pink-500/20"
               }`}
             />
@@ -61,8 +61,8 @@ function RecentMomentsCard({ moments }: RecentMomentsCardProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export { RecentMomentsCard }
-export default RecentMomentsCard
+export { RecentMomentsCard };
+export default RecentMomentsCard;

@@ -32,10 +32,7 @@ export async function GET(request: Request) {
   try {
     await rateLimit(ip, "api");
   } catch {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      { status: 429 },
-    );
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   // 只回布尔位：绝不把 DATABASE_URL / 主机 / 库名回显给匿名调用方。

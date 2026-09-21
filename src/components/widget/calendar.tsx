@@ -40,23 +40,16 @@ function formatDateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function CalendarWidget({
-  widgetConfig,
-  className,
-  style,
-}: CalendarWidgetProps) {
+function CalendarWidget({ widgetConfig, className, style }: CalendarWidgetProps) {
   const t = useTranslations("Widgets");
   const locale = useLocale();
   const showTitle = widgetConfig?.showTitle !== false;
-  const showHeatmap =
-    widgetConfig?.specificConfig?.calendar?.showHeatmap ?? true;
+  const showHeatmap = widgetConfig?.specificConfig?.calendar?.showHeatmap ?? true;
 
   const now = new Date();
   const [displayYear, setDisplayYear] = useState(now.getFullYear());
   const [displayMonth, setDisplayMonth] = useState(now.getMonth());
-  const [currentView, setCurrentView] = useState<"day" | "month" | "year">(
-    "day",
-  );
+  const [currentView, setCurrentView] = useState<"day" | "month" | "year">("day");
   const [posts, setPosts] = useState<CalendarPost[]>([]);
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState>({
@@ -132,16 +125,13 @@ function CalendarWidget({
     [t],
   );
 
-  const isCurrentMonth =
-    displayYear === now.getFullYear() && displayMonth === now.getMonth();
+  const isCurrentMonth = displayYear === now.getFullYear() && displayMonth === now.getMonth();
   const isCurrentDay = (day: number) => day === now.getDate() && isCurrentMonth;
 
   const currentMonthPosts = useMemo(() => {
     return posts.filter((post) => {
       const date = new Date(post.published);
-      return (
-        date.getFullYear() === displayYear && date.getMonth() === displayMonth
-      );
+      return date.getFullYear() === displayYear && date.getMonth() === displayMonth;
     });
   }, [posts, displayYear, displayMonth]);
 
@@ -212,11 +202,11 @@ function CalendarWidget({
 
     return (
       <>
-        <div className="weekdays grid grid-cols-7 gap-1 mb-2">
+        <div className="weekdays mb-2 grid grid-cols-7 gap-1">
           {weekDays.map((day) => (
             <div
               key={day}
-              className="text-center text-xs text-neutral-500 dark:text-neutral-400 font-medium"
+              className="text-center text-xs font-medium text-neutral-500 dark:text-neutral-400"
             >
               {day}
             </div>
@@ -231,12 +221,10 @@ function CalendarWidget({
               <div
                 key={index}
                 className={cn(
-                  "calendar-day aspect-square flex items-center justify-center rounded-sm text-sm relative cursor-pointer",
+                  "calendar-day relative flex aspect-square cursor-pointer items-center justify-center rounded-sm text-sm",
                   item.day === null && "text-neutral-400 dark:text-neutral-600",
-                  item.day !== null &&
-                    !hasPost &&
-                    "text-neutral-700 dark:text-neutral-300",
-                  hasPost && "text-neutral-900 dark:text-neutral-100 font-bold",
+                  item.day !== null && !hasPost && "text-neutral-700 dark:text-neutral-300",
+                  hasPost && "font-bold text-neutral-900 dark:text-neutral-100",
                   isToday && "ring-2 ring-[var(--primary)]",
                   isSelected && "calendar-day-selected",
                 )}
@@ -253,10 +241,10 @@ function CalendarWidget({
               >
                 {item.day}
                 {hasPost && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--primary)]" />
+                  <span className="absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-[var(--primary)]" />
                 )}
                 {hasPost && item.count > 1 && (
-                  <span className="absolute top-0 right-0 text-[10px] text-[var(--primary)] font-bold">
+                  <span className="absolute top-0 right-0 text-[10px] font-bold text-[var(--primary)]">
                     {item.count}
                   </span>
                 )}
@@ -286,9 +274,9 @@ function CalendarWidget({
             <div
               key={name}
               className={cn(
-                "p-2 text-center text-sm rounded-sm cursor-pointer hover:bg-[var(--btn-plain-bg-hover)] transition-colors relative",
+                "relative cursor-pointer rounded-sm p-2 text-center text-sm transition-colors hover:bg-[var(--btn-plain-bg-hover)]",
                 isCurrent
-                  ? "text-[var(--primary)] font-bold bg-[var(--btn-plain-bg-hover)]"
+                  ? "bg-[var(--btn-plain-bg-hover)] font-bold text-[var(--primary)]"
                   : "text-neutral-700 dark:text-neutral-300",
               )}
               data-month={index}
@@ -300,7 +288,7 @@ function CalendarWidget({
             >
               {name}
               {hasPost && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--primary)]" />
+                <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-[var(--primary)]" />
               )}
             </div>
           );
@@ -312,7 +300,7 @@ function CalendarWidget({
   function renderYearView() {
     if (availableYears.length === 0) {
       return (
-        <div className="text-center py-4 text-neutral-500 dark:text-neutral-400 text-sm">
+        <div className="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
           {t("dynamicEmpty")}
         </div>
       );
@@ -325,9 +313,9 @@ function CalendarWidget({
             <div
               key={year}
               className={cn(
-                "p-2 text-center text-sm rounded-sm cursor-pointer hover:bg-[var(--btn-plain-bg-hover)] transition-colors relative",
+                "relative cursor-pointer rounded-sm p-2 text-center text-sm transition-colors hover:bg-[var(--btn-plain-bg-hover)]",
                 isCurrent
-                  ? "text-[var(--primary)] font-bold bg-[var(--btn-plain-bg-hover)]"
+                  ? "bg-[var(--btn-plain-bg-hover)] font-bold text-[var(--primary)]"
                   : "text-neutral-700 dark:text-neutral-300",
               )}
               data-year={year}
@@ -338,7 +326,7 @@ function CalendarWidget({
               }}
             >
               {year}
-              <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--primary)]" />
+              <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-[var(--primary)]" />
             </div>
           );
         })}
@@ -390,14 +378,11 @@ function CalendarWidget({
 
     return (
       <div className="mb-2">
-        <div
-          className="grid gap-0.5 mb-1"
-          style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
-        >
+        <div className="mb-1 grid gap-0.5" style={{ gridTemplateColumns: "repeat(12, 1fr)" }}>
           {Array.from({ length: 12 }, (_, i) => (
             <span
               key={i}
-              className="text-[10px] text-neutral-400 dark:text-neutral-500 text-center"
+              className="text-center text-[10px] text-neutral-400 dark:text-neutral-500"
             >
               {i + 1}
             </span>
@@ -420,16 +405,11 @@ function CalendarWidget({
                   key={`${week}-${month}`}
                   className="heatmap-cell rounded-sm"
                   style={{
-                    backgroundColor:
-                      count === 0
-                        ? "var(--btn-plain-bg-hover)"
-                        : "var(--primary)",
+                    backgroundColor: count === 0 ? "var(--btn-plain-bg-hover)" : "var(--primary)",
                     opacity: count === 0 ? 1 : opacityLevels[level],
                   }}
                   data-month={month}
-                  onMouseEnter={(e) =>
-                    showHeatmapTooltip(e, month, week, count)
-                  }
+                  onMouseEnter={(e) => showHeatmapTooltip(e, month, week, count)}
                   onMouseLeave={hideHeatmapTooltip}
                   onMouseMove={(e) => showHeatmapTooltip(e, month, week, count)}
                   onClick={() => {
@@ -457,10 +437,10 @@ function CalendarWidget({
       style={style}
     >
       <div className="calendar-container">
-        <div className="flex justify-between items-center mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <button
             type="button"
-            className="btn-plain rounded-lg w-8 h-8 flex items-center justify-center hover:bg-[var(--btn-plain-bg-hover)] transition-colors"
+            className="btn-plain flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--btn-plain-bg-hover)]"
             aria-label="Previous"
             onClick={() => changeMonth(-1)}
             style={{
@@ -470,7 +450,7 @@ function CalendarWidget({
             <ChevronLeft className="text-sm" />
           </button>
           <div
-            className="text-lg font-bold text-neutral-900 dark:text-neutral-100 cursor-pointer hover:text-[var(--primary)] transition-colors select-none"
+            className="cursor-pointer text-lg font-bold text-neutral-900 transition-colors select-none hover:text-[var(--primary)] dark:text-neutral-100"
             onClick={cycleView}
           >
             {headerText}
@@ -479,7 +459,7 @@ function CalendarWidget({
             {showReset && (
               <button
                 type="button"
-                className="btn-plain rounded-lg w-8 h-8 flex items-center justify-center hover:bg-[var(--btn-plain-bg-hover)] transition-colors"
+                className="btn-plain flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--btn-plain-bg-hover)]"
                 aria-label="Back to Today"
                 onClick={resetToToday}
               >
@@ -488,7 +468,7 @@ function CalendarWidget({
             )}
             <button
               type="button"
-              className="btn-plain rounded-lg w-8 h-8 flex items-center justify-center hover:bg-[var(--btn-plain-bg-hover)] transition-colors"
+              className="btn-plain flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--btn-plain-bg-hover)]"
               aria-label="Next"
               onClick={() => changeMonth(1)}
               style={{
@@ -511,8 +491,8 @@ function CalendarWidget({
 
         {displayedPosts.length > 0 && (
           <div className="mt-3">
-            <div className="border-t border-neutral-200 dark:border-neutral-700 mb-2" />
-            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto custom-scrollbar">
+            <div className="mb-2 border-t border-neutral-200 dark:border-neutral-700" />
+            <div className="custom-scrollbar flex max-h-48 flex-col gap-1 overflow-y-auto">
               {displayedPosts.map((post) => {
                 const date = new Date(post.published);
                 const dateStr = `${date.getMonth() + 1}-${date.getDate()}`;
@@ -520,10 +500,10 @@ function CalendarWidget({
                   <a
                     key={post.id}
                     href={post.url}
-                    className="flex justify-between items-center text-sm text-neutral-700 dark:text-neutral-300 hover:text-[var(--primary)] dark:hover:text-[var(--primary)] transition-colors px-2 py-1 rounded-sm hover:bg-[var(--btn-plain-bg-hover)]"
+                    className="flex items-center justify-between rounded-sm px-2 py-1 text-sm text-neutral-700 transition-colors hover:bg-[var(--btn-plain-bg-hover)] hover:text-[var(--primary)] dark:text-neutral-300 dark:hover:text-[var(--primary)]"
                   >
                     <span className="truncate">{post.title}</span>
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400 ml-2 whitespace-nowrap">
+                    <span className="ml-2 text-xs whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                       {dateStr}
                     </span>
                   </a>
@@ -537,7 +517,7 @@ function CalendarWidget({
       {tooltip.visible && (
         <div
           ref={tooltipRef}
-          className="fixed z-[9999] px-2 py-1 rounded-md text-xs bg-black/80 text-white pointer-events-none whitespace-nowrap" /* 保留白字：tooltip 底色固定为 bg-black/80，两种主题下都是深底 */
+          className="pointer-events-none fixed z-[9999] rounded-md bg-black/80 px-2 py-1 text-xs whitespace-nowrap text-white" /* 保留白字：tooltip 底色固定为 bg-black/80，两种主题下都是深底 */
           style={{
             left: tooltip.x,
             top: tooltip.y,

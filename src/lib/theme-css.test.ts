@@ -69,15 +69,11 @@ describe("buildThemeCss", () => {
   });
 
   it("布尔开关映射为 1 / 0", () => {
-    const on = buildThemeCss(
-      settingsOf({ cardBorderShadow: true, cardThemeColored: true }),
-    );
+    const on = buildThemeCss(settingsOf({ cardBorderShadow: true, cardThemeColored: true }));
     expect(on).toContain("--card-border-shadow:1");
     expect(on).toContain("--card-theme-colored:1");
 
-    const off = buildThemeCss(
-      settingsOf({ cardBorderShadow: false, cardThemeColored: false }),
-    );
+    const off = buildThemeCss(settingsOf({ cardBorderShadow: false, cardThemeColored: false }));
     expect(off).toContain("--card-border-shadow:0");
     expect(off).toContain("--card-theme-colored:0");
   });
@@ -89,9 +85,7 @@ describe("buildThemeCss", () => {
   });
 
   it("不同 hue 输出不同", () => {
-    expect(buildThemeCss(settingsOf({ hue: 10 }))).not.toBe(
-      buildThemeCss(settingsOf({ hue: 20 })),
-    );
+    expect(buildThemeCss(settingsOf({ hue: 10 }))).not.toBe(buildThemeCss(settingsOf({ hue: 20 })));
   });
 
   it("包含侧边栏与图表变量", () => {
@@ -117,9 +111,7 @@ describe("applyThemeClasses", () => {
   });
 
   it("postLayout 为 grid 时同样不抛错（node 环境直接返回）", () => {
-    expect(() =>
-      applyThemeClasses(settingsOf({ postLayout: "grid" })),
-    ).not.toThrow();
+    expect(() => applyThemeClasses(settingsOf({ postLayout: "grid" }))).not.toThrow();
   });
 });
 
@@ -140,9 +132,9 @@ describe("buildThemeCss 输入加固（CSS 注入防线）", () => {
     expect(buildThemeCss(settingsOf({ hue: Number.NaN }))).toContain(
       `--hue:${DEFAULT_THEME_SETTINGS.hue}`,
     );
-    expect(
-      buildThemeCss(settingsOf({ hue: Number.POSITIVE_INFINITY })),
-    ).toContain(`--hue:${DEFAULT_THEME_SETTINGS.hue}`);
+    expect(buildThemeCss(settingsOf({ hue: Number.POSITIVE_INFINITY }))).toContain(
+      `--hue:${DEFAULT_THEME_SETTINGS.hue}`,
+    );
   });
 
   it("越界 hue 被回绕到 [0,360)", () => {

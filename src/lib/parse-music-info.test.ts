@@ -24,9 +24,10 @@ describe("parseMusicInfoFromUrl", () => {
   });
 
   it("支持多级路径，只取最后一段", () => {
-    expect(
-      parseMusicInfoFromUrl("https://example.com/a/b/c/Title-Artist.flac"),
-    ).toEqual({ title: "Title", artist: "Artist" });
+    expect(parseMusicInfoFromUrl("https://example.com/a/b/c/Title-Artist.flac")).toEqual({
+      title: "Title",
+      artist: "Artist",
+    });
   });
 
   it("没有短横线时整个文件名作为 title，artist 为空串", () => {
@@ -62,7 +63,11 @@ describe("parseMusicInfoFromUrl", () => {
   });
 
   it("解码 URL 编码的文件名", () => {
-    expect(parseMusicInfoFromUrl("https://example.com/%E5%A4%9C%E6%9B%B2-%E5%91%A8%E6%9D%B0%E4%BC%A6.mp3")).toEqual({
+    expect(
+      parseMusicInfoFromUrl(
+        "https://example.com/%E5%A4%9C%E6%9B%B2-%E5%91%A8%E6%9D%B0%E4%BC%A6.mp3",
+      ),
+    ).toEqual({
       title: "夜曲",
       artist: "周杰伦",
     });

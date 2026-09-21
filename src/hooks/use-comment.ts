@@ -36,8 +36,7 @@ export function useComment(postId: number): UseCommentReturn {
         });
         setSuccess(true);
       } catch (e) {
-        const message =
-          e instanceof Error ? e.message : "An unexpected error occurred";
+        const message = e instanceof Error ? e.message : "An unexpected error occurred";
         setError(message);
         throw e;
       } finally {

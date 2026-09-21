@@ -1,14 +1,4 @@
-import {
-  Html,
-  Head,
-  Preview,
-  Body,
-  Container,
-  Section,
-  Text,
-  Hr,
-  Link,
-} from "react-email";
+import { Html, Head, Preview, Body, Container, Section, Text, Hr, Link } from "react-email";
 
 export interface CommentRejectedEmailProps {
   commentContent: string;
@@ -48,9 +38,7 @@ export const CommentRejectedEmail = ({
                 : "Unfortunately, your comment was not approved by the administrator. Here is the comment and the associated post:"}
             </Text>
             <Hr />
-            <Text style={{ fontSize: "14px", color: "#999" }}>
-              {isZh ? "评论内容" : "Comment"}
-            </Text>
+            <Text style={{ fontSize: "14px", color: "#999" }}>{isZh ? "评论内容" : "Comment"}</Text>
             <Text
               style={{
                 padding: "12px",
@@ -59,9 +47,7 @@ export const CommentRejectedEmail = ({
                 fontStyle: "italic",
               }}
             >
-              {commentContent.length > 200
-                ? commentContent.slice(0, 200) + "..."
-                : commentContent}
+              {commentContent.length > 200 ? commentContent.slice(0, 200) + "..." : commentContent}
             </Text>
             <Text style={{ fontSize: "14px", color: "#999", marginTop: "16px" }}>
               {isZh ? "对应文章" : "Post"}

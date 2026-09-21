@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useEffect, type ReactNode } from "react"
+import { useEffect, type ReactNode } from "react";
 
-import { useSidebarHeadings } from "@/components/layout/sidebar-headings-context"
-import type { SidebarHeading } from "@/components/layout/sidebar-headings-context"
+import { useSidebarHeadings } from "@/components/layout/sidebar-headings-context";
+import type { SidebarHeading } from "@/components/layout/sidebar-headings-context";
 
 interface PostHeadingsProviderProps {
-  children: ReactNode
-  headings?: SidebarHeading[]
-  encrypted?: boolean
+  children: ReactNode;
+  headings?: SidebarHeading[];
+  encrypted?: boolean;
 }
 
 function PostHeadingsProvider({
@@ -16,20 +16,20 @@ function PostHeadingsProvider({
   headings,
   encrypted = false,
 }: PostHeadingsProviderProps) {
-  const { setHeadings, setEncrypted } = useSidebarHeadings()
+  const { setHeadings, setEncrypted } = useSidebarHeadings();
 
   useEffect(() => {
-    setHeadings(headings || [])
-    setEncrypted(encrypted)
+    setHeadings(headings || []);
+    setEncrypted(encrypted);
 
     return () => {
-      setHeadings([])
-      setEncrypted(false)
-    }
-  }, [headings, encrypted, setHeadings, setEncrypted])
+      setHeadings([]);
+      setEncrypted(false);
+    };
+  }, [headings, encrypted, setHeadings, setEncrypted]);
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
-export { PostHeadingsProvider }
-export default PostHeadingsProvider
+export { PostHeadingsProvider };
+export default PostHeadingsProvider;

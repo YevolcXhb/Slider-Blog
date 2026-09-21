@@ -40,9 +40,7 @@ export async function queryTotalContentChars(): Promise<number> {
   // MariaDB 的 SUM() 在 SQL 层返回 DECIMAL，驱动可能映射为 BigInt、string 或 number，
   // 因此按 number | bigint | string 收窄后统一转成 number；空表时 SUM 为 NULL，
   // 由外层 COALESCE 回退为 0。
-  const rows = await prisma.$queryRaw<
-    Array<{ total: number | bigint | string | null }>
-  >(
+  const rows = await prisma.$queryRaw<Array<{ total: number | bigint | string | null }>>(
     Prisma.sql`SELECT COALESCE(SUM(CHAR_LENGTH(content_mdx)), 0) AS total FROM post`,
   );
   return Number(rows[0]?.total ?? 0);
@@ -56,23 +54,17 @@ export async function queryTotalContentChars(): Promise<number> {
  */
 export const getSiteStats = unstable_cache(
   async (): Promise<SiteStats> => {
-    const [
-      totalPosts,
-      totalComments,
-      pendingComments,
-      totalCategories,
-      viewAgg,
-      launchDate,
-    ] = await Promise.all([
-      prisma.post.count(),
-      prisma.comment.count(),
-      prisma.comment.count({ where: { status: 0 } }),
-      prisma.category.count(),
-      prisma.post.aggregate({
-        _sum: { view_count: true },
-      }),
-      getSiteLaunchDate(),
-    ]);
+    const [totalPosts, totalComments, pendingComments, totalCategories, viewAgg, launchDate] =
+      await Promise.all([
+        prisma.post.count(),
+        prisma.comment.count(),
+        prisma.comment.count({ where: { status: 0 } }),
+        prisma.category.count(),
+        prisma.post.aggregate({
+          _sum: { view_count: true },
+        }),
+        getSiteLaunchDate(),
+      ]);
 
     // 复用与侧边栏同一个 SQL 聚合，避免两处各写一条 SQL 再次漂移。
     const totalWords = await queryTotalContentChars();

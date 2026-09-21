@@ -13,10 +13,19 @@ const intlMiddleware = createMiddleware(routing);
 
 const { auth } = NextAuth(authConfig);
 
-const adminPaths = ["/dashboard", "/posts", "/comments", "/manage-categories", "/manage-moments", "/manage-gallery", "/manage-music", "/manage-announcements", "/manage-users", "/settings"];
-const adminPathPattern = new RegExp(
-  `^/(?:en|zh)(?:${adminPaths.join("|")})(?:/|$)`,
-);
+const adminPaths = [
+  "/dashboard",
+  "/posts",
+  "/comments",
+  "/manage-categories",
+  "/manage-moments",
+  "/manage-gallery",
+  "/manage-music",
+  "/manage-announcements",
+  "/manage-users",
+  "/settings",
+];
+const adminPathPattern = new RegExp(`^/(?:en|zh)(?:${adminPaths.join("|")})(?:/|$)`);
 
 // 登录/注册路径：仅允许从管理端入口访问
 const authPathPattern = /^\/(?:en|zh)\/(?:login|register)(?:\/|$)?/;
@@ -89,9 +98,7 @@ export default auth((req) => {
       pathname === "/en/";
     if (isRoot) {
       const locale = pathname.startsWith("/en") ? "en" : "zh";
-      return NextResponse.redirect(
-        new URL(`/${locale}/dashboard`, origin),
-      );
+      return NextResponse.redirect(new URL(`/${locale}/dashboard`, origin));
     }
   }
 

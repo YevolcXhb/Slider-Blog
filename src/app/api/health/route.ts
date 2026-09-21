@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 /**
  * 轻量存活探针（GET /api/health）。
@@ -14,5 +14,5 @@ import { NextResponse } from 'next/server';
  * 部署脚本做「服务是否起来」的判断请用本端点，避免把数据库探活当心跳打。
  */
 export async function GET() {
-  return NextResponse.json({ status: 'ok' });
+  return NextResponse.json({ status: "ok" });
 }

@@ -163,7 +163,15 @@ describe("syncTokenRole —— 不该查库的分支", () => {
   });
 
   it("id 非法（注入形态 / 超长 / 非字符串）时不调用 lookup", async () => {
-    const illegalIds: unknown[] = ["", "'; DROP TABLE users; --", "cm3abc123", "User1", "1".repeat(65), 123, null];
+    const illegalIds: unknown[] = [
+      "",
+      "'; DROP TABLE users; --",
+      "cm3abc123",
+      "User1",
+      "1".repeat(65),
+      123,
+      null,
+    ];
 
     for (const id of illegalIds) {
       const lookup = lookupReturning(USER_ROLE_USER);
@@ -292,7 +300,11 @@ describe("syncTokenRole —— 降权按数据库最新值生效", () => {
     const lookup = lookupReturning(USER_ROLE_USER);
 
     // 距上次校验 120 秒：按环境变量（600 秒）不该查库，按显式 60 秒应当查库
-    const result = await syncTokenRole(adminTokenAt(NOW), { lookup, now: NOW + 120_000, windowSeconds: 60 });
+    const result = await syncTokenRole(adminTokenAt(NOW), {
+      lookup,
+      now: NOW + 120_000,
+      windowSeconds: 60,
+    });
 
     expect(lookup).toHaveBeenCalledTimes(1);
     expect(result.role).toBe(USER_ROLE_USER);

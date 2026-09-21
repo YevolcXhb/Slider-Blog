@@ -7,10 +7,10 @@ import "@fontsource/quicksand/600.css";
 import "@fontsource/quicksand/700.css";
 import { SessionProvider } from "next-auth/react";
 import "../globals.css";
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import { routing } from '@/i18n/routing';
-import { notFound } from 'next/navigation';
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { routing } from "@/i18n/routing";
+import { notFound } from "next/navigation";
 import { siteConfig } from "@/config/slider-config";
 
 export const metadata: Metadata = {
@@ -41,19 +41,21 @@ export default async function RootLayout({
     <html
       lang={locale}
       data-scroll-behavior="smooth"
-      className={`h-full antialiased dark`}
-      style={{
-        "--font-quicksand": "Quicksand, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-        "--font-geist-sans": "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-        "--font-geist-mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-      } as React.CSSProperties}
+      className={`dark h-full antialiased`}
+      style={
+        {
+          "--font-quicksand":
+            "Quicksand, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+          "--font-geist-sans":
+            "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+          "--font-geist-mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        } as React.CSSProperties
+      }
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         <SessionProvider>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-          </NextIntlClientProvider>
+          <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
         </SessionProvider>
       </body>
     </html>

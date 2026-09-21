@@ -51,12 +51,12 @@ function CoverImage({
     <div className="relative size-14 shrink-0">
       <div
         className={cn(
-          "absolute inset-0 rounded-full overflow-hidden shadow-lg border-2 border-white dark:border-neutral-700 bg-[var(--primary)]/10 flex items-center justify-center",
+          "absolute inset-0 flex items-center justify-center overflow-hidden rounded-full border-2 border-white bg-[var(--primary)]/10 shadow-lg dark:border-neutral-700",
           isPlaying && "animate-spin-slow",
         )}
         style={{ animationPlayState: isPlaying ? "running" : "paused" }}
       >
-        <Music2 className="size-6 text-[var(--primary)] opacity-40 absolute" />
+        <Music2 className="absolute size-6 text-[var(--primary)] opacity-40" />
         {cover ? (
           <Image
             src={cover}
@@ -64,10 +64,10 @@ function CoverImage({
             fill
             sizes="56px"
             unoptimized
-            className="object-cover relative z-10"
+            className="relative z-10 object-cover"
           />
         ) : (
-          <div className="flex size-full items-center justify-center bg-gradient-to-br from-pink-200/80 via-rose-100/80 to-frost-200/80 dark:from-pink-500/30 dark:via-rose-500/20 dark:to-frost-500/30 relative z-10">
+          <div className="to-frost-200/80 dark:to-frost-500/30 relative z-10 flex size-full items-center justify-center bg-gradient-to-br from-pink-200/80 via-rose-100/80 dark:from-pink-500/30 dark:via-rose-500/20">
             <Music2 className="size-6 text-pink-400/60 dark:text-pink-400/40" />
           </div>
         )}
@@ -159,12 +159,10 @@ function ProgressBar({
     onSeekPreview(fraction * duration);
   };
 
-  const {
-    containerRef,
-    handlePointerDown,
-    handlePointerMove,
-    handlePointerUp,
-  } = useDragSlider(handleCommit, handlePreview);
+  const { containerRef, handlePointerDown, handlePointerMove, handlePointerUp } = useDragSlider(
+    handleCommit,
+    handlePreview,
+  );
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     onSeekStart();
@@ -187,11 +185,11 @@ function ProgressBar({
         aria-valuenow={Math.round(progressPercent)}
       >
         <div
-          className="absolute left-0 top-0 h-full rounded-full bg-[var(--primary)] transition-[width] duration-100"
+          className="absolute top-0 left-0 h-full rounded-full bg-[var(--primary)] transition-[width] duration-100"
           style={{ width: `${progressPercent}%` }}
         />
         <div
-          className="absolute top-1/2 size-3 -translate-y-1/2 rounded-full bg-[var(--primary)] ring-2 ring-white dark:ring-neutral-800 shadow-sm"
+          className="absolute top-1/2 size-3 -translate-y-1/2 rounded-full bg-[var(--primary)] shadow-sm ring-2 ring-white dark:ring-neutral-800"
           style={{ left: `calc(${progressPercent}% - 6px)` }}
         />
       </div>
@@ -221,18 +219,16 @@ function VolumeControl({
     onVolumeChange(fraction);
   };
 
-  const {
-    containerRef,
-    handlePointerDown,
-    handlePointerMove,
-    handlePointerUp,
-  } = useDragSlider(handleCommit, handlePreview);
+  const { containerRef, handlePointerDown, handlePointerMove, handlePointerUp } = useDragSlider(
+    handleCommit,
+    handlePreview,
+  );
 
   return (
     <div className="flex items-center gap-1">
       <button
         onClick={onToggleMute}
-        className="p-1 rounded-md text-neutral-400 hover:text-[var(--primary)] transition-colors"
+        className="rounded-md p-1 text-neutral-400 transition-colors hover:text-[var(--primary)]"
         aria-label={isMuted ? t("unmute") : t("mute")}
         title={t("volume")}
       >
@@ -244,7 +240,7 @@ function VolumeControl({
       </button>
       <div
         ref={containerRef}
-        className="h-1 w-16 bg-neutral-300/50 dark:bg-neutral-500/40 rounded-full cursor-pointer relative touch-none"
+        className="relative h-1 w-16 cursor-pointer touch-none rounded-full bg-neutral-300/50 dark:bg-neutral-500/40"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -256,7 +252,7 @@ function VolumeControl({
         aria-valuenow={Math.round(displayVolume * 100)}
       >
         <div
-          className="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full transition-[width] duration-75"
+          className="absolute top-0 left-0 h-full rounded-full bg-[var(--primary)] transition-[width] duration-75"
           style={{ width: `${displayVolume * 100}%` }}
         />
       </div>
@@ -264,12 +260,7 @@ function VolumeControl({
   );
 }
 
-function MusicWidget({
-  musicList,
-  widgetConfig,
-  className,
-  style,
-}: MusicWidgetProps) {
+function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetProps) {
   const t = useTranslations("Widgets");
   const tPlayer = useTranslations("Player");
   const showTitle = widgetConfig?.showTitle !== false;
@@ -295,16 +286,8 @@ function MusicWidget({
     loadPlaylist(musicList ?? []);
   }, [musicList]);
 
-  const {
-    playlist,
-    currentIndex,
-    isPlaying,
-    progress,
-    duration,
-    volume,
-    isMuted,
-    playMode,
-  } = state;
+  const { playlist, currentIndex, isPlaying, progress, duration, volume, isMuted, playMode } =
+    state;
   const currentTrack = playlist[currentIndex];
 
   if (playlist.length === 0) {
@@ -316,13 +299,12 @@ function MusicWidget({
         className={className}
         style={style}
       >
-        <p className="py-6 text-center text-sm text-30">{t("musicNoSongs")}</p>
+        <p className="text-30 py-6 text-center text-sm">{t("musicNoSongs")}</p>
       </WidgetLayout>
     );
   }
 
-  const ModeIcon =
-    playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat;
+  const ModeIcon = playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat;
   const modeTitle =
     playMode === "sequence"
       ? tPlayer("sequence")
@@ -346,11 +328,11 @@ function MusicWidget({
             title={currentTrack?.title ?? ""}
             isPlaying={isPlaying}
           />
-          <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between overflow-hidden gap-2">
-              <div className="flex-1 min-w-0 overflow-hidden relative">
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="flex items-center justify-between gap-2 overflow-hidden">
+              <div className="relative min-w-0 flex-1 overflow-hidden">
                 <h3
-                  className="font-bold text-base text-neutral-800 dark:text-neutral-100 leading-tight truncate"
+                  className="truncate text-base leading-tight font-bold text-neutral-800 dark:text-neutral-100"
                   title={currentTrack?.title}
                 >
                   {currentTrack?.title || t("musicEmpty")}
@@ -359,14 +341,14 @@ function MusicWidget({
             </div>
             <div className="min-w-0 overflow-hidden">
               <p
-                className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate"
+                className="truncate text-xs font-medium text-neutral-500 dark:text-neutral-400"
                 title={currentTrack?.artist}
               >
                 {currentTrack?.artist || "—"}
               </p>
             </div>
-            <div className="flex items-center gap-3 text-neutral-400 h-5 mt-0.5">
-              <div className="text-[10px] font-mono flex items-center gap-1 shrink-0 h-full">
+            <div className="mt-0.5 flex h-5 items-center gap-3 text-neutral-400">
+              <div className="flex h-full shrink-0 items-center gap-1 font-mono text-[10px]">
                 <span>{formatTime(progress)}</span>
                 <span className="opacity-50">/</span>
                 <span>{formatTime(duration)}</span>
@@ -396,7 +378,7 @@ function MusicWidget({
         <div className="flex items-center justify-between px-1 select-none">
           <button
             onClick={cyclePlayMode}
-            className="p-2 rounded-lg text-neutral-400 hover:text-[var(--primary)] transition-colors active:scale-95"
+            className="rounded-lg p-2 text-neutral-400 transition-colors hover:text-[var(--primary)] active:scale-95"
             title={modeTitle}
             aria-label={modeTitle}
           >
@@ -404,25 +386,21 @@ function MusicWidget({
           </button>
           <button
             onClick={prevTrack}
-            className="p-2 rounded-lg text-neutral-600 dark:text-neutral-300 hover:text-[var(--primary)] transition-colors active:scale-95"
+            className="rounded-lg p-2 text-neutral-600 transition-colors hover:text-[var(--primary)] active:scale-95 dark:text-neutral-300"
             aria-label={t("previous")}
           >
             <SkipBack className="size-6" />
           </button>
           <button
             onClick={togglePlay}
-            className="size-12 rounded-full bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)] text-[var(--primary)] flex items-center justify-center transition-all active:scale-95"
+            className="flex size-12 items-center justify-center rounded-full bg-[var(--btn-regular-bg)] text-[var(--primary)] transition-all hover:bg-[var(--btn-regular-bg-hover)] active:scale-95 active:bg-[var(--btn-regular-bg-active)]"
             aria-label={isPlaying ? t("pause") : t("play")}
           >
-            {isPlaying ? (
-              <Pause className="size-6" />
-            ) : (
-              <Play className="size-6 ml-0.5" />
-            )}
+            {isPlaying ? <Pause className="size-6" /> : <Play className="ml-0.5 size-6" />}
           </button>
           <button
             onClick={nextTrack}
-            className="p-2 rounded-lg text-neutral-600 dark:text-neutral-300 hover:text-[var(--primary)] transition-colors active:scale-95"
+            className="rounded-lg p-2 text-neutral-600 transition-colors hover:text-[var(--primary)] active:scale-95 dark:text-neutral-300"
             aria-label={t("next")}
           >
             <SkipForward className="size-6" />
@@ -430,7 +408,7 @@ function MusicWidget({
           <button
             onClick={() => setShowPlaylist((prev) => !prev)}
             className={cn(
-              "p-2 rounded-lg transition-colors active:scale-95",
+              "rounded-lg p-2 transition-colors active:scale-95",
               showPlaylist
                 ? "text-[var(--primary)]"
                 : "text-neutral-400 hover:text-[var(--primary)]",
@@ -452,10 +430,10 @@ function MusicWidget({
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="grid"
             >
-              <div className="overflow-hidden min-h-0">
-                <div className="mt-2 pt-2 border-t border-neutral-100 dark:border-white/5 mx-1">
+              <div className="min-h-0 overflow-hidden">
+                <div className="mx-1 mt-2 border-t border-neutral-100 pt-2 dark:border-white/5">
                   <div
-                    className="max-h-48 overflow-y-auto custom-scrollbar pr-1 pb-1 relative"
+                    className="custom-scrollbar relative max-h-48 overflow-y-auto pr-1 pb-1"
                     role="listbox"
                     aria-label={t("playlist")}
                   >
@@ -464,15 +442,14 @@ function MusicWidget({
                         key={track.id}
                         onClick={() => playTrack(index)}
                         className={cn(
-                          "flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group w-full text-left",
-                          index === currentIndex &&
-                            "bg-neutral-100 dark:bg-white/10",
+                          "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-white/5",
+                          index === currentIndex && "bg-neutral-100 dark:bg-white/10",
                         )}
                         role="option"
                         aria-selected={index === currentIndex}
                         aria-current={index === currentIndex}
                       >
-                        <div className="size-8 rounded-md overflow-hidden shrink-0 relative bg-neutral-200 dark:bg-neutral-700">
+                        <div className="relative size-8 shrink-0 overflow-hidden rounded-md bg-neutral-200 dark:bg-neutral-700">
                           {track.cover ? (
                             <Image
                               src={track.cover}
@@ -488,21 +465,21 @@ function MusicWidget({
                             </div>
                           )}
                           {index === currentIndex && isPlaying && (
-                            <div className="absolute inset-0 bg-[var(--primary)]/20 flex items-center justify-center">
-                              <div className="flex items-end gap-[2px] h-3.5">
+                            <div className="absolute inset-0 flex items-center justify-center bg-[var(--primary)]/20">
+                              <div className="flex h-3.5 items-end gap-[2px]">
                                 <span
-                                  className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar"
+                                  className="animate-eq-bar w-[3px] rounded-sm bg-[var(--primary)]"
                                   style={{ animationDuration: "0.8s" }}
                                 />
                                 <span
-                                  className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar"
+                                  className="animate-eq-bar w-[3px] rounded-sm bg-[var(--primary)]"
                                   style={{
                                     animationDuration: "0.6s",
                                     animationDelay: "0.15s",
                                   }}
                                 />
                                 <span
-                                  className="w-[3px] bg-[var(--primary)] rounded-sm animate-eq-bar"
+                                  className="animate-eq-bar w-[3px] rounded-sm bg-[var(--primary)]"
                                   style={{
                                     animationDuration: "1s",
                                     animationDelay: "0.3s",
@@ -512,16 +489,16 @@ function MusicWidget({
                             </div>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="min-w-0 flex-1">
                           <div
                             className={cn(
-                              "text-xs font-bold truncate group-hover:text-[var(--primary)] transition-colors",
+                              "truncate text-xs font-bold transition-colors group-hover:text-[var(--primary)]",
                               index === currentIndex && "text-[var(--primary)]",
                             )}
                           >
                             {track.title}
                           </div>
-                          <div className="text-[10px] text-neutral-400 truncate">
+                          <div className="truncate text-[10px] text-neutral-400">
                             {track.artist}
                           </div>
                         </div>

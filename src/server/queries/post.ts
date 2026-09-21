@@ -93,8 +93,7 @@ function mapPost(post: SelectedPost): Post {
     excerpt: post.excerpt,
     status: post.status,
     user_id: post.user_id !== undefined ? Number(post.user_id) : 0,
-    category_id:
-      post.category_id !== undefined ? Number(post.category_id) : null,
+    category_id: post.category_id !== undefined ? Number(post.category_id) : null,
     view_count: post.view_count,
     published_at: post.published_at?.toISOString() ?? null,
     created_at: (post.created_at ?? post.updated_at)?.toISOString() ?? "",
@@ -263,11 +262,7 @@ export const getTags = unstable_cache(
  * 调用方只用于渲染卡片列表，不就地修改。
  */
 export const getRelatedPosts = unstable_cache(
-  async (
-    postId: number,
-    tagIds: number[],
-    limit: number = 5,
-  ): Promise<Post[]> => {
+  async (postId: number, tagIds: number[], limit: number = 5): Promise<Post[]> => {
     if (tagIds.length === 0) return [];
 
     const posts = await prisma.post.findMany({
@@ -311,17 +306,15 @@ export type ArchivePost = {
   tags: { id: number; name: string; slug: string }[];
 };
 
-function mapArchivePost(
-  post: {
-    id: bigint;
-    slug: string;
-    title: string;
-    published_at: Date | null;
-    created_at: Date;
-    category: { id: bigint; name: string; slug: string } | null;
-    tags: Array<{ tag: { id: bigint; name: string; slug: string } }>;
-  },
-): ArchivePost {
+function mapArchivePost(post: {
+  id: bigint;
+  slug: string;
+  title: string;
+  published_at: Date | null;
+  created_at: Date;
+  category: { id: bigint; name: string; slug: string } | null;
+  tags: Array<{ tag: { id: bigint; name: string; slug: string } }>;
+}): ArchivePost {
   const [locale, ...slugParts] = post.slug.split("/");
   return {
     id: Number(post.id),
@@ -365,9 +358,7 @@ export interface AdjacentPost {
   title: string;
 }
 
-function mapAdjacentPost(
-  post: { slug: string; title: string } | null,
-): AdjacentPost | null {
+function mapAdjacentPost(post: { slug: string; title: string } | null): AdjacentPost | null {
   if (!post) return null;
   const [, ...slugParts] = post.slug.split("/");
   return { slug: slugParts.join("/"), title: post.title };

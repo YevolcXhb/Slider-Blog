@@ -43,10 +43,7 @@ interface GalleryManagerProps {
 const inputClass =
   "min-w-0 flex-1 rounded-xl border border-black/10 dark:border-white/20 bg-gray-100/70 dark:bg-white/5 px-4 py-2 text-sm text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:border-gray-400 dark:focus:border-white/40 focus:outline-none";
 
-export default function GalleryManager({
-  initialAlbums,
-  initialPhotos,
-}: GalleryManagerProps) {
+export default function GalleryManager({ initialAlbums, initialPhotos }: GalleryManagerProps) {
   const t = useTranslations("AdminGallery");
   const tErr = useTranslations("AdminErrors");
   const [albums, setAlbums] = useState<AlbumItem[]>(initialAlbums);
@@ -189,11 +186,12 @@ export default function GalleryManager({
 
         {/* Add Album Form */}
         <GlassCard className="p-4">
-          <form action={handleAddAlbum} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_5rem_auto] xl:items-end">
+          <form
+            action={handleAddAlbum}
+            className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_5rem_auto] xl:items-end"
+          >
             <div className="min-w-[140px] flex-1">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("name")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("name")}</label>
               <input
                 name="name"
                 value={newAlbumName}
@@ -204,9 +202,7 @@ export default function GalleryManager({
               />
             </div>
             <div className="min-w-[120px] flex-1">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("description")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("description")}</label>
               <input
                 name="description"
                 value={newAlbumDesc}
@@ -215,9 +211,7 @@ export default function GalleryManager({
               />
             </div>
             <div className="min-w-[120px] flex-1">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("cover_url")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("cover_url")}</label>
               <input
                 name="cover"
                 value={newAlbumCover}
@@ -226,9 +220,7 @@ export default function GalleryManager({
               />
             </div>
             <div className="w-20">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("sort_order")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("sort_order")}</label>
               <input
                 name="sort_order"
                 type="number"
@@ -246,34 +238,20 @@ export default function GalleryManager({
 
         {/* Album List */}
         {albums.length === 0 ? (
-          <p className="py-8 text-center text-sm text-white/40">
-            {t("no_album")}
-          </p>
+          <p className="py-8 text-center text-sm text-white/40">{t("no_album")}</p>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
             {albums.map((album) => (
               <GlassCard key={album.id} className="p-4">
                 {editingAlbumId === album.id ? (
-                  <form
-                    action={handleUpdateAlbum.bind(null, album.id)}
-                    className="space-y-2"
-                  >
-                    <input
-                      name="name"
-                      defaultValue={album.name}
-                      className={inputClass}
-                      required
-                    />
+                  <form action={handleUpdateAlbum.bind(null, album.id)} className="space-y-2">
+                    <input name="name" defaultValue={album.name} className={inputClass} required />
                     <input
                       name="description"
                       defaultValue={album.description ?? ""}
                       className={inputClass}
                     />
-                    <input
-                      name="cover"
-                      defaultValue={album.cover ?? ""}
-                      className={inputClass}
-                    />
+                    <input name="cover" defaultValue={album.cover ?? ""} className={inputClass} />
                     <input
                       name="sort_order"
                       type="number"
@@ -309,9 +287,7 @@ export default function GalleryManager({
                           />
                         )}
                         <div className="min-w-0">
-                          <p className="truncate font-medium text-white/90">
-                            {album.name}
-                          </p>
+                          <p className="truncate font-medium text-white/90">{album.name}</p>
                           <p className="truncate text-xs text-white/40">
                             {album.description || "—"}
                           </p>
@@ -359,11 +335,12 @@ export default function GalleryManager({
 
         {/* Add Photo Form */}
         <GlassCard className="p-4">
-          <form action={handleAddPhoto} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] xl:items-end">
+          <form
+            action={handleAddPhoto}
+            className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] xl:items-end"
+          >
             <div className="min-w-[160px] flex-1">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("photo_url")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("photo_url")}</label>
               <input
                 name="url"
                 value={newPhotoUrl}
@@ -373,9 +350,7 @@ export default function GalleryManager({
               />
             </div>
             <div className="min-w-[120px] flex-1">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("thumbnail_url")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("thumbnail_url")}</label>
               <input
                 name="thumbnail"
                 value={newPhotoThumb}
@@ -384,9 +359,7 @@ export default function GalleryManager({
               />
             </div>
             <div className="min-w-[120px] flex-1">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("photo_title")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("photo_title")}</label>
               <input
                 name="title"
                 value={newPhotoTitle}
@@ -395,9 +368,7 @@ export default function GalleryManager({
               />
             </div>
             <div className="min-w-[120px] flex-1">
-              <label className="mb-1 block text-xs text-white/50">
-                {t("select_album")}
-              </label>
+              <label className="mb-1 block text-xs text-white/50">{t("select_album")}</label>
               <select
                 name="album_id"
                 value={newPhotoAlbum}
@@ -421,9 +392,7 @@ export default function GalleryManager({
 
         {/* Photo Grid */}
         {photos.length === 0 ? (
-          <p className="py-8 text-center text-sm text-white/40">
-            {t("no_photos")}
-          </p>
+          <p className="py-8 text-center text-sm text-white/40">{t("no_photos")}</p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {photos.map((photo) => (
@@ -439,16 +408,14 @@ export default function GalleryManager({
                   <button
                     type="button"
                     onClick={() => handleDeletePhoto(photo.id)}
-                    className="absolute right-2 top-2 rounded-lg bg-red-500/80 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    className="absolute top-2 right-2 rounded-lg bg-red-500/80 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
                     aria-label={t("delete")}
                   >
                     <Trash2 className="size-3.5" />
                   </button>
                 </div>
                 {photo.title && (
-                  <p className="truncate px-2 py-1.5 text-xs text-white/60">
-                    {photo.title}
-                  </p>
+                  <p className="truncate px-2 py-1.5 text-xs text-white/60">{photo.title}</p>
                 )}
               </GlassCard>
             ))}

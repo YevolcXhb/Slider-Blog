@@ -87,9 +87,7 @@ function TableOfContents({ content, className }: TableOfContentsProps) {
         }
 
         if (mostVisibleId && maxRatio > 0) {
-          setActiveId((prev) =>
-            prev === mostVisibleId ? prev : mostVisibleId,
-          );
+          setActiveId((prev) => (prev === mostVisibleId ? prev : mostVisibleId));
         } else if (visibilityRef.current.size > 0) {
           // No heading currently visible — fall back to the first heading
           // so the TOC always highlights something on initial load.
@@ -117,17 +115,14 @@ function TableOfContents({ content, className }: TableOfContentsProps) {
     };
   }, [headings]);
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-      e.preventDefault();
-      const el = elementsRef.current.get(id) ?? document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        setActiveId(id);
-      }
-    },
-    [],
-  );
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const el = elementsRef.current.get(id) ?? document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveId(id);
+    }
+  }, []);
 
   if (headings.length === 0) return null;
 
@@ -142,7 +137,7 @@ function TableOfContents({ content, className }: TableOfContentsProps) {
       )}
       aria-label="Table of contents"
     >
-      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-75">
+      <div className="text-75 mb-3 flex items-center gap-2 text-sm font-semibold">
         <ListOrdered className="size-4" />
         Table of Contents
       </div>
@@ -158,8 +153,8 @@ function TableOfContents({ content, className }: TableOfContentsProps) {
                 heading.level === 2 && "pl-4",
                 heading.level === 3 && "pl-7",
                 activeId === heading.id
-                  ? "bg-black/5 font-medium text-90 dark:bg-white/10 dark:text-white"
-                  : "text-50 hover:bg-black/5 hover:text-90 dark:hover:bg-white/5 dark:hover:text-white/70",
+                  ? "text-90 bg-black/5 font-medium dark:bg-white/10 dark:text-white"
+                  : "text-50 hover:text-90 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white/70",
               )}
             >
               {heading.text}

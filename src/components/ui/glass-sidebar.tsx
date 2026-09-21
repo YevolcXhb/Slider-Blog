@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { useEffect, useCallback } from "react"
-import { motion, AnimatePresence } from "motion/react"
-import { X } from "lucide-react"
+import { useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { X } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface GlassSidebarProps {
-  children: React.ReactNode
-  className?: string
-  position?: "left" | "right"
-  isOpen: boolean
-  onClose: () => void
+  children: React.ReactNode;
+  className?: string;
+  position?: "left" | "right";
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const sidebarVariants = {
@@ -23,7 +23,7 @@ const sidebarVariants = {
     hidden: { x: "100%" },
     visible: { x: 0 },
   },
-}
+};
 
 function GlassSidebar({
   children,
@@ -34,21 +34,21 @@ function GlassSidebar({
 }: GlassSidebarProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+      if (e.key === "Escape") onClose();
     },
     [onClose],
-  )
+  );
 
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown)
-      document.body.style.overflow = "hidden"
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
     }
     return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-      document.body.style.overflow = ""
-    }
-  }, [isOpen, handleKeyDown])
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, handleKeyDown]);
 
   return (
     <AnimatePresence>
@@ -68,12 +68,10 @@ function GlassSidebar({
           <motion.aside
             className={cn(
               "fixed top-0 z-50 h-full w-72 overflow-y-auto",
-              "backdrop-blur-2xl bg-white/10 dark:bg-white/5 border-white/20",
+              "border-white/20 bg-white/10 backdrop-blur-2xl dark:bg-white/5",
               "shadow-2xl",
               "md:relative md:z-auto md:h-auto md:w-auto md:shadow-none",
-              position === "left"
-                ? "left-0 border-r"
-                : "right-0 border-l",
+              position === "left" ? "left-0 border-r" : "right-0 border-l",
               className,
             )}
             variants={sidebarVariants[position]}
@@ -86,7 +84,7 @@ function GlassSidebar({
           >
             {/* Close button - only visible on mobile */}
             <button
-              className="absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg backdrop-blur-md bg-white/10 hover:bg-white/20 transition-colors md:hidden"
+              className="absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg bg-white/10 backdrop-blur-md transition-colors hover:bg-white/20 md:hidden"
               onClick={onClose}
               aria-label="Close sidebar"
             >
@@ -98,7 +96,7 @@ function GlassSidebar({
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
-export { GlassSidebar, type GlassSidebarProps }
+export { GlassSidebar, type GlassSidebarProps };

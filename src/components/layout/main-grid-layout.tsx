@@ -49,8 +49,7 @@ const defaultLocales: ReadonlyArray<LocaleOption> = [
 ];
 
 const wallpaperSrc =
-  typeof backgroundWallpaper.src === "object" &&
-  !Array.isArray(backgroundWallpaper.src)
+  typeof backgroundWallpaper.src === "object" && !Array.isArray(backgroundWallpaper.src)
     ? backgroundWallpaper.src
     : undefined;
 
@@ -63,20 +62,13 @@ const defaultBanner = Array.isArray(wallpaperSrc?.desktop)
 // 首页视频直链默认不配置，由管理端设置后传入；空数组表示不播放视频
 const defaultBannerVideo: string[] = [];
 
-const defaultSubtitleTexts = Array.isArray(
-  backgroundWallpaper.common?.homeText?.subtitle,
-)
+const defaultSubtitleTexts = Array.isArray(backgroundWallpaper.common?.homeText?.subtitle)
   ? backgroundWallpaper.common.homeText.subtitle
   : typeof backgroundWallpaper.common?.homeText?.subtitle === "string"
     ? [backgroundWallpaper.common.homeText.subtitle]
-    : [
-        "记录技术、生活与思考",
-        "分享有趣的事物和学习心得",
-        "Amidst Silhouette of Dreams",
-      ];
+    : ["记录技术、生活与思考", "分享有趣的事物和学习心得", "Amidst Silhouette of Dreams"];
 
-const defaultBannerTitle =
-  backgroundWallpaper.common?.homeText?.title ?? siteConfig.title;
+const defaultBannerTitle = backgroundWallpaper.common?.homeText?.title ?? siteConfig.title;
 
 function MainGridLayout({
   children,
@@ -142,16 +134,9 @@ function MainGridLayout({
       <ProgressBar />
 
       {/* Top row with navbar - 始终全宽，让 #navbar > div 的 margin 产生左右间隙（悬浮卡片效果） */}
-      <div
-        id="top-row"
-        className="pointer-events-none mx-auto transition-all duration-700 w-full"
-      >
+      <div id="top-row" className="pointer-events-none mx-auto w-full transition-all duration-700">
         <div id="navbar-wrapper" className="pointer-events-auto transition-all">
-          <Header
-            locales={locales}
-            navExternalLinks={navExternalLinks}
-            siteTitle={siteTitle}
-          />
+          <Header locales={locales} navExternalLinks={navExternalLinks} siteTitle={siteTitle} />
         </div>
       </div>
 
@@ -180,17 +165,17 @@ function MainGridLayout({
           它的兄弟节点 HeroSection 是刻意保持深色的横幅，不在此作用域内。 */}
       <div
         className={cn(
-          "light-adapt absolute z-30 w-full pointer-events-none",
+          "light-adapt pointer-events-none absolute z-30 w-full",
           mobileNonHomeBannerClass ? "mobile-main-no-banner" : "",
           !isBannerMode ? "no-banner-layout" : "",
         )}
         style={{ top: finalMainPanelTop }}
       >
-        <div className="relative mx-auto w-full max-w-(--page-width) px-2 md:px-4 xl:w-[92vw] pointer-events-auto">
+        <div className="pointer-events-auto relative mx-auto w-full max-w-(--page-width) px-2 md:px-4 xl:w-[92vw]">
           <div
             id="main-grid"
             className={cn(
-              "left-0 right-0 mx-auto grid w-full gap-4",
+              "right-0 left-0 mx-auto grid w-full gap-4",
               "grid-cols-1 md:grid-cols-[17.5rem_1fr] xl:grid-cols-[17.5rem_1fr_17.5rem]",
               "grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]",
               /* items-start 让每个单元格按自身内容高度展开，
@@ -215,9 +200,7 @@ function MainGridLayout({
             {/* Main content */}
             <div className="min-w-0">
               <main id="swup-container" className="transition-main">
-                <h1 className="sr-only">
-                  {title || siteTitle || siteConfig.title}
-                </h1>
+                <h1 className="sr-only">{title || siteTitle || siteConfig.title}</h1>
                 <div id="content-wrapper" className="onload-animation">
                   {children}
                 </div>
@@ -239,7 +222,7 @@ function MainGridLayout({
             )}
 
             {/* Footer */}
-            <div className="footer col-span-1 md:col-start-2 md:col-span-1 xl:col-start-2 xl:col-span-1 onload-animation">
+            <div className="footer onload-animation col-span-1 md:col-span-1 md:col-start-2 xl:col-span-1 xl:col-start-2">
               <Footer siteName={siteTitle} />
             </div>
           </div>

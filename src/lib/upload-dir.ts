@@ -37,11 +37,7 @@ export interface ResolvedUploadDir {
 // 之间 path.relative 会返回绝对路径而非 "..\"，只看 ".." 前缀会漏判。
 export function isOutsideOrEqual(base: string, dir: string): boolean {
   const relative = path.relative(base, dir);
-  return (
-    relative === "" ||
-    path.isAbsolute(relative) ||
-    relative.split(path.sep)[0] === ".."
-  );
+  return relative === "" || path.isAbsolute(relative) || relative.split(path.sep)[0] === "..";
 }
 
 /**
@@ -65,9 +61,7 @@ export function resolveUploadDir(): ResolvedUploadDir {
   const targetDir = configured || path.join(publicDir, "uploads");
 
   if (isOutsideOrEqual(publicDir, targetDir)) {
-    throw new Error(
-      `UPLOAD_DIR must point to a subdirectory of ${publicDir}, got: ${targetDir}`,
-    );
+    throw new Error(`UPLOAD_DIR must point to a subdirectory of ${publicDir}, got: ${targetDir}`);
   }
 
   // 同根校验：跨盘符（Windows C:/D:）时 path.relative 无法判断包含关系，
@@ -117,10 +111,7 @@ export async function isRealPathInside(root: string, candidate: string): Promise
   let realRoot: string;
   let realCandidate: string;
   try {
-    [realRoot, realCandidate] = await Promise.all([
-      fs.realpath(root),
-      fs.realpath(candidate),
-    ]);
+    [realRoot, realCandidate] = await Promise.all([fs.realpath(root), fs.realpath(candidate)]);
   } catch {
     // 任一环节不存在 / 不可解析 -> 交给调用方按 404 处理
     return false;

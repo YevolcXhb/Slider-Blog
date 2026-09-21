@@ -1,19 +1,16 @@
-"use client"
+"use client";
 
-import type { ComponentPropsWithoutRef } from "react"
-import { motion } from "motion/react"
+import type { ComponentPropsWithoutRef } from "react";
+import { motion } from "motion/react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface GlassCardProps extends ComponentPropsWithoutRef<"div"> {
-  hover?: boolean
+  hover?: boolean;
 }
 
 function GlassCard({ className, children, hover = false, ...props }: GlassCardProps) {
-  const baseClasses = cn(
-    "glass-card rounded-2xl p-6",
-    className,
-  )
+  const baseClasses = cn("glass-card rounded-2xl p-6", className);
 
   if (hover) {
     return (
@@ -25,14 +22,14 @@ function GlassCard({ className, children, hover = false, ...props }: GlassCardPr
       >
         {children}
       </motion.div>
-    )
+    );
   }
 
   return (
     <div className={baseClasses} {...props}>
       {children}
     </div>
-  )
+  );
 }
 
-export { GlassCard, type GlassCardProps }
+export { GlassCard, type GlassCardProps };

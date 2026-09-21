@@ -47,9 +47,7 @@ function capturedArgs(model: "category" | "tag"): Record<string, unknown> {
 /** 从 findMany 参数中取出 _count.select.posts，缺失即抛错（缺失本身就是回归）。 */
 function countedPostsWhere(model: "category" | "tag"): Record<string, unknown> {
   const args = capturedArgs(model);
-  const count = args.include as
-    | { _count?: { select?: { posts?: unknown } } }
-    | undefined;
+  const count = args.include as { _count?: { select?: { posts?: unknown } } } | undefined;
   const posts = count?._count?.select?.posts;
   if (posts === undefined) {
     throw new Error(`include._count.select.posts 缺失（${model}）`);
@@ -88,15 +86,11 @@ describe("getCategories 的 _count 只统计已发布文章", () => {
   });
 
   it("返回形状保持 Category[] 不变（id/name/slug/_count.posts）", async () => {
-    findMany.mockResolvedValue([
-      { id: 1n, name: "技术", slug: "tech", _count: { posts: 3 } },
-    ]);
+    findMany.mockResolvedValue([{ id: 1n, name: "技术", slug: "tech", _count: { posts: 3 } }]);
 
     const result = await getCategories();
 
-    expect(result).toEqual([
-      { id: 1, name: "技术", slug: "tech", _count: { posts: 3 } },
-    ]);
+    expect(result).toEqual([{ id: 1, name: "技术", slug: "tech", _count: { posts: 3 } }]);
   });
 
   it("其他查询参数（orderBy）未被顺手改动", async () => {
@@ -116,9 +110,8 @@ describe("getTags 的 _count 只统计已发布文章", () => {
 
   it("不存在裸 true 计数，且过滤值恰为已发布", async () => {
     await getTags();
-    const select = (
-      capturedArgs("tag").include as { _count: { select: Record<string, unknown> } }
-    )._count.select;
+    const select = (capturedArgs("tag").include as { _count: { select: Record<string, unknown> } })
+      ._count.select;
 
     expect(select.posts).not.toBe(true);
     expect(select.posts).toEqual({ where: { post: { status: 1 } } });
@@ -126,15 +119,11 @@ describe("getTags 的 _count 只统计已发布文章", () => {
   });
 
   it("返回形状保持 Tag[] 不变（id/name/slug/_count.posts）", async () => {
-    findMany.mockResolvedValue([
-      { id: 7n, name: "Next.js", slug: "nextjs", _count: { posts: 2 } },
-    ]);
+    findMany.mockResolvedValue([{ id: 7n, name: "Next.js", slug: "nextjs", _count: { posts: 2 } }]);
 
     const result = await getTags();
 
-    expect(result).toEqual([
-      { id: 7, name: "Next.js", slug: "nextjs", _count: { posts: 2 } },
-    ]);
+    expect(result).toEqual([{ id: 7, name: "Next.js", slug: "nextjs", _count: { posts: 2 } }]);
   });
 
   it("其他查询参数（orderBy）未被顺手改动", async () => {

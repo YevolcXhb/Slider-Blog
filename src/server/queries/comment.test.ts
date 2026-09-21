@@ -54,10 +54,7 @@ describe("buildCommentTree", () => {
     const tree = buildCommentTree([row(1, null), row(2, 99)]);
     expect(tree.map((c) => c.id)).toEqual([1, 2]);
     expect(tree[1].parent_id).toBe(99);
-    const total = tree.reduce(
-      (acc, c) => acc + 1 + (c.replies?.length ?? 0),
-      0,
-    );
+    const total = tree.reduce((acc, c) => acc + 1 + (c.replies?.length ?? 0), 0);
     expect(total).toBe(2); // 没有任何评论消失
   });
 

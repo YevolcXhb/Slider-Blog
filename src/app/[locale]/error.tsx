@@ -32,15 +32,11 @@ export default function Error({ error, reset }: ErrorProps) {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-90">{m.title}</h1>
-          <p className="max-w-md text-sm leading-relaxed text-50">
-            {m.description}
-          </p>
+          <h1 className="text-90 text-2xl font-bold">{m.title}</h1>
+          <p className="text-50 max-w-md text-sm leading-relaxed">{m.description}</p>
         </div>
 
-        {error.digest && (
-          <p className="font-mono text-xs text-30">{m.errorId(error.digest)}</p>
-        )}
+        {error.digest && <p className="text-30 font-mono text-xs">{m.errorId(error.digest)}</p>}
 
         <div className="flex flex-wrap items-center justify-center gap-3">
           <GlassButton variant="primary" onClick={reset}>

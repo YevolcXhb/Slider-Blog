@@ -18,10 +18,7 @@ import { SiteInfoWidget } from "@/components/widget/site-info";
 import type { SiteInfoData } from "@/types/site-info";
 import { sidebarLayoutConfig } from "@/config/sidebarConfig";
 import { cn } from "@/lib/utils";
-import type {
-  WidgetComponentConfig,
-  MobileBottomComponentConfig,
-} from "@/types/sidebarConfig";
+import type { WidgetComponentConfig, MobileBottomComponentConfig } from "@/types/sidebarConfig";
 import type { SidebarProfile } from "@/server/queries/site";
 import type { AnnouncementItem } from "@/server/queries/site";
 import type { SidebarStatsWithDate } from "@/server/queries/site";
@@ -107,10 +104,7 @@ function Sidebar({
     return sidebarLayoutConfig.mobileBottomComponents;
   }, [side]);
 
-  const filteredComponents = useMemo(
-    () => components.filter((comp) => comp.enable),
-    [components],
-  );
+  const filteredComponents = useMemo(() => components.filter((comp) => comp.enable), [components]);
 
   const isMobileBottom = side === SIDEBAR_SIDE.BOTTOM;
 
@@ -119,8 +113,7 @@ function Sidebar({
       return { topComponents: [], stickyComponents: [] };
     }
     const top = filteredComponents.filter(
-      (c): c is WidgetComponentConfig =>
-        "position" in c && c.position === COMPONENT_POSITION.TOP,
+      (c): c is WidgetComponentConfig => "position" in c && c.position === COMPONENT_POSITION.TOP,
     );
     const sticky = filteredComponents.filter(
       (c): c is WidgetComponentConfig =>
@@ -141,18 +134,10 @@ function Sidebar({
   function isComponentInitiallyVisible(
     config: WidgetComponentConfig | MobileBottomComponentConfig,
   ): boolean {
-    if (
-      "showOnPostPage" in config &&
-      config.showOnPostPage === false &&
-      isPostPage
-    ) {
+    if ("showOnPostPage" in config && config.showOnPostPage === false && isPostPage) {
       return false;
     }
-    if (
-      "hideOnNonPostPage" in config &&
-      config.hideOnNonPostPage === true &&
-      !isPostPage
-    ) {
+    if ("hideOnNonPostPage" in config && config.hideOnNonPostPage === true && !isPostPage) {
       return false;
     }
     return true;
@@ -216,9 +201,7 @@ function Sidebar({
     return baseProps;
   }
 
-  const hasInitiallyVisibleTopComponents = topComponents.some(
-    isComponentInitiallyVisible,
-  );
+  const hasInitiallyVisibleTopComponents = topComponents.some(isComponentInitiallyVisible);
 
   if (
     topComponents.length === 0 &&
@@ -229,10 +212,7 @@ function Sidebar({
   }
 
   return (
-    <div
-      id={`${side}-sidebar`}
-      className={cn("light-adapt flex w-full flex-col pt-0", className)}
-    >
+    <div id={`${side}-sidebar`} className={cn("light-adapt flex w-full flex-col pt-0", className)}>
       {isMobileBottom ? (
         <div className="flex w-full flex-col gap-4">
           {bottomComponents.map((comp, index) => {
@@ -261,17 +241,11 @@ function Sidebar({
           )}
 
           {stickyComponents.length > 0 && (
-            <div
-              id={`${side}-sidebar-sticky-content`}
-              className={cn("flex w-full flex-col gap-4")}
-            >
+            <div id={`${side}-sidebar-sticky-content`} className={cn("flex w-full flex-col gap-4")}>
               {stickyComponents.map((comp, index) => {
                 const Component = componentMap[comp.type];
                 if (!Component) return null;
-                const props = getComponentProps(
-                  comp,
-                  topComponents.length + index,
-                );
+                const props = getComponentProps(comp, topComponents.length + index);
                 return <Component key={`${comp.type}-${index}`} {...props} />;
               })}
             </div>

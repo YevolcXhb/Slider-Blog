@@ -9,10 +9,7 @@ import { parsePositiveBigIntId, ValidationError } from "@/lib/validation";
 
 async function requireAdmin() {
   const session = await auth();
-  if (
-    !session?.user ||
-    session.user.role !== UserRole.ADMIN
-  ) {
+  if (!session?.user || session.user.role !== UserRole.ADMIN) {
     throw new Error("Unauthorized: admin access required");
   }
 }
@@ -45,17 +42,13 @@ export async function createCategory(formData: FormData) {
       data: { name, slug },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as { code: string }).code === "P2002"
-    ) {
+    if (error instanceof Error && "code" in error && (error as { code: string }).code === "P2002") {
       throw new ValidationError("categorySlugExists");
     }
     throw error;
   }
 
-  revalidateTag('categories', 'max');
+  revalidateTag("categories", "max");
   revalidatePath("/[locale]/(public)/blog", "page");
 }
 
@@ -72,17 +65,13 @@ export async function updateCategory(id: number, formData: FormData) {
       data: { name, slug },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as { code: string }).code === "P2002"
-    ) {
+    if (error instanceof Error && "code" in error && (error as { code: string }).code === "P2002") {
       throw new ValidationError("categorySlugExists");
     }
     throw error;
   }
 
-  revalidateTag('categories', 'max');
+  revalidateTag("categories", "max");
   revalidatePath("/[locale]/(public)/blog", "page");
 }
 
@@ -95,7 +84,7 @@ export async function deleteCategory(id: number) {
     where: { id: categoryId },
   });
 
-  revalidateTag('categories', 'max');
+  revalidateTag("categories", "max");
   revalidatePath("/[locale]/(public)/blog", "page");
 }
 
@@ -112,17 +101,13 @@ export async function createTag(formData: FormData) {
       data: { name, slug },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as { code: string }).code === "P2002"
-    ) {
+    if (error instanceof Error && "code" in error && (error as { code: string }).code === "P2002") {
       throw new ValidationError("tagSlugExists");
     }
     throw error;
   }
 
-  revalidateTag('categories', 'max');
+  revalidateTag("categories", "max");
   revalidatePath("/[locale]/(public)/blog", "page");
 }
 
@@ -139,17 +124,13 @@ export async function updateTag(id: number, formData: FormData) {
       data: { name, slug },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as { code: string }).code === "P2002"
-    ) {
+    if (error instanceof Error && "code" in error && (error as { code: string }).code === "P2002") {
       throw new ValidationError("tagSlugExists");
     }
     throw error;
   }
 
-  revalidateTag('categories', 'max');
+  revalidateTag("categories", "max");
   revalidatePath("/[locale]/(public)/blog", "page");
 }
 
@@ -162,6 +143,6 @@ export async function deleteTag(id: number) {
     where: { id: tagId },
   });
 
-  revalidateTag('categories', 'max');
+  revalidateTag("categories", "max");
   revalidatePath("/[locale]/(public)/blog", "page");
 }

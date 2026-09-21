@@ -19,16 +19,9 @@ export default async function AuthLayout({
   const themeSettings = await getThemeSettings();
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem
-      storageKey="admin-theme"
-    >
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem storageKey="admin-theme">
       <ThemeSettingsProvider initialSettings={themeSettings}>
-        <style
-          dangerouslySetInnerHTML={{ __html: buildThemeCss(themeSettings) }}
-        />
+        <style dangerouslySetInnerHTML={{ __html: buildThemeCss(themeSettings) }} />
         <main className="light-adapt relative min-h-screen">{children}</main>
       </ThemeSettingsProvider>
     </ThemeProvider>

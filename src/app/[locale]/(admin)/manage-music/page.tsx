@@ -27,11 +27,7 @@ export async function generateMetadata({
   return { title: t("title") };
 }
 
-export default async function MusicPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function MusicPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   await requireAdmin(locale, "/manage-music");
 

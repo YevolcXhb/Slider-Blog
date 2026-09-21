@@ -46,9 +46,7 @@ describe("loginErrorKey", () => {
       "CredentialsSignin ",
     ];
     for (const code of unknowns) {
-      expect(loginErrorKey(code), `code=${JSON.stringify(code)}`).toBe(
-        "signInMisconfigured",
-      );
+      expect(loginErrorKey(code), `code=${JSON.stringify(code)}`).toBe("signInMisconfigured");
     }
   });
 
@@ -65,9 +63,7 @@ describe("loginErrorKey", () => {
     const allowed = new Set(["invalidCredentials", "signInMisconfigured"]);
     for (const code of inputs) {
       const key = loginErrorKey(code);
-      expect(allowed.has(key), `code=${JSON.stringify(code)} -> ${key}`).toBe(
-        true,
-      );
+      expect(allowed.has(key), `code=${JSON.stringify(code)} -> ${key}`).toBe(true);
       expect(key).not.toBe(code);
     }
     // undefined 也不能漏出去（否则 t(undefined) 会渲染成裸键名或报错）

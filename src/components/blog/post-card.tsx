@@ -71,24 +71,20 @@ function PostCard({
     >
       <div
         className={cn(
-          "post-card-content relative flex flex-col h-full",
-          "pl-4 pr-4 pt-4 pb-4",
-          "md:pl-9 md:pr-2 md:pt-7 md:pb-7",
+          "post-card-content relative flex h-full flex-col",
+          "pt-4 pr-4 pb-4 pl-4",
+          "md:pt-7 md:pr-2 md:pb-7 md:pl-9",
           !hasCover && "w-full md:w-[calc(100%-52px-12px)]",
         )}
       >
         <Link
           href={`/blog/${post.slug}`}
           locale={locale}
-          className="post-card-title transition group/title w-full block font-bold mb-3
-            text-3xl text-90 hover:text-(--primary) dark:hover:text-(--primary)
-            active:text-(--title-active) dark:active:text-(--title-active)
-            before:w-1 before:h-5 before:rounded-md before:bg-(--primary)
-            before:absolute before:top-[35px] before:left-[18px] before:hidden md:before:block"
+          className="post-card-title group/title text-90 mb-3 block w-full text-3xl font-bold transition before:absolute before:top-[35px] before:left-[18px] before:hidden before:h-5 before:w-1 before:rounded-md before:bg-(--primary) hover:text-(--primary) active:text-(--title-active) md:before:block dark:hover:text-(--primary) dark:active:text-(--title-active)"
         >
           {post.title}
           {password && (
-            <Lock className="inline text-2xl align-middle -translate-y-px ml-1 text-(--primary)" />
+            <Lock className="ml-1 inline -translate-y-px align-middle text-2xl text-(--primary)" />
           )}
         </Link>
 
@@ -109,13 +105,13 @@ function PostCard({
           minutes={minutes}
           showWords={metaShowWords}
           showReadingTime={metaShowReadingTime}
-          className="mb-4 post-meta card-header-meta"
+          className="post-meta card-header-meta mb-4"
           locale={locale}
         />
 
         <div
           className={cn(
-            "post-description transition text-75 md:pr-4 description grow",
+            "post-description text-75 description grow transition md:pr-4",
             shouldClampDescription && "line-clamp",
           )}
           title={descriptionText}
@@ -132,19 +128,14 @@ function PostCard({
         </div>
 
         {showTagsAtBottom && post.tags && post.tags.length > 0 && (
-          <div className="post-card-bottom-tags flex flex-wrap items-center gap-1.5 mt-auto pt-3">
-            {(metaTagCount > 0
-              ? post.tags.slice(0, metaTagCount)
-              : post.tags
-            ).map((tag) => (
+          <div className="post-card-bottom-tags mt-auto flex flex-wrap items-center gap-1.5 pt-3">
+            {(metaTagCount > 0 ? post.tags.slice(0, metaTagCount) : post.tags).map((tag) => (
               <Link
                 key={tag.id}
                 href={`/blog?tag=${tag.slug}`}
                 locale={locale}
                 aria-label={`View all posts with the ${tag.name.trim()} tag`}
-                className="transition text-xs font-medium px-2.5 py-1 rounded-full
-                  bg-black/5 dark:bg-white/10 text-neutral-500 dark:text-neutral-400
-                  hover:bg-(--btn-regular-bg) hover:text-(--btn-content)"
+                className="rounded-full bg-black/5 px-2.5 py-1 text-xs font-medium text-neutral-500 transition hover:bg-(--btn-regular-bg) hover:text-(--btn-content) dark:bg-white/10 dark:text-neutral-400"
               >
                 #{tag.name.trim()}
               </Link>
@@ -161,7 +152,7 @@ function PostCard({
             showWords={statsShowWords}
             showReadingTime={statsShowReadingTime}
             showIcons={statsShowIcons}
-            className="stats mt-auto pt-3 text-30 gap-x-2"
+            className="stats text-30 mt-auto gap-x-2 pt-3"
             locale={locale}
           />
         )}
@@ -174,16 +165,16 @@ function PostCard({
           aria-label={post.title}
           className={cn(
             "post-card-image group/image",
-            "w-full md:w-[36%] md:min-w-[220px] md:max-w-[320px]",
+            "w-full md:w-[36%] md:max-w-[320px] md:min-w-[220px]",
             "aspect-2/1 md:aspect-auto",
-            "relative md:absolute md:top-4 md:bottom-4 md:right-4",
-            "rounded-(--radius-large) md:rounded-xl overflow-hidden md:border-l md:border-(--line-divider)",
+            "relative md:absolute md:top-4 md:right-4 md:bottom-4",
+            "overflow-hidden rounded-(--radius-large) md:rounded-xl md:border-l md:border-(--line-divider)",
           )}
         >
-          <div className="absolute pointer-events-none z-10 w-full h-full group-hover/image:bg-black/30 group-active/image:bg-black/50 transition" />
-          <div className="absolute pointer-events-none z-20 w-full h-full flex items-center justify-center">
+          <div className="pointer-events-none absolute z-10 h-full w-full transition group-hover/image:bg-black/30 group-active/image:bg-black/50" />
+          <div className="pointer-events-none absolute z-20 flex h-full w-full items-center justify-center">
             {/* 保留白字：压在封面图 + hover 时 group-hover/image:bg-black/30 的黑色蒙层上 */}
-            <ChevronRight className="transition opacity-0 group-hover/image:opacity-100 scale-50 group-hover/image:scale-100 text-white text-5xl" />
+            <ChevronRight className="scale-50 text-5xl text-white opacity-0 transition group-hover/image:scale-100 group-hover/image:opacity-100" />
           </div>
           <Image
             src={post.cover_image!}
@@ -193,7 +184,7 @@ function PostCard({
             style={{ objectFit: "cover" }}
             loading={loading}
             unoptimized
-            className="w-full h-full transition-transform duration-300 group-hover/image:scale-110 group-active/image:scale-115"
+            className="h-full w-full transition-transform duration-300 group-hover/image:scale-110 group-active/image:scale-115"
           />
         </Link>
       )}
@@ -205,12 +196,12 @@ function PostCard({
           aria-label={post.title}
           className={cn(
             "post-card-enter-btn",
-            "flex btn-regular w-13",
-            "absolute right-3 top-3 bottom-3 rounded-xl bg-(--enter-btn-bg)",
-            "hover:bg-(--enter-btn-bg-hover) active:bg-(--enter-btn-bg-active) active:scale-95",
+            "btn-regular flex w-13",
+            "absolute top-3 right-3 bottom-3 rounded-xl bg-(--enter-btn-bg)",
+            "hover:bg-(--enter-btn-bg-hover) active:scale-95 active:bg-(--enter-btn-bg-active)",
           )}
         >
-          <ChevronRight className="transition text-(--primary) text-4xl mx-auto" />
+          <ChevronRight className="mx-auto text-4xl text-(--primary) transition" />
         </Link>
       )}
     </div>

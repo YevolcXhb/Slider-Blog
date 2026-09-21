@@ -123,11 +123,7 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
   if (!host || !database || !username || !password) {
     return { ok: false as const, error: "fieldsRequired" };
   }
-  if (
-    host.length > 253 ||
-    host.startsWith("-") ||
-    /[\s/\\:@]/.test(host)
-  ) {
+  if (host.length > 253 || host.startsWith("-") || /[\s/\\:@]/.test(host)) {
     return { ok: false as const, error: "invalidHost" };
   }
   if (!Number.isInteger(port) || port < 1 || port > 65535) {

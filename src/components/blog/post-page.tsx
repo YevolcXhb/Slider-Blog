@@ -41,13 +41,10 @@ async function PostPage({
 
   return (
     <article className="post-page mx-auto w-full max-w-none">
-      <div className="flex w-full rounded-(--radius-large) overflow-hidden relative mb-4">
-        <div
-          id="post-container"
-          className="card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full"
-        >
+      <div className="relative mb-4 flex w-full overflow-hidden rounded-(--radius-large)">
+        <div id="post-container" className="card-base relative z-10 w-full px-6 pt-6 pb-4 md:px-9">
           {hasCover && post.cover_image && (
-            <div className="-mx-6 md:-mx-9 -mt-6 mb-6 h-48 md:h-64 relative onload-animation">
+            <div className="onload-animation relative -mx-6 -mt-6 mb-6 h-48 md:-mx-9 md:h-64">
               <Link
                 href={`/blog/${post.slug}`}
                 locale={locale}
@@ -62,7 +59,7 @@ async function PostPage({
                   style={{ objectFit: "cover" }}
                   loading="eager"
                   unoptimized
-                  className="w-full h-full"
+                  className="h-full w-full"
                 />
               </Link>
               <div className="absolute inset-x-4 top-3 z-10 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-xs font-medium text-white drop-shadow-[0_1px_2px_rgb(0_0_0/0.9)]">
@@ -79,8 +76,8 @@ async function PostPage({
                   </span>
                 </div>
               </div>
-              <div className="absolute inset-x-0 bottom-0 px-6 md:px-9 pt-10 pb-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent">
-                <h1 className="mb-2 text-xl md:text-2xl font-bold leading-tight text-white">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-6 pt-10 pb-3 md:px-9">
+                <h1 className="mb-2 text-xl leading-tight font-bold text-white md:text-2xl">
                   {post.title}
                 </h1>
                 <PostMeta
@@ -100,9 +97,9 @@ async function PostPage({
 
           {!hasCover && (
             <>
-              <div className="flex flex-row text-30 gap-5 mb-3 transition onload-animation">
+              <div className="text-30 onload-animation mb-3 flex flex-row gap-5 transition">
                 <div className="flex flex-row items-center">
-                  <div className="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
+                  <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-md bg-black/5 text-black/50 transition dark:bg-white/10 dark:text-white/50">
                     <FileText className="size-4" />
                   </div>
                   <div className="text-sm">
@@ -110,7 +107,7 @@ async function PostPage({
                   </div>
                 </div>
                 <div className="flex flex-row items-center">
-                  <div className="transition h-6 w-6 rounded-md bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center mr-2">
+                  <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-md bg-black/5 text-black/50 transition dark:bg-white/10 dark:text-white/50">
                     <Clock className="size-4" />
                   </div>
                   <div className="text-sm">
@@ -119,14 +116,8 @@ async function PostPage({
                 </div>
               </div>
 
-              <div className="relative onload-animation">
-                <h1
-                  className="transition w-full block font-bold mb-3
-                    text-3xl md:text-[2.25rem]/[2.75rem]
-                    text-black/90 dark:text-white/90
-                    md:before:w-1 before:h-5 before:rounded-md before:bg-(--primary)
-                    before:absolute before:top-3 before:-left-[1.125rem]"
-                >
+              <div className="onload-animation relative">
+                <h1 className="mb-3 block w-full text-3xl font-bold text-black/90 transition before:absolute before:top-3 before:-left-[1.125rem] before:h-5 before:rounded-md before:bg-(--primary) md:text-[2.25rem]/[2.75rem] md:before:w-1 dark:text-white/90">
                   {post.title}
                 </h1>
               </div>
@@ -142,44 +133,33 @@ async function PostPage({
                   showReadingTime={false}
                   locale={locale}
                 />
-                <div className="border-(--line-divider) border-dashed border-b mt-3 mb-5" />
+                <div className="mt-3 mb-5 border-b border-dashed border-(--line-divider)" />
               </div>
             </>
           )}
 
-          <PostContent
-            source={content}
-            className="mb-6 markdown-content onload-animation"
-          />
+          <PostContent source={content} className="markdown-content onload-animation mb-6" />
         </div>
       </div>
 
       {/* Like button */}
-      <div className="mb-4 onload-animation">
-        <LikeButton
-          postId={post.id}
-          initialCount={post.view_count}
-          label={t("like")}
-        />
+      <div className="onload-animation mb-4">
+        <LikeButton postId={post.id} initialCount={post.view_count} label={t("like")} />
       </div>
 
       {/* Recommended posts */}
-      <RecommendedPosts
-        relatedPosts={relatedPosts}
-        randomPosts={randomPosts}
-        locale={locale}
-      />
+      <RecommendedPosts relatedPosts={relatedPosts} randomPosts={randomPosts} locale={locale} />
 
       {/* Prev / Next navigation */}
-      <div className="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full onload-animation">
+      <div className="onload-animation mb-4 flex w-full flex-col justify-between gap-4 overflow-hidden md:flex-row">
         <Link
           href={prevPost ? `/blog/${prevPost.slug}` : "/"}
           locale={locale}
-          className="w-full font-bold overflow-hidden active:scale-95"
+          className="w-full overflow-hidden font-bold active:scale-95"
         >
-          <div className="btn-card rounded-2xl w-full h-14 max-w-full px-4 flex items-center justify-start gap-4">
+          <div className="btn-card flex h-14 w-full max-w-full items-center justify-start gap-4 rounded-2xl px-4">
             <ChevronLeft className="text-[2rem] text-(--primary)" />
-            <div className="overflow-hidden transition text-ellipsis whitespace-nowrap max-w-[calc(100%-3rem)] text-75">
+            <div className="text-75 max-w-[calc(100%-3rem)] overflow-hidden text-ellipsis whitespace-nowrap transition">
               {prevPost ? prevPost.title : t("home")}
             </div>
           </div>
@@ -188,10 +168,10 @@ async function PostPage({
         <Link
           href={nextPost ? `/blog/${nextPost.slug}` : "/"}
           locale={locale}
-          className="w-full font-bold overflow-hidden active:scale-95"
+          className="w-full overflow-hidden font-bold active:scale-95"
         >
-          <div className="btn-card rounded-2xl w-full h-14 max-w-full px-4 flex items-center justify-end gap-4">
-            <div className="overflow-hidden transition text-ellipsis whitespace-nowrap max-w-[calc(100%-3rem)] text-75">
+          <div className="btn-card flex h-14 w-full max-w-full items-center justify-end gap-4 rounded-2xl px-4">
+            <div className="text-75 max-w-[calc(100%-3rem)] overflow-hidden text-ellipsis whitespace-nowrap transition">
               {nextPost ? nextPost.title : t("home")}
             </div>
             <ChevronRight className="text-[2rem] text-(--primary)" />

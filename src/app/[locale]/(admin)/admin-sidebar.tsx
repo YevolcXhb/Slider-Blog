@@ -95,10 +95,7 @@ export function AdminSidebar() {
     // 找到匹配的最长前缀
     let best = "";
     for (const item of navItems) {
-      if (
-        withoutLocale === item.href ||
-        withoutLocale.startsWith(item.href + "/")
-      ) {
+      if (withoutLocale === item.href || withoutLocale.startsWith(item.href + "/")) {
         if (item.href.length > best.length) best = item.href;
       }
     }
@@ -129,26 +126,22 @@ export function AdminSidebar() {
         >
           <Menu className="size-5" aria-hidden="true" />
         </button>
-        <span className="text-sm font-semibold text-white/80">
-          {t("slider_admin")}
-        </span>
+        <span className="text-sm font-semibold text-white/80">{t("slider_admin")}</span>
       </header>
 
       <aside
         id="admin-sidebar"
-        className={`fixed left-0 top-0 z-50 flex h-screen w-[17rem] flex-col border-r border-white/15 bg-black/50 backdrop-blur-2xl transition-transform duration-300 md:translate-x-0 dark:bg-black/20 ${
+        className={`fixed top-0 left-0 z-50 flex h-screen w-[17rem] flex-col border-r border-white/15 bg-black/50 backdrop-blur-2xl transition-transform duration-300 md:translate-x-0 dark:bg-black/20 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label={t("slider_admin")}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5 admin-nav-item-enter">
+        <div className="admin-nav-item-enter flex items-center gap-3 border-b border-white/10 px-5 py-5">
           <div className="flex size-10 items-center justify-center rounded-xl bg-white/15 transition-transform duration-300 hover:scale-105">
             <FileText className="size-5 text-white/80" />
           </div>
-          <span className="flex-1 text-lg font-bold text-white/90">
-            {t("slider_admin")}
-          </span>
+          <span className="flex-1 text-lg font-bold text-white/90">{t("slider_admin")}</span>
           {/* 移动端关闭按钮 */}
           <button
             type="button"
@@ -170,7 +163,7 @@ export function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 scroll={false}
-                className={`admin-nav-item group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 admin-nav-item-enter ${
+                className={`admin-nav-item group admin-nav-item-enter relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
                   isActive
                     ? "bg-white/15 text-white/90 shadow-sm"
                     : "text-white/60 hover:bg-white/10 hover:text-white/80"
@@ -182,13 +175,13 @@ export function AdminSidebar() {
               >
                 {/* 激活指示条 */}
                 {isActive && (
-                  <span className="admin-active-bar absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-(--primary)" />
+                  <span className="admin-active-bar absolute top-1/2 left-0 h-6 w-1 -translate-y-1/2 rounded-r-full bg-(--primary)" />
                 )}
                 <Icon
                   className={`size-4 shrink-0 transition-transform duration-200 ${
                     isActive
                       ? "text-(--primary)"
-                      : "group-hover:scale-110 group-hover:translate-x-0.5"
+                      : "group-hover:translate-x-0.5 group-hover:scale-110"
                   }`}
                 />
                 {t(item.labelKey)}

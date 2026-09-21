@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { AlertTriangle, RotateCcw, ArrowLeft } from "lucide-react"
+import { useEffect } from "react";
+import { AlertTriangle, RotateCcw, ArrowLeft } from "lucide-react";
 
-import { Link } from "@/i18n/routing"
-import { GlassCard } from "@/components/ui/glass-card"
-import { GlassButton } from "@/components/ui/glass-button"
-import { useBlogErrorCopy } from "@/app/[locale]/error-copy"
+import { Link } from "@/i18n/routing";
+import { GlassCard } from "@/components/ui/glass-card";
+import { GlassButton } from "@/components/ui/glass-button";
+import { useBlogErrorCopy } from "@/app/[locale]/error-copy";
 
 interface ErrorProps {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }
 
 /**
@@ -22,10 +22,10 @@ export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
     // Surface the error to the console for debugging; Sentry integration
     // (if configured) will also pick this up via the global instrumentation.
-    console.error("Blog post failed to load:", error)
-  }, [error])
+    console.error("Blog post failed to load:", error);
+  }, [error]);
 
-  const m = useBlogErrorCopy()
+  const m = useBlogErrorCopy();
 
   return (
     <article className="mx-auto max-w-4xl">
@@ -44,15 +44,11 @@ export default function Error({ error, reset }: ErrorProps) {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-white/90">{m.title}</h1>
-          <p className="max-w-md text-sm leading-relaxed text-white/60">
-            {m.description}
-          </p>
+          <p className="max-w-md text-sm leading-relaxed text-white/60">{m.description}</p>
         </div>
 
         {error.digest && (
-          <p className="font-mono text-xs text-white/30">
-            {m.errorId(error.digest)}
-          </p>
+          <p className="font-mono text-xs text-white/30">{m.errorId(error.digest)}</p>
         )}
 
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -69,5 +65,5 @@ export default function Error({ error, reset }: ErrorProps) {
         </div>
       </GlassCard>
     </article>
-  )
+  );
 }

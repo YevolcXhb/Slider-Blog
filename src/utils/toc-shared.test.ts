@@ -37,15 +37,7 @@ describe("encodeHeadingFragment / decodeHeadingFragment", () => {
   });
 
   it("编解码互逆", () => {
-    for (const slug of [
-      "hello-world",
-      "50%",
-      "a#b",
-      "a?b",
-      "中文标题",
-      "caf%C3%A9",
-      "100%25",
-    ]) {
+    for (const slug of ["hello-world", "50%", "a#b", "a?b", "中文标题", "caf%C3%A9", "100%25"]) {
       expect(decodeHeadingFragment("#" + encodeHeadingFragment(slug))).toBe(slug);
     }
   });
@@ -81,7 +73,10 @@ describe("computeTocItems", () => {
 
   it("href 解码后总能回到 headingId", () => {
     const slugs = ["a-b", "50%", "a#b", "中文-标题", "x?y"];
-    const items = computeTocItems(slugs.map((s) => mk(s)), { maxLevel: 3 });
+    const items = computeTocItems(
+      slugs.map((s) => mk(s)),
+      { maxLevel: 3 },
+    );
     for (const item of items) {
       expect(decodeHeadingFragment(item.href)).toBe(item.headingId);
     }
@@ -98,31 +93,21 @@ describe("computeTocItems", () => {
     );
     // minDepth = 2，maxLevel = 3 → 只保留 depth < 5 的项（1..4 中 2/3/4 全部保留）
     expect(items.map((i) => i.depthLevel)).toEqual([0, 1, 2]);
-    expect(items.map((i) => i.badgeKind)).toEqual([
-      "index",
-      "dot",
-      "dot-sm",
-    ]);
+    expect(items.map((i) => i.badgeKind)).toEqual(["index", "dot", "dot-sm"]);
     expect(items[0].badgeIndex).toBe(1);
   });
 
   it("跳过没有 slug 的标题", () => {
-    const items = computeTocItems(
-      [
-        { slug: "", text: "no slug", depth: 1 },
-        mk("has-slug"),
-      ],
-      { maxLevel: 3 },
-    );
+    const items = computeTocItems([{ slug: "", text: "no slug", depth: 1 }, mk("has-slug")], {
+      maxLevel: 3,
+    });
     expect(items.map((i) => i.headingId)).toEqual(["has-slug"]);
   });
 });
 
 describe("extractHeadingsFromMdx", () => {
   it("解析 # 到 ###### 标题", () => {
-    const headings = extractHeadingsFromMdx(
-      "# 一级\n\n## 二级\n\n### 三级\n\n普通正文\n",
-    );
+    const headings = extractHeadingsFromMdx("# 一级\n\n## 二级\n\n### 三级\n\n普通正文\n");
     expect(headings.map((h) => h.depth)).toEqual([1, 2, 3]);
     expect(headings.map((h) => h.text)).toEqual(["一级", "二级", "三级"]);
   });
@@ -156,9 +141,7 @@ describe("extractHeadingsFromMdx", () => {
     const headings = extractHeadingsFromMdx("## 命中率 50% 的场景\n");
     for (const h of headings) {
       expect(() => decodeURIComponent(h.slug)).not.toThrow();
-      expect(decodeHeadingFragment("#" + encodeHeadingFragment(h.slug))).toBe(
-        h.slug,
-      );
+      expect(decodeHeadingFragment("#" + encodeHeadingFragment(h.slug))).toBe(h.slug);
     }
   });
 });

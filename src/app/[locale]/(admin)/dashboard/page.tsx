@@ -3,15 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { GlassCard } from "@/components/ui/glass-card";
 import { getTranslations, getFormatter } from "next-intl/server";
 import { getSiteStats } from "@/server/queries/stats";
-import {
-  FileText,
-  MessageSquare,
-  Clock,
-  FolderTree,
-  Eye,
-  CalendarDays,
-  Type,
-} from "lucide-react";
+import { FileText, MessageSquare, Clock, FolderTree, Eye, CalendarDays, Type } from "lucide-react";
 
 interface StatItem {
   labelKey: string;
@@ -20,11 +12,7 @@ interface StatItem {
   gradient: string;
 }
 
-export default async function DashboardPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   await requireAdmin(locale, "/dashboard");
 
@@ -89,8 +77,10 @@ export default async function DashboardPage({
     <div className="space-y-8">
       <div className="admin-page-header">
         <div>
-        <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">{t("title")}</h1>
-        <p className="mt-1 text-sm text-white/50">{t("subtitle")}</p>
+          <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">
+            {t("title")}
+          </h1>
+          <p className="mt-1 text-sm text-white/50">{t("subtitle")}</p>
         </div>
       </div>
 
@@ -102,16 +92,12 @@ export default async function DashboardPage({
             <GlassCard key={stat.labelKey} hover>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white/50">
-                    {t(stat.labelKey)}
-                  </p>
+                  <p className="text-sm font-medium text-white/50">{t(stat.labelKey)}</p>
                   <p className="mt-2 text-3xl font-bold text-white/90">
                     {stat.value.toLocaleString()}
                   </p>
                 </div>
-                <div
-                  className={`rounded-xl bg-gradient-to-br ${stat.gradient} p-3`}
-                >
+                <div className={`rounded-xl bg-gradient-to-br ${stat.gradient} p-3`}>
                   <Icon className="size-5 text-white/70" />
                 </div>
               </div>
@@ -122,32 +108,23 @@ export default async function DashboardPage({
 
       {/* Recent Posts */}
       <GlassCard>
-        <h2 className="mb-4 text-xl font-semibold text-white/90">
-          {t("recent_posts")}
-        </h2>
+        <h2 className="mb-4 text-xl font-semibold text-white/90">{t("recent_posts")}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-white/10 text-white/50">
-                <th className="pb-3 pr-4 font-medium">{t("title_column")}</th>
-                <th className="pb-3 pr-4 font-medium">
-                  {t("category_column")}
-                </th>
-                <th className="pb-3 pr-4 font-medium">{t("status_column")}</th>
+                <th className="pr-4 pb-3 font-medium">{t("title_column")}</th>
+                <th className="pr-4 pb-3 font-medium">{t("category_column")}</th>
+                <th className="pr-4 pb-3 font-medium">{t("status_column")}</th>
                 <th className="pb-3 font-medium">{t("date_column")}</th>
               </tr>
             </thead>
             <tbody>
               {recentPosts.length > 0 ? (
                 recentPosts.map((post) => (
-                  <tr
-                    key={post.id.toString()}
-                    className="border-b border-white/5 last:border-0"
-                  >
+                  <tr key={post.id.toString()} className="border-b border-white/5 last:border-0">
                     <td className="py-3 pr-4 text-white/80">{post.title}</td>
-                    <td className="py-3 pr-4 text-white/50">
-                      {post.category?.name ?? "—"}
-                    </td>
+                    <td className="py-3 pr-4 text-white/50">{post.category?.name ?? "—"}</td>
                     <td className="py-3 pr-4">
                       <span
                         className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -156,9 +133,7 @@ export default async function DashboardPage({
                             : "bg-yellow-500/20 text-yellow-400"
                         }`}
                       >
-                        {post.status === 1
-                          ? t("published")
-                          : t("draft")}
+                        {post.status === 1 ? t("published") : t("draft")}
                       </span>
                     </td>
                     <td className="py-3 text-white/50">
@@ -172,10 +147,7 @@ export default async function DashboardPage({
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={4}
-                    className="py-8 text-center text-sm text-white/30"
-                  >
+                  <td colSpan={4} className="py-8 text-center text-sm text-white/30">
                     {t("no_posts")}
                   </td>
                 </tr>

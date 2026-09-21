@@ -8,11 +8,7 @@ import { auth } from "@/lib/auth";
 import { getClientIp } from "@/lib/client-ip";
 import { rateLimit } from "@/lib/rate-limit";
 import { UserRole } from "@/types/user";
-import {
-  parsePositiveBigIntId,
-  validateContentLength,
-  ValidationError,
-} from "@/lib/validation";
+import { parsePositiveBigIntId, validateContentLength, ValidationError } from "@/lib/validation";
 
 const CreatePostSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
@@ -70,9 +66,7 @@ export async function createPost(data: CreatePostInput) {
     }
   }
   const tagIds = validated.tags
-    ? [...new Set(validated.tags)].map((id) =>
-        parsePositiveBigIntId(id, "tags"),
-      )
+    ? [...new Set(validated.tags)].map((id) => parsePositiveBigIntId(id, "tags"))
     : [];
   if (tagIds.length > 0) {
     const tagCount = await prisma.tag.count({
@@ -109,11 +103,7 @@ export async function createPost(data: CreatePostInput) {
     });
   } catch (error) {
     // Prisma unique-constraint violation (P2002) → slug already exists
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as { code: string }).code === "P2002"
-    ) {
+    if (error instanceof Error && "code" in error && (error as { code: string }).code === "P2002") {
       throw new ValidationError("slugExists");
     }
     throw error;
@@ -124,12 +114,12 @@ export async function createPost(data: CreatePostInput) {
   // 模式（配 type="page"），写成 "/zh/blog/foo" 这种具体 URL 命中不了任何缓存。
   revalidatePath("/[locale]/(public)/blog", "page");
   revalidatePath("/[locale]/(public)/blog/[slug]", "page");
-  revalidateTag('posts', 'max');
+  revalidateTag("posts", "max");
   // getCategories / getTags 把 _count.posts 缓存了 3600 秒，而首页的
   // CategoryBar、侧栏的 categories-card / tags-card 都会渲染这个计数。
   // 新增文章会改变计数，只失效 "posts" 会让计数最多滞后一小时。
-  revalidateTag('categories', 'max');
-  revalidateTag('tags', 'max');
+  revalidateTag("categories", "max");
+  revalidateTag("tags", "max");
   return post;
 }
 
@@ -158,9 +148,7 @@ export async function updatePost(id: number, data: UpdatePostInput) {
     }
   }
   const tagIds = validated.tags
-    ? [...new Set(validated.tags)].map((tagId) =>
-        parsePositiveBigIntId(tagId, "tags"),
-      )
+    ? [...new Set(validated.tags)].map((tagId) => parsePositiveBigIntId(tagId, "tags"))
     : undefined;
   if (tagIds && tagIds.length > 0) {
     const tagCount = await prisma.tag.count({
@@ -216,11 +204,7 @@ export async function updatePost(id: number, data: UpdatePostInput) {
       });
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as { code: string }).code === "P2002"
-    ) {
+    if (error instanceof Error && "code" in error && (error as { code: string }).code === "P2002") {
       throw new ValidationError("slugExists");
     }
     throw error;
@@ -233,10 +217,10 @@ export async function updatePost(id: number, data: UpdatePostInput) {
   revalidatePath("/[locale]/(public)/blog/[slug]", "page");
 
   revalidatePath("/[locale]/(public)/blog", "page");
-  revalidateTag('posts', 'max');
+  revalidateTag("posts", "max");
   // 改 slug / 改分类 / 改标签都会改变分类与标签的 _count.posts 计数
-  revalidateTag('categories', 'max');
-  revalidateTag('tags', 'max');
+  revalidateTag("categories", "max");
+  revalidateTag("tags", "max");
   return post;
 }
 
@@ -264,10 +248,10 @@ export async function deletePost(id: number) {
 
   revalidatePath("/[locale]/(public)/blog/[slug]", "page");
   revalidatePath("/[locale]/(public)/blog", "page");
-  revalidateTag('posts', 'max');
+  revalidateTag("posts", "max");
   // 删文会减少分类/标签的 _count.posts
-  revalidateTag('categories', 'max');
-  revalidateTag('tags', 'max');
+  revalidateTag("categories", "max");
+  revalidateTag("tags", "max");
 }
 
 export async function publishPost(id: number): Promise<void> {
@@ -286,10 +270,10 @@ export async function publishPost(id: number): Promise<void> {
 
   revalidatePath("/[locale]/(public)/blog/[slug]", "page");
   revalidatePath("/[locale]/(public)/blog", "page");
-  revalidateTag('posts', 'max');
+  revalidateTag("posts", "max");
   // 发布使草稿进入列表，分类/标签计数随之变化
-  revalidateTag('categories', 'max');
-  revalidateTag('tags', 'max');
+  revalidateTag("categories", "max");
+  revalidateTag("tags", "max");
 }
 
 /**

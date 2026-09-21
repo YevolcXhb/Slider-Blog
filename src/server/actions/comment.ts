@@ -53,9 +53,7 @@ export async function submitComment(data: SubmitCommentInput) {
         // 理论上不可达（已由上面的正则收窄），兜底成游客而不是把提交打崩
       }
     }
-    currentUser = session?.user
-      ? { id: userId, role: session.user.role ?? UserRole.USER }
-      : null;
+    currentUser = session?.user ? { id: userId, role: session.user.role ?? UserRole.USER } : null;
   } catch {
     // Not authenticated — treat as guest
   }

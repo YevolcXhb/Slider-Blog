@@ -8,10 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/routing";
 import { GlassButton } from "@/components/ui/glass-button";
-import {
-  LanguageSwitcher,
-  type LocaleOption,
-} from "@/components/layout/language-switcher";
+import { LanguageSwitcher, type LocaleOption } from "@/components/layout/language-switcher";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/slider-config";
 
@@ -80,7 +77,7 @@ function MobileMenu({ navLinks, locales }: MobileMenuProps) {
                     "light-adapt fixed inset-y-0 right-0 z-50 w-72",
                     // 浅色模式下的面板底色由 globals.css 亮色适配块补上（bg-white/10 在
                     // 浅色下会被改写成 rgba(0,0,0,0.07)，过于透明，需不透明底衬）
-                    "bg-white/10 backdrop-blur-2xl dark:bg-white/5 border-l border-white/20",
+                    "border-l border-white/20 bg-white/10 backdrop-blur-2xl dark:bg-white/5",
                     "shadow-2xl",
                   )}
                   initial={{ x: "100%" }}
@@ -89,22 +86,17 @@ function MobileMenu({ navLinks, locales }: MobileMenuProps) {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <div className="flex items-center justify-between p-4">
-                    <span className="text-lg font-bold text-white/80">
-                      {siteConfig.title}
-                    </span>
+                    <span className="text-lg font-bold text-white/80">{siteConfig.title}</span>
                     <button
                       onClick={() => setOpen(false)}
-                      className="flex size-8 items-center justify-center rounded-lg backdrop-blur-md bg-white/10 hover:bg-white/20 transition-colors"
+                      className="flex size-8 items-center justify-center rounded-lg bg-white/10 backdrop-blur-md transition-colors hover:bg-white/20"
                       aria-label="Close menu"
                     >
                       <X className="size-4" aria-hidden="true" />
                     </button>
                   </div>
 
-                  <nav
-                    className="flex flex-col gap-1 px-4"
-                    aria-label="Main navigation"
-                  >
+                  <nav className="flex flex-col gap-1 px-4" aria-label="Main navigation">
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
@@ -124,7 +116,7 @@ function MobileMenu({ navLinks, locales }: MobileMenuProps) {
                   </nav>
 
                   <div className="mt-6 border-t border-white/10 px-4 pt-4">
-                    <p className="mb-2 text-xs font-medium text-white/40 uppercase tracking-wider">
+                    <p className="mb-2 text-xs font-medium tracking-wider text-white/40 uppercase">
                       Language
                     </p>
                     <LanguageSwitcher

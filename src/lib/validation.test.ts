@@ -73,25 +73,13 @@ describe("parsePositiveBigIntId", () => {
 
   it("拒绝 NaN 与 Infinity", () => {
     expectValidationError(() => parsePositiveBigIntId(Number.NaN), "invalidId");
-    expectValidationError(
-      () => parsePositiveBigIntId(Number.POSITIVE_INFINITY),
-      "invalidId",
-    );
-    expectValidationError(
-      () => parsePositiveBigIntId(Number.NEGATIVE_INFINITY),
-      "invalidId",
-    );
+    expectValidationError(() => parsePositiveBigIntId(Number.POSITIVE_INFINITY), "invalidId");
+    expectValidationError(() => parsePositiveBigIntId(Number.NEGATIVE_INFINITY), "invalidId");
   });
 
   it("拒绝超出安全整数范围的超大值", () => {
-    expectValidationError(
-      () => parsePositiveBigIntId("9007199254740993"),
-      "invalidId",
-    );
-    expectValidationError(
-      () => parsePositiveBigIntId("99999999999999999999"),
-      "invalidId",
-    );
+    expectValidationError(() => parsePositiveBigIntId("9007199254740993"), "invalidId");
+    expectValidationError(() => parsePositiveBigIntId("99999999999999999999"), "invalidId");
   });
 
   it("拒绝非数字字符串与非字符串/数字类型", () => {
@@ -106,10 +94,7 @@ describe("parsePositiveBigIntId", () => {
   });
 
   it("透传自定义 field 名", () => {
-    const error = expectValidationError(
-      () => parsePositiveBigIntId("x", "postId"),
-      "invalidId",
-    );
+    const error = expectValidationError(() => parsePositiveBigIntId("x", "postId"), "invalidId");
     expect(error.field).toBe("postId");
   });
 });
@@ -180,11 +165,7 @@ describe("validateSafeUrl", () => {
   });
 
   it("拒绝 javascript: 等危险协议", () => {
-    expectValidationError(
-      () => validateSafeUrl("javascript:alert(1)"),
-      "invalidUrl",
-      "url",
-    );
+    expectValidationError(() => validateSafeUrl("javascript:alert(1)"), "invalidUrl", "url");
     expectValidationError(() => validateSafeUrl("JavaScript:alert(1)"), "invalidUrl");
     expectValidationError(
       () => validateSafeUrl("data:text/html;base64,PHNjcmlwdD4="),
@@ -224,9 +205,7 @@ describe("validateSafeUrl", () => {
       "urlTooLong",
     );
     // 恰好等于上限时通过
-    expect(validateSafeUrl("https://e.com", "url", { maxLength: 13 })).toBe(
-      "https://e.com",
-    );
+    expect(validateSafeUrl("https://e.com", "url", { maxLength: 13 })).toBe("https://e.com");
   });
 
   it("拒绝控制字符", () => {
@@ -299,9 +278,6 @@ describe("validateContentLength", () => {
 
   it("默认上限为 200000", () => {
     expect(validateContentLength("a".repeat(200_000))).toHaveLength(200_000);
-    expectValidationError(
-      () => validateContentLength("a".repeat(200_001)),
-      "contentTooLong",
-    );
+    expectValidationError(() => validateContentLength("a".repeat(200_001)), "contentTooLong");
   });
 });

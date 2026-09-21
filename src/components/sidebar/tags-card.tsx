@@ -1,35 +1,35 @@
-import { Tags } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { Tags } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { Link } from "@/i18n/routing"
+import { Link } from "@/i18n/routing";
 
 interface Tag {
-  id: number
-  name: string
-  slug: string
-  _count?: { posts: number }
+  id: number;
+  name: string;
+  slug: string;
+  _count?: { posts: number };
 }
 
 interface TagsCardProps {
-  tags: Tag[]
+  tags: Tag[];
 }
 
 function getTagSize(count: number): string {
-  if (count >= 10) return "text-sm px-3 py-1.5"
-  if (count >= 5) return "text-xs px-2.5 py-1"
-  return "text-xs px-2 py-1"
+  if (count >= 10) return "text-sm px-3 py-1.5";
+  if (count >= 5) return "text-xs px-2.5 py-1";
+  return "text-xs px-2 py-1";
 }
 
 function TagsCard({ tags }: TagsCardProps) {
-  const t = useTranslations("Widgets")
+  const t = useTranslations("Widgets");
 
   if (tags.length === 0) {
-    return null
+    return null;
   }
 
   const sortedTags = [...tags]
     .sort((a, b) => (b._count?.posts || 0) - (a._count?.posts || 0))
-    .slice(0, 12)
+    .slice(0, 12);
 
   return (
     <div className="card-base rounded-2xl p-5">
@@ -45,7 +45,7 @@ function TagsCard({ tags }: TagsCardProps) {
       </div>
       <div className="flex flex-wrap gap-2">
         {sortedTags.map((tag) => {
-          const count = tag._count?.posts || 0
+          const count = tag._count?.posts || 0;
           return (
             <Link
               key={tag.id}
@@ -54,12 +54,12 @@ function TagsCard({ tags }: TagsCardProps) {
             >
               #{tag.name}
             </Link>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
 
-export { TagsCard }
-export default TagsCard
+export { TagsCard };
+export default TagsCard;

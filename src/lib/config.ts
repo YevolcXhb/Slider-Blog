@@ -67,11 +67,7 @@ export function parseEnvFile(raw: string): Record<string, string> {
     if (!preserveExact) value = value.trim();
     if (value.startsWith('"') && value.endsWith('"') && value.length >= 2) {
       value = unescapeEnvValue(value);
-    } else if (
-      value.startsWith("'") &&
-      value.endsWith("'") &&
-      value.length >= 2
-    ) {
+    } else if (value.startsWith("'") && value.endsWith("'") && value.length >= 2) {
       value = value.slice(1, -1);
     }
     result[key] = value;

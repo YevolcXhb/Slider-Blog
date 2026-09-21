@@ -1,22 +1,22 @@
-import { Suspense } from "react"
-import { getLocale, getTranslations } from "next-intl/server"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Suspense } from "react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-import { Link } from "@/i18n/routing"
-import { PostCard } from "@/components/blog/post-card"
-import { CategoryBar } from "@/components/blog/category-bar"
-import { getPublishedPosts, getCategories } from "@/server/queries/post"
-import { safeDbQuery } from "@/lib/safe-db"
+import { Link } from "@/i18n/routing";
+import { PostCard } from "@/components/blog/post-card";
+import { CategoryBar } from "@/components/blog/category-bar";
+import { getPublishedPosts, getCategories } from "@/server/queries/post";
+import { safeDbQuery } from "@/lib/safe-db";
 
-export const revalidate = 300
+export const revalidate = 300;
 
 interface BlogPageProps {
   searchParams: Promise<{
-    page?: string
-    category?: string
-    tag?: string
-    q?: string
-  }>
+    page?: string;
+    category?: string;
+    tag?: string;
+    q?: string;
+  }>;
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
@@ -24,39 +24,36 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     <Suspense
       fallback={
         <div className="flex flex-col gap-4">
-          <div className="h-16 animate-pulse glass-card rounded-2xl" />
+          <div className="glass-card h-16 animate-pulse rounded-2xl" />
           {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-32 animate-pulse glass-card rounded-2xl"
-            />
+            <div key={i} className="glass-card h-32 animate-pulse rounded-2xl" />
           ))}
         </div>
       }
     >
       <BlogListContent searchParams={searchParams} />
     </Suspense>
-  )
+  );
 }
 
 async function BlogListContent({ searchParams }: BlogPageProps) {
-  const locale = await getLocale()
-  const t = await getTranslations("Blog")
+  const locale = await getLocale();
+  const t = await getTranslations("Blog");
 
-  const params = await searchParams
-  const currentPage = Math.max(1, Number(params.page) || 1)
-  const categorySlug = params.category
-  const tagSlug = params.tag
-  const searchQuery = params.q
+  const params = await searchParams;
+  const currentPage = Math.max(1, Number(params.page) || 1);
+  const categorySlug = params.category;
+  const tagSlug = params.tag;
+  const searchQuery = params.q;
 
-  const pageSize = 10
+  const pageSize = 10;
 
   const [postsResult, categories] = await Promise.all([
     getPublishedPosts(locale, currentPage, pageSize, categorySlug, tagSlug, searchQuery),
     safeDbQuery(getCategories, []),
-  ])
+  ]);
 
-  const { items: posts, total: totalPosts, totalPages } = postsResult
+  const { items: posts, total: totalPosts, totalPages } = postsResult;
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,12 +71,12 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
           <input type="hidden" name="category" value={categorySlug || ""} />
           <input type="hidden" name="tag" value={tagSlug || ""} />
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400 dark:text-white/40" />
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-gray-400 dark:text-white/40" />
             <input
               name="q"
               defaultValue={searchQuery}
               placeholder={t("search.placeholder")}
-              className="glass-input w-full rounded-xl py-2 pl-10 pr-4 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-pink-400/50 dark:text-white dark:placeholder:text-white/40"
+              className="glass-input w-full rounded-xl py-2 pr-4 pl-10 text-sm text-gray-900 transition-colors outline-none placeholder:text-gray-400 focus:border-pink-400/50 dark:text-white dark:placeholder:text-white/40"
             />
           </div>
         </form>
@@ -151,5 +148,5 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

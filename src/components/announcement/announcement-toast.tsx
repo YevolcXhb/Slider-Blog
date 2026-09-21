@@ -33,10 +33,7 @@ const AUTO_DISMISS = 8000; // 自动消失时长
 function readSeen(): Record<string, number> {
   if (typeof window === "undefined") return {};
   try {
-    return JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}") as Record<
-      string,
-      number
-    >;
+    return JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}") as Record<string, number>;
   } catch {
     return {};
   }
@@ -130,7 +127,7 @@ function AnnouncementToast({ announcements }: AnnouncementToastProps) {
   if (visible.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed right-4 top-20 z-[100] flex flex-col gap-3">
+    <div className="pointer-events-none fixed top-20 right-4 z-[100] flex flex-col gap-3">
       <AnimatePresence>
         {visible.map((item) => (
           <ToastCard key={item.key} item={item} onDismiss={dismiss} />

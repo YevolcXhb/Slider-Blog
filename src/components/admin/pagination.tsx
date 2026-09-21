@@ -38,16 +38,12 @@ export async function AdminPagination({
   }
 
   // Determine which page numbers to show: first, last, and ±1 around current
-  const visiblePages = Array.from({ length: totalPages }, (_, i) => i + 1)
-    .filter(
-      (p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1,
-    );
+  const visiblePages = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+    (p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1,
+  );
 
   return (
-    <nav
-      aria-label="Pagination"
-      className="flex items-center justify-center gap-2 pt-4"
-    >
+    <nav aria-label="Pagination" className="flex items-center justify-center gap-2 pt-4">
       {/* Previous */}
       {currentPage > 1 ? (
         <Link
@@ -73,9 +69,7 @@ export async function AdminPagination({
           const showEllipsisBefore = idx > 0 && arr[idx - 1] !== p - 1;
           return (
             <span key={p} className="contents">
-              {showEllipsisBefore && (
-                <span className="px-1 text-white/30">...</span>
-              )}
+              {showEllipsisBefore && <span className="px-1 text-white/30">...</span>}
               <Link
                 href={{
                   pathname: basePath,

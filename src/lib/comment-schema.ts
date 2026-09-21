@@ -213,11 +213,7 @@ const schema = z
   .object({
     post_id: z.coerce.number({ error: invalidType }).positive(M),
     content: z.string({ error: invalidType }).min(1, M).max(10000, M),
-    author_name: z
-      .string({ error: invalidType })
-      .min(1, M)
-      .max(100, M)
-      .optional(),
+    author_name: z.string({ error: invalidType }).min(1, M).max(100, M).optional(),
     parent_id: z.coerce.number({ error: invalidType }).positive(M).optional(),
   })
   .strict();

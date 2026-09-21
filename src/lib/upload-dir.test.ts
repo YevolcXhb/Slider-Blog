@@ -35,7 +35,9 @@ describe("isOutsideOrEqual", () => {
 
   it("放行 base 内部的文件与更深层的目录", () => {
     expect(isOutsideOrEqual(base, path.resolve("C:/app/public/uploads/a.webp"))).toBe(false);
-    expect(isOutsideOrEqual(base, path.resolve("C:/app/public/uploads/2026/09/a.webp"))).toBe(false);
+    expect(isOutsideOrEqual(base, path.resolve("C:/app/public/uploads/2026/09/a.webp"))).toBe(
+      false,
+    );
   });
 
   it("不被前缀相同的兄弟目录欺骗（uploads-evil）", () => {

@@ -1,13 +1,13 @@
-import { Sidebar } from "./sidebar"
-import { profileConfig } from "@/config/profileConfig"
+import { Sidebar } from "./sidebar";
+import { profileConfig } from "@/config/profileConfig";
 import {
   getSidebarProfile,
   getActiveAnnouncements,
   getSiteInfoData,
   getMusicList,
-} from "@/server/queries/site"
-import { getCategories, getTags } from "@/server/queries/post"
-import { safeDbQuery } from "@/lib/safe-db"
+} from "@/server/queries/site";
+import { getCategories, getTags } from "@/server/queries/post";
+import { safeDbQuery } from "@/lib/safe-db";
 
 const siteInfoFallback = {
   blogVersion: "0.1.0",
@@ -33,34 +33,31 @@ const siteInfoFallback = {
     siteInfoExpand: "Expand",
     siteInfoCollapse: "Collapse",
   },
-}
+};
 
 async function LeftSidebar() {
-  const [profile, announcements, categories, tags, musicList, siteInfo] =
-    await Promise.all([
-      safeDbQuery(getSidebarProfile, {
-        name: profileConfig.name,
-        avatar: profileConfig.avatar ?? "",
-        bio: profileConfig.bio ?? "",
-        location: "Internet",
-        socialLinks: [
-          { name: "GitHub", url: "https://github.com/YevolcXhb", icon: "github" },
-        ],
-      }),
-      safeDbQuery(getActiveAnnouncements, []),
-      safeDbQuery(getCategories, []),
-      safeDbQuery(
-        () => getTags(),
-        [] as Array<{
-          id: number
-          name: string
-          slug: string
-          _count?: { posts: number }
-        }>,
-      ),
-      safeDbQuery(getMusicList, []),
-      safeDbQuery(() => getSiteInfoData("Unknown CI"), siteInfoFallback),
-    ])
+  const [profile, announcements, categories, tags, musicList, siteInfo] = await Promise.all([
+    safeDbQuery(getSidebarProfile, {
+      name: profileConfig.name,
+      avatar: profileConfig.avatar ?? "",
+      bio: profileConfig.bio ?? "",
+      location: "Internet",
+      socialLinks: [{ name: "GitHub", url: "https://github.com/YevolcXhb", icon: "github" }],
+    }),
+    safeDbQuery(getActiveAnnouncements, []),
+    safeDbQuery(getCategories, []),
+    safeDbQuery(
+      () => getTags(),
+      [] as Array<{
+        id: number;
+        name: string;
+        slug: string;
+        _count?: { posts: number };
+      }>,
+    ),
+    safeDbQuery(getMusicList, []),
+    safeDbQuery(() => getSiteInfoData("Unknown CI"), siteInfoFallback),
+  ]);
 
   return (
     <Sidebar
@@ -74,8 +71,8 @@ async function LeftSidebar() {
         siteInfo,
       }}
     />
-  )
+  );
 }
 
-export { LeftSidebar }
-export default LeftSidebar
+export { LeftSidebar };
+export default LeftSidebar;

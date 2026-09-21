@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState, type ComponentType } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import { ChevronUp, Home, List, MessageCircle, X } from "lucide-react"
+import { useEffect, useMemo, useState, type ComponentType } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronUp, Home, List, MessageCircle, X } from "lucide-react";
 
-import { useSidebarHeadings } from "@/components/layout/sidebar-headings-context"
+import { useSidebarHeadings } from "@/components/layout/sidebar-headings-context";
 
 interface FloatingControlsHeading {
-  slug: string
-  text: string
-  depth: number
+  slug: string;
+  text: string;
+  depth: number;
 }
 
 interface FloatingControlsProps {
-  headings?: FloatingControlsHeading[]
-  encrypted?: boolean
+  headings?: FloatingControlsHeading[];
+  encrypted?: boolean;
 }
 
 interface FloatingButtonProps {
-  id: string
-  icon: ComponentType<{ className?: string }>
-  toggleIcon?: ComponentType<{ className?: string }>
-  ariaLabel: string
-  onClick: () => void
-  hidden?: boolean
-  toggled?: boolean
+  id: string;
+  icon: ComponentType<{ className?: string }>;
+  toggleIcon?: ComponentType<{ className?: string }>;
+  ariaLabel: string;
+  onClick: () => void;
+  hidden?: boolean;
+  toggled?: boolean;
 }
 
 function FloatingButton({
@@ -45,7 +45,7 @@ function FloatingButton({
         "floating-btn",
         hidden ? "hide" : "",
         toggled ? "toggled" : "",
-        "card-base flex items-center justify-center rounded-2xl overflow-hidden transition",
+        "card-base flex items-center justify-center overflow-hidden rounded-2xl transition",
         ToggleIcon ? "has-toggle-icon" : "",
       ].join(" ")}
       onClick={onClick}
@@ -54,29 +54,29 @@ function FloatingButton({
       <Icon className={["mx-auto", ToggleIcon ? "icon-default" : ""].join(" ")} />
       {ToggleIcon && <ToggleIcon className="icon-toggled" />}
     </button>
-  )
+  );
 }
 
 function FloatingTOC({
   headings,
   encrypted,
 }: {
-  headings?: FloatingControlsHeading[]
-  encrypted?: boolean
+  headings?: FloatingControlsHeading[];
+  encrypted?: boolean;
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const items = useMemo(() => {
-    if (encrypted || !headings) return []
+    if (encrypted || !headings) return [];
     return headings
       .filter((h) => h.depth >= 1 && h.depth <= 3)
       .map((h) => ({
         href: `#${h.slug}`,
         text: h.text,
         depthLevel: Math.min(Math.max(h.depth - 1, 0), 2),
-      }))
-  }, [headings, encrypted])
+      }));
+  }, [headings, encrypted]);
 
-  if (items.length === 0) return null
+  if (items.length === 0) return null;
 
   return (
     <div id="floating-toc-wrapper" className="floating-toc-wrapper relative z-[999]">
@@ -94,19 +94,23 @@ function FloatingTOC({
           "floating-toc-panel absolute right-0 bottom-[calc(100%+1rem)]",
           "overflow-hidden rounded-2xl shadow-2xl backdrop-blur-lg",
           "border border-white/20 dark:border-white/10",
-          "md:w-80 w-[calc(100vw-2rem)] md:max-h-96 max-h-[calc(100vh-8rem)] py-3",
+          "max-h-[calc(100vh-8rem)] w-[calc(100vw-2rem)] py-3 md:max-h-96 md:w-80",
           open ? "show" : "hide",
         ].join(" ")}
         style={{ backgroundColor: "var(--card-bg-transparent)" }}
       >
-        <div className="toc-scroll-container px-3 overflow-y-auto">
-          <div id="floating-toc-content" className="toc-content" style={{ width: "100%", maxWidth: "100%" }}>
+        <div className="toc-scroll-container overflow-y-auto px-3">
+          <div
+            id="floating-toc-content"
+            className="toc-content"
+            style={{ width: "100%", maxWidth: "100%" }}
+          >
             {items.map((item, index) => (
               <a
                 key={`${item.href}-${index}`}
                 href={item.href}
                 className={[
-                  "toc-item block py-1.5 text-sm truncate transition hover:text-(--primary)",
+                  "toc-item block truncate py-1.5 text-sm transition hover:text-(--primary)",
                   item.depthLevel === 0 ? "pl-0" : "",
                   item.depthLevel === 1 ? "pl-4" : "",
                   item.depthLevel === 2 ? "pl-8" : "",
@@ -120,21 +124,21 @@ function FloatingTOC({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function BackToTop() {
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     const update = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop
-      setShow(scrollTop > 200)
-    }
-    update()
-    window.addEventListener("scroll", update, { passive: true })
-    return () => window.removeEventListener("scroll", update)
-  }, [])
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setShow(scrollTop > 200);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
 
   return (
     <FloatingButton
@@ -144,17 +148,17 @@ function BackToTop() {
       onClick={() => window.scroll({ top: 0, behavior: "smooth" })}
       hidden={!show}
     />
-  )
+  );
 }
 
 function BackToHome() {
-  const router = useRouter()
-  const pathname = usePathname()
+  const router = useRouter();
+  const pathname = usePathname();
   const homePath = useMemo(() => {
-    const localeMatch = pathname.match(/^\/(zh|en)(?:\/|$)/)
-    return localeMatch ? `/${localeMatch[1]}` : "/"
-  }, [pathname])
-  const isHome = pathname === homePath || pathname === `${homePath}/`
+    const localeMatch = pathname.match(/^\/(zh|en)(?:\/|$)/);
+    return localeMatch ? `/${localeMatch[1]}` : "/";
+  }, [pathname]);
+  const isHome = pathname === homePath || pathname === `${homePath}/`;
 
   return (
     <FloatingButton
@@ -164,18 +168,18 @@ function BackToHome() {
       onClick={() => router.push(homePath)}
       hidden={isHome}
     />
-  )
+  );
 }
 
 function BackToComment() {
-  const [hasComments, setHasComments] = useState(false)
+  const [hasComments, setHasComments] = useState(false);
 
   useEffect(() => {
-    const update = () => setHasComments(!!document.getElementById("post-comments"))
-    update()
-    const id = window.setTimeout(update, 0)
-    return () => window.clearTimeout(id)
-  }, [])
+    const update = () => setHasComments(!!document.getElementById("post-comments"));
+    update();
+    const id = window.setTimeout(update, 0);
+    return () => window.clearTimeout(id);
+  }, []);
 
   return (
     <FloatingButton
@@ -183,20 +187,20 @@ function BackToComment() {
       icon={MessageCircle}
       ariaLabel="Scroll to comments"
       onClick={() => {
-        const el = document.getElementById("post-comments")
+        const el = document.getElementById("post-comments");
         if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" })
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }}
       hidden={!hasComments}
     />
-  )
+  );
 }
 
 function FloatingControls({ headings, encrypted }: FloatingControlsProps) {
-  const context = useSidebarHeadings()
-  const effectiveHeadings = headings ?? context.headings
-  const effectiveEncrypted = encrypted ?? context.encrypted
+  const context = useSidebarHeadings();
+  const effectiveHeadings = headings ?? context.headings;
+  const effectiveEncrypted = encrypted ?? context.encrypted;
 
   return (
     <div className="floating-controls-container">
@@ -205,8 +209,8 @@ function FloatingControls({ headings, encrypted }: FloatingControlsProps) {
       <BackToHome />
       <BackToTop />
     </div>
-  )
+  );
 }
 
-export { FloatingControls, type FloatingControlsProps }
-export default FloatingControls
+export { FloatingControls, type FloatingControlsProps };
+export default FloatingControls;

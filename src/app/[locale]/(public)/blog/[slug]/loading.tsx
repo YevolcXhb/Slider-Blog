@@ -1,4 +1,4 @@
-import { GlassCard } from "@/components/ui/glass-card"
+import { GlassCard } from "@/components/ui/glass-card";
 
 export default function Loading() {
   return (
@@ -58,5 +58,5 @@ export default function Loading() {
         </div>
       </GlassCard>
     </article>
-  )
+  );
 }

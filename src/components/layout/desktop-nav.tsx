@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useTranslations } from "next-intl"
+import { useTranslations } from "next-intl";
 
-import { Link, usePathname } from "@/i18n/routing"
-import { cn } from "@/lib/utils"
-import type { NavLink } from "@/components/layout/mobile-menu"
+import { Link, usePathname } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
+import type { NavLink } from "@/components/layout/mobile-menu";
 
 interface DesktopNavProps {
-  navLinks: ReadonlyArray<NavLink>
+  navLinks: ReadonlyArray<NavLink>;
 }
 
 function DesktopNav({ navLinks }: DesktopNavProps) {
-  const t = useTranslations("Public")
-  const pathname = usePathname()
+  const t = useTranslations("Public");
+  const pathname = usePathname();
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/"
-    return pathname.startsWith(href)
-  }
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
     <nav className="hidden items-center gap-6 md:flex" aria-label="Main navigation">
@@ -28,17 +28,15 @@ function DesktopNav({ navLinks }: DesktopNavProps) {
           aria-current={isActive(link.href) ? "page" : undefined}
           className={cn(
             "text-sm font-medium transition-colors",
-            isActive(link.href)
-              ? "text-white"
-              : "text-white/60 hover:text-white/80",
+            isActive(link.href) ? "text-white" : "text-white/60 hover:text-white/80",
           )}
         >
           {t(link.label)}
         </Link>
       ))}
     </nav>
-  )
+  );
 }
 
-export { DesktopNav }
-export default DesktopNav
+export { DesktopNav };
+export default DesktopNav;

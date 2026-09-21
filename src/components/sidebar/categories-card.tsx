@@ -1,24 +1,24 @@
-import { FolderOpen, ChevronRight } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { FolderOpen, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { Link } from "@/i18n/routing"
+import { Link } from "@/i18n/routing";
 
 interface Category {
-  id: number
-  name: string
-  slug: string
-  _count?: { posts: number }
+  id: number;
+  name: string;
+  slug: string;
+  _count?: { posts: number };
 }
 
 interface CategoriesCardProps {
-  categories: Category[]
+  categories: Category[];
 }
 
 function CategoriesCard({ categories }: CategoriesCardProps) {
-  const t = useTranslations("Widgets")
+  const t = useTranslations("Widgets");
 
   if (categories.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -57,8 +57,8 @@ function CategoriesCard({ categories }: CategoriesCardProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export { CategoriesCard }
-export default CategoriesCard
+export { CategoriesCard };
+export default CategoriesCard;

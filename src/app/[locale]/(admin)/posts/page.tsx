@@ -76,11 +76,7 @@ export default async function PostsPage({ searchParams, params }: PostsPageProps
           return (
             <Link
               key={tab.value ?? "all"}
-              href={
-                tab.value
-                  ? `/posts?filter=${tab.value}`
-                  : "/posts"
-              }
+              href={tab.value ? `/posts?filter=${tab.value}` : "/posts"}
               className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-white/15 text-white"
@@ -100,36 +96,24 @@ export default async function PostsPage({ searchParams, params }: PostsPageProps
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-white/10 text-white/50">
-                  <th className="px-6 pb-3 pt-4 font-medium">
-                    {t("title_column")}
-                  </th>
-                  <th className="px-4 pb-3 pt-4 font-medium">
-                    {t("status_column")}
-                  </th>
-                  <th className="px-4 pb-3 pt-4 font-medium">
-                    {t("category_column")}
-                  </th>
-                  <th className="px-4 pb-3 pt-4 font-medium">
-                    {t("date_column")}
-                  </th>
-                  <th className="px-6 pb-3 pt-4 text-right font-medium">
-                    {t("actions_column")}
-                  </th>
+                  <th className="px-6 pt-4 pb-3 font-medium">{t("title_column")}</th>
+                  <th className="px-4 pt-4 pb-3 font-medium">{t("status_column")}</th>
+                  <th className="px-4 pt-4 pb-3 font-medium">{t("category_column")}</th>
+                  <th className="px-4 pt-4 pb-3 font-medium">{t("date_column")}</th>
+                  <th className="px-6 pt-4 pb-3 text-right font-medium">{t("actions_column")}</th>
                 </tr>
               </thead>
               <tbody>
                 {posts.map((post, index) => (
                   <tr
                     key={post.id.toString()}
-                    className={`border-b border-white/5 backdrop-blur-sm transition-colors hover:bg-white/5 last:border-0 ${
+                    className={`border-b border-white/5 backdrop-blur-sm transition-colors last:border-0 hover:bg-white/5 ${
                       index % 2 === 0 ? "bg-white/[0.02]" : ""
                     }`}
                   >
                     <td className="px-6 py-4">
                       <p className="font-medium text-white/90">{post.title}</p>
-                      <p className="mt-0.5 text-xs text-white/40">
-                        /{post.slug}
-                      </p>
+                      <p className="mt-0.5 text-xs text-white/40">/{post.slug}</p>
                     </td>
                     <td className="px-4 py-4">
                       <span
@@ -139,14 +123,10 @@ export default async function PostsPage({ searchParams, params }: PostsPageProps
                             : "bg-yellow-500/20 text-yellow-400"
                         }`}
                       >
-                        {post.status === 1
-                          ? t("published")
-                          : t("draft")}
+                        {post.status === 1 ? t("published") : t("draft")}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-white/50">
-                      {post.category?.name ?? "—"}
-                    </td>
+                    <td className="px-4 py-4 text-white/50">{post.category?.name ?? "—"}</td>
                     <td className="px-4 py-4 text-white/50">
                       {format.dateTime(new Date(post.created_at), {
                         year: "numeric",
@@ -197,9 +177,7 @@ export default async function PostsPage({ searchParams, params }: PostsPageProps
         ) : (
           <div className="flex flex-col items-center justify-center py-16">
             <p className="text-sm text-white/30">
-              {activeFilter !== null
-                ? t("no_posts_filtered")
-                : t("no_posts_empty")}
+              {activeFilter !== null ? t("no_posts_filtered") : t("no_posts_empty")}
             </p>
             {activeFilter === null && (
               <Link href="/posts/create" className="mt-4">

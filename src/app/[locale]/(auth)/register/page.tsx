@@ -2,11 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import RegisterForm from "./register-form";
 
-export default async function RegisterPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function RegisterPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
 
   // 数据库未配置或系统尚未初始化时，管理端入口应直接进入初始化向导

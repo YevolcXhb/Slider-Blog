@@ -235,9 +235,8 @@ export function __resetRateLimitersForTests(): void {
  */
 export function __getLimiterKeyCount(type: "api" | "comment" | "auth"): number {
   const limiter = getLimiters()[type];
-  const storage = (
-    limiter as unknown as { _memoryStorage?: { _storage?: Map<string, unknown> } }
-  )._memoryStorage?._storage;
+  const storage = (limiter as unknown as { _memoryStorage?: { _storage?: Map<string, unknown> } })
+    ._memoryStorage?._storage;
   return storage instanceof Map ? storage.size : -1;
 }
 

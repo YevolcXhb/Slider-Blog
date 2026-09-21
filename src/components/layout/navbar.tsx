@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useCallback, useState } from "react"
+import { useCallback, useState } from "react";
 
-import { DropdownMenu, type NavBarLink } from "@/components/layout/dropdown-menu"
-import { cn } from "@/lib/utils"
+import { DropdownMenu, type NavBarLink } from "@/components/layout/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface NavBarProps {
-  items: NavBarLink[]
-  className?: string
+  items: NavBarLink[];
+  className?: string;
 }
 
 /**
@@ -17,11 +17,11 @@ interface NavBarProps {
  * - 通过 currentOpenName 记录当前打开的 dropdown 名称（i18nKey），传递给所有子 dropdown
  */
 function NavBar({ items, className }: NavBarProps) {
-  const [currentOpenName, setCurrentOpenName] = useState<string | null>(null)
+  const [currentOpenName, setCurrentOpenName] = useState<string | null>(null);
 
   const handleOpen = useCallback((name: string) => {
-    setCurrentOpenName(name)
-  }, [])
+    setCurrentOpenName(name);
+  }, []);
 
   return (
     <div className={cn("flex items-center", className)}>
@@ -34,8 +34,8 @@ function NavBar({ items, className }: NavBarProps) {
         />
       ))}
     </div>
-  )
+  );
 }
 
-export { NavBar }
-export default NavBar
+export { NavBar };
+export default NavBar;

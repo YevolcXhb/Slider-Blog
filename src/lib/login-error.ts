@@ -43,7 +43,5 @@ const CREDENTIALS_ERROR = "CredentialsSignin";
  * @returns Login 命名空间下的键名，调用方负责 `t(...)` 翻译
  */
 export function loginErrorKey(error: string | undefined): string {
-  return error === CREDENTIALS_ERROR
-    ? "invalidCredentials"
-    : "signInMisconfigured";
+  return error === CREDENTIALS_ERROR ? "invalidCredentials" : "signInMisconfigured";
 }

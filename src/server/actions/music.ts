@@ -34,11 +34,7 @@ function validateMusicUrl(url: string): string {
 }
 
 // 图片/封面/歌词 URL 校验
-function validateOptionalUrl(
-  url: string,
-  field: string,
-  maxLength = 255,
-): string | undefined {
+function validateOptionalUrl(url: string, field: string, maxLength = 255): string | undefined {
   const trimmed = url.trim();
   if (!trimmed) return undefined;
   return validateSafeUrl(trimmed, field, { allowRelative: true, maxLength });
@@ -55,21 +51,11 @@ export async function createMusic(formData: FormData) {
   const artist = getStringFromFormData(formData, "artist").trim();
   if (!artist) throw new ValidationError("musicArtistRequired");
 
-  const album = validateOptionalUrl(
-    getStringFromFormData(formData, "album"),
-    "album",
-  );
-  const cover = validateOptionalUrl(
-    getStringFromFormData(formData, "cover"),
-    "cover",
-  );
+  const album = validateOptionalUrl(getStringFromFormData(formData, "album"), "album");
+  const cover = validateOptionalUrl(getStringFromFormData(formData, "cover"), "cover");
   const lrc = getStringFromFormData(formData, "lrc").trim();
   validateContentLength(lrc, "lrc", 50_000);
-  const sortOrder = parseFiniteInt(
-    getStringFromFormData(formData, "sort_order"),
-    0,
-    "sort_order",
-  );
+  const sortOrder = parseFiniteInt(getStringFromFormData(formData, "sort_order"), 0, "sort_order");
   const isPublished = formData.get("is_published") === "on" ? 1 : 0;
 
   await prisma.music.create({
@@ -106,21 +92,11 @@ export async function updateMusic(id: number, formData: FormData) {
   const artist = getStringFromFormData(formData, "artist").trim();
   if (!artist) throw new ValidationError("musicArtistRequired");
 
-  const album = validateOptionalUrl(
-    getStringFromFormData(formData, "album"),
-    "album",
-  );
-  const cover = validateOptionalUrl(
-    getStringFromFormData(formData, "cover"),
-    "cover",
-  );
+  const album = validateOptionalUrl(getStringFromFormData(formData, "album"), "album");
+  const cover = validateOptionalUrl(getStringFromFormData(formData, "cover"), "cover");
   const lrc = getStringFromFormData(formData, "lrc").trim();
   validateContentLength(lrc, "lrc", 50_000);
-  const sortOrder = parseFiniteInt(
-    getStringFromFormData(formData, "sort_order"),
-    0,
-    "sort_order",
-  );
+  const sortOrder = parseFiniteInt(getStringFromFormData(formData, "sort_order"), 0, "sort_order");
   const isPublished = formData.get("is_published") === "on" ? 1 : 0;
 
   await prisma.music.update({

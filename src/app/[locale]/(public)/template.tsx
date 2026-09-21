@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
 /**
  * template.tsx 在路由切换时会重新挂载（不同于 layout 缓存）。
@@ -6,5 +6,5 @@ import type { ReactNode } from "react"
  * 不再叠加 page-transition-enter 以免双动画冲突。
  */
 export default function Template({ children }: { children: ReactNode }) {
-  return <>{children}</>
+  return <>{children}</>;
 }

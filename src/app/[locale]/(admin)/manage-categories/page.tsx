@@ -2,11 +2,7 @@ import { requireAdmin } from "@/server/require-admin";
 import { prisma } from "@/lib/prisma";
 import CategoryManager from "./category-manager";
 
-export default async function CategoriesPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function CategoriesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   await requireAdmin(locale, "/manage-categories");
 
@@ -25,10 +21,5 @@ export default async function CategoriesPage({
       .then((ts) => ts.map((t) => ({ ...t, id: Number(t.id) }))),
   ]);
 
-  return (
-    <CategoryManager
-      initialCategories={categories}
-      initialTags={tags}
-    />
-  );
+  return <CategoryManager initialCategories={categories} initialTags={tags} />;
 }

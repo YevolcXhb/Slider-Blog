@@ -29,21 +29,10 @@ import {
   saveThemeSettings,
   saveMediaSettings,
 } from "@/server/actions/settings";
-import type {
-  SocialLinkItem,
-  NavExternalLinkItem,
-  SettingsPageData,
-} from "./page";
+import type { SocialLinkItem, NavExternalLinkItem, SettingsPageData } from "./page";
 import type { PostLayout } from "@/lib/theme-css";
 
-export const SETTINGS_TABS = [
-  "profile",
-  "social",
-  "nav",
-  "about",
-  "theme",
-  "media",
-] as const;
+export const SETTINGS_TABS = ["profile", "social", "nav", "about", "theme", "media"] as const;
 
 type TabId = (typeof SETTINGS_TABS)[number];
 
@@ -71,16 +60,10 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
   const [avatar, setAvatar] = useState(initialData.profile.profile_avatar);
   const [bio, setBio] = useState(initialData.profile.profile_bio);
   const [location, setLocation] = useState(initialData.profile.profile_location);
-  const [launchDate, setLaunchDate] = useState(
-    initialData.profile.site_launch_date,
-  );
+  const [launchDate, setLaunchDate] = useState(initialData.profile.site_launch_date);
   const [siteTitle, setSiteTitle] = useState(initialData.profile.site_title);
-  const [siteSubtitle, setSiteSubtitle] = useState(
-    initialData.profile.site_subtitle,
-  );
-  const [siteDescription, setSiteDescription] = useState(
-    initialData.profile.site_description,
-  );
+  const [siteSubtitle, setSiteSubtitle] = useState(initialData.profile.site_subtitle);
+  const [siteDescription, setSiteDescription] = useState(initialData.profile.site_description);
 
   // 社交链接
   const [socialLinks, setSocialLinks] = useState<SocialLinkItem[]>(
@@ -123,18 +106,14 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
 
   // 主题外观（管理面板统一控制客户端配色）
   const [hue, setHue] = useState(initialData.themeSettings.hue);
-  const [postLayout, setPostLayout] = useState<PostLayout>(
-    initialData.themeSettings.postLayout,
-  );
+  const [postLayout, setPostLayout] = useState<PostLayout>(initialData.themeSettings.postLayout);
   const [cardBorderShadow, setCardBorderShadow] = useState(
     initialData.themeSettings.cardBorderShadow,
   );
   const [cardThemeColored, setCardThemeColored] = useState(
     initialData.themeSettings.cardThemeColored,
   );
-  const [homepageVideoUrl, setHomepageVideoUrl] = useState(
-    initialData.homepageVideoUrl,
-  );
+  const [homepageVideoUrl, setHomepageVideoUrl] = useState(initialData.homepageVideoUrl);
 
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
 
@@ -246,17 +225,16 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
 
   // 社交链接操作
   const addSocialLink = () => {
-    setSocialLinks([
-      ...socialLinks,
-      { name: "", url: "", icon: "link", showName: false },
-    ]);
+    setSocialLinks([...socialLinks, { name: "", url: "", icon: "link", showName: false }]);
   };
 
-  const updateSocialLink = (index: number, field: keyof SocialLinkItem, value: string | boolean) => {
+  const updateSocialLink = (
+    index: number,
+    field: keyof SocialLinkItem,
+    value: string | boolean,
+  ) => {
     setSocialLinks(
-      socialLinks.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item,
-      ),
+      socialLinks.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   };
 
@@ -283,11 +261,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
     field: keyof NavExternalLinkItem,
     value: string | boolean,
   ) => {
-    setNavLinks(
-      navLinks.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item,
-      ),
-    );
+    setNavLinks(navLinks.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
   };
 
   const removeNavLink = (index: number) => {
@@ -308,17 +282,15 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
       <header className="flex flex-col gap-1">
         <div className="flex items-center gap-3">
           <Settings className="size-7 text-white/70" aria-hidden="true" />
-          <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">{t("title")}</h1>
+          <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">
+            {t("title")}
+          </h1>
         </div>
         <p className="text-sm text-white/50">{t("subtitle")}</p>
       </header>
 
       {/* Tab 切换 */}
-      <div
-        className="relative z-10 flex flex-wrap gap-2"
-        role="tablist"
-        aria-label={t("title")}
-      >
+      <div className="relative z-10 flex flex-wrap gap-2" role="tablist" aria-label={t("title")}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -359,9 +331,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
           <GlassCard className="space-y-5 p-6">
             <div className="flex items-center gap-2 border-b border-white/10 pb-3">
               <User className="size-5 text-white/60" aria-hidden="true" />
-              <h2 className="text-lg font-semibold text-white/80">
-                {t("profileSection")}
-              </h2>
+              <h2 className="text-lg font-semibold text-white/80">{t("profileSection")}</h2>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
@@ -427,9 +397,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
           <GlassCard className="space-y-5 p-6">
             <div className="flex items-center gap-2 border-b border-white/10 pb-3">
               <Globe className="size-5 text-white/60" aria-hidden="true" />
-              <h2 className="text-lg font-semibold text-white/80">
-                {t("siteInfoSection")}
-              </h2>
+              <h2 className="text-lg font-semibold text-white/80">{t("siteInfoSection")}</h2>
             </div>
 
             <div className="grid gap-5">
@@ -445,9 +413,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                   placeholder={t("siteTitlePlaceholder")}
                   className={inputClass}
                 />
-                <p className="mt-1.5 text-xs text-white/40">
-                  {t("siteTitleHint")}
-                </p>
+                <p className="mt-1.5 text-xs text-white/40">{t("siteTitleHint")}</p>
               </div>
 
               <div>
@@ -491,9 +457,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                   onChange={(e) => setLaunchDate(e.target.value)}
                   className={inputClass}
                 />
-                <p className="mt-1.5 text-xs text-white/40">
-                  {t("siteLaunchDateHint")}
-                </p>
+                <p className="mt-1.5 text-xs text-white/40">{t("siteLaunchDateHint")}</p>
               </div>
             </div>
           </GlassCard>
@@ -515,16 +479,9 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <LinkIcon className="size-5 text-white/60" aria-hidden="true" />
-                <h2 className="text-lg font-semibold text-white/80">
-                  {t("socialLinksSection")}
-                </h2>
+                <h2 className="text-lg font-semibold text-white/80">{t("socialLinksSection")}</h2>
               </div>
-              <GlassButton
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={addSocialLink}
-              >
+              <GlassButton type="button" variant="secondary" size="sm" onClick={addSocialLink}>
                 <Plus className="size-4" />
                 {t("addLink")}
               </GlassButton>
@@ -534,9 +491,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
 
             <div className="space-y-4">
               {socialLinks.length === 0 ? (
-                <p className="py-6 text-center text-sm text-white/30">
-                  {t("noLinks")}
-                </p>
+                <p className="py-6 text-center text-sm text-white/30">{t("noLinks")}</p>
               ) : (
                 socialLinks.map((link, index) => (
                   <div
@@ -544,14 +499,10 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                     className="grid gap-3 rounded-xl border border-white/10 p-4 md:grid-cols-[1fr_1.5fr_0.8fr_auto_auto]"
                   >
                     <div>
-                      <label className={labelClass}>
-                        {t("linkName")}
-                      </label>
+                      <label className={labelClass}>{t("linkName")}</label>
                       <input
                         value={link.name}
-                        onChange={(e) =>
-                          updateSocialLink(index, "name", e.target.value)
-                        }
+                        onChange={(e) => updateSocialLink(index, "name", e.target.value)}
                         placeholder="GitHub"
                         className={inputClass}
                       />
@@ -560,9 +511,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                       <label className={labelClass}>{t("linkUrl")}</label>
                       <input
                         value={link.url}
-                        onChange={(e) =>
-                          updateSocialLink(index, "url", e.target.value)
-                        }
+                        onChange={(e) => updateSocialLink(index, "url", e.target.value)}
                         placeholder="https://github.com/username"
                         className={inputClass}
                       />
@@ -571,9 +520,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                       <label className={labelClass}>{t("linkIcon")}</label>
                       <input
                         value={link.icon}
-                        onChange={(e) =>
-                          updateSocialLink(index, "icon", e.target.value)
-                        }
+                        onChange={(e) => updateSocialLink(index, "icon", e.target.value)}
                         placeholder="github / mail / link"
                         className={inputClass}
                       />
@@ -583,13 +530,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                         <input
                           type="checkbox"
                           checked={link.showName}
-                          onChange={(e) =>
-                            updateSocialLink(
-                              index,
-                              "showName",
-                              e.target.checked,
-                            )
-                          }
+                          onChange={(e) => updateSocialLink(index, "showName", e.target.checked)}
                           className="size-4 rounded border-white/20 bg-white/5"
                         />
                         {t("showName")}
@@ -627,20 +568,10 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
           <GlassCard className="space-y-5 p-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <Navigation
-                  className="size-5 text-white/60"
-                  aria-hidden="true"
-                />
-                <h2 className="text-lg font-semibold text-white/80">
-                  {t("navLinksSection")}
-                </h2>
+                <Navigation className="size-5 text-white/60" aria-hidden="true" />
+                <h2 className="text-lg font-semibold text-white/80">{t("navLinksSection")}</h2>
               </div>
-              <GlassButton
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={addNavLink}
-              >
+              <GlassButton type="button" variant="secondary" size="sm" onClick={addNavLink}>
                 <Plus className="size-4" />
                 {t("addLink")}
               </GlassButton>
@@ -650,9 +581,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
 
             <div className="space-y-4">
               {navLinks.length === 0 ? (
-                <p className="py-6 text-center text-sm text-white/30">
-                  {t("noLinks")}
-                </p>
+                <p className="py-6 text-center text-sm text-white/30">{t("noLinks")}</p>
               ) : (
                 navLinks.map((link, index) => (
                   <div
@@ -663,9 +592,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                       <label className={labelClass}>{t("linkName")}</label>
                       <input
                         value={link.name}
-                        onChange={(e) =>
-                          updateNavLink(index, "name", e.target.value)
-                        }
+                        onChange={(e) => updateNavLink(index, "name", e.target.value)}
                         placeholder="GitHub / Slider云盘"
                         className={inputClass}
                       />
@@ -674,9 +601,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                       <label className={labelClass}>{t("navI18nKey")}</label>
                       <input
                         value={link.i18nKey}
-                        onChange={(e) =>
-                          updateNavLink(index, "i18nKey", e.target.value)
-                        }
+                        onChange={(e) => updateNavLink(index, "i18nKey", e.target.value)}
                         placeholder="github / cloudDrive（可空）"
                         className={inputClass}
                       />
@@ -685,9 +610,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                       <label className={labelClass}>{t("linkUrl")}</label>
                       <input
                         value={link.url}
-                        onChange={(e) =>
-                          updateNavLink(index, "url", e.target.value)
-                        }
+                        onChange={(e) => updateNavLink(index, "url", e.target.value)}
                         placeholder="https://..."
                         className={inputClass}
                       />
@@ -697,13 +620,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                         <input
                           type="checkbox"
                           checked={link.external}
-                          onChange={(e) =>
-                            updateNavLink(
-                              index,
-                              "external",
-                              e.target.checked,
-                            )
-                          }
+                          onChange={(e) => updateNavLink(index, "external", e.target.checked)}
                           className="size-4 rounded border-white/20 bg-white/5"
                         />
                         {t("external")}
@@ -726,8 +643,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
 
             <div className="rounded-xl bg-white/5 p-3 text-xs text-white/40">
               <p>
-                <strong className="text-white/60">{t("iconHintLabel")}:</strong>{" "}
-                {t("navIconHint")}
+                <strong className="text-white/60">{t("iconHintLabel")}:</strong> {t("navIconHint")}
               </p>
             </div>
           </GlassCard>
@@ -748,9 +664,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
           <GlassCard className="space-y-5 p-6">
             <div className="flex items-center gap-2 border-b border-white/10 pb-3">
               <Info className="size-5 text-white/60" aria-hidden="true" />
-              <h2 className="text-lg font-semibold text-white/80">
-                {t("aboutSection")}
-              </h2>
+              <h2 className="text-lg font-semibold text-white/80">{t("aboutSection")}</h2>
             </div>
 
             <div>
@@ -766,9 +680,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                 rows={16}
                 className={`${textareaClass} font-mono`}
               />
-              <p className="mt-1.5 text-xs text-white/40">
-                {t("aboutContentHint")}
-              </p>
+              <p className="mt-1.5 text-xs text-white/40">{t("aboutContentHint")}</p>
             </div>
           </GlassCard>
 
@@ -788,9 +700,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
           <GlassCard className="space-y-6 p-6">
             <div className="flex items-center gap-2 border-b border-white/10 pb-3">
               <Palette className="size-5 text-white/60" aria-hidden="true" />
-              <h2 className="text-lg font-semibold text-white/80">
-                {t("themeSection")}
-              </h2>
+              <h2 className="text-lg font-semibold text-white/80">{t("themeSection")}</h2>
             </div>
 
             <p className="text-sm text-white/50">{t("themeHint")}</p>
@@ -798,9 +708,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
             {/* 主题色相 */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-white/80">
-                  {t("themeHue")}
-                </label>
+                <label className="text-sm font-medium text-white/80">{t("themeHue")}</label>
                 <div className="flex items-center gap-3">
                   <span
                     className="inline-block size-6 rounded-full ring-1 ring-white/20"
@@ -809,9 +717,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                     }}
                     aria-hidden="true"
                   />
-                  <span className="font-mono text-sm text-white/60">
-                    {hue}
-                  </span>
+                  <span className="font-mono text-sm text-white/60">{hue}</span>
                 </div>
               </div>
               <input
@@ -828,9 +734,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
 
             {/* 文章布局 */}
             <div className="space-y-3">
-              <label className="text-sm font-medium text-white/80">
-                {t("themePostLayout")}
-              </label>
+              <label className="text-sm font-medium text-white/80">{t("themePostLayout")}</label>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -838,7 +742,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                   aria-pressed={postLayout === "list"}
                   className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                     postLayout === "list"
-                      ? "bg-brand-frost/20 text-white ring-1 ring-brand-frost/40"
+                      ? "bg-brand-frost/20 ring-brand-frost/40 text-white ring-1"
                       : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70"
                   }`}
                 >
@@ -851,7 +755,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
                   aria-pressed={postLayout === "grid"}
                   className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                     postLayout === "grid"
-                      ? "bg-brand-frost/20 text-white ring-1 ring-brand-frost/40"
+                      ? "bg-brand-frost/20 ring-brand-frost/40 text-white ring-1"
                       : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70"
                   }`}
                 >
@@ -865,12 +769,8 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
             <div className="grid gap-3 md:grid-cols-2">
               <div className="flex items-center justify-between rounded-xl bg-white/5 p-3">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium text-white/80">
-                    {t("themeCardBorderShadow")}
-                  </p>
-                  <p className="text-xs text-white/40">
-                    {t("themeCardBorderShadowHint")}
-                  </p>
+                  <p className="text-sm font-medium text-white/80">{t("themeCardBorderShadow")}</p>
+                  <p className="text-xs text-white/40">{t("themeCardBorderShadowHint")}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -882,12 +782,8 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
               </div>
               <div className="flex items-center justify-between rounded-xl bg-white/5 p-3">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium text-white/80">
-                    {t("themeCardThemeColored")}
-                  </p>
-                  <p className="text-xs text-white/40">
-                    {t("themeCardThemeColoredHint")}
-                  </p>
+                  <p className="text-sm font-medium text-white/80">{t("themeCardThemeColored")}</p>
+                  <p className="text-xs text-white/40">{t("themeCardThemeColoredHint")}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -916,9 +812,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
           <GlassCard className="space-y-5 p-6">
             <div className="flex items-center gap-2 border-b border-white/10 pb-3">
               <Video className="size-5 text-white/60" aria-hidden="true" />
-              <h2 className="text-lg font-semibold text-white/80">
-                {t("mediaSection")}
-              </h2>
+              <h2 className="text-lg font-semibold text-white/80">{t("mediaSection")}</h2>
             </div>
 
             <div className="space-y-2">
@@ -936,9 +830,7 @@ export default function SettingsManager({ initialData }: SettingsManagerProps) {
               <p className="text-xs text-white/40">{t("homepageVideoHint")}</p>
             </div>
 
-            <p className="text-xs text-white/40">
-              {t("musicManageHint")}
-            </p>
+            <p className="text-xs text-white/40">{t("musicManageHint")}</p>
           </GlassCard>
 
           <SaveButton isPending={isPending} status={status} />
@@ -974,9 +866,7 @@ function SaveButton({ isPending, status }: SaveButtonProps) {
           {t("saved")}
         </span>
       )}
-      {status === "error" && (
-        <span className="text-sm text-red-400">{t("saveFailed")}</span>
-      )}
+      {status === "error" && <span className="text-sm text-red-400">{t("saveFailed")}</span>}
     </div>
   );
 }

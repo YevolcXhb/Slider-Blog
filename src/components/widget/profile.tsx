@@ -67,9 +67,7 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
     );
 
     if (isMail) {
-      const encodedEmail = encodeEmailForProfile(
-        item.url.replace("mailto:", ""),
-      );
+      const encodedEmail = encodeEmailForProfile(item.url.replace("mailto:", ""));
       return (
         <a
           key={item.name}
@@ -120,10 +118,10 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
       <Link
         href="/about"
         aria-label="Go to About Page"
-        className="group block relative mx-auto mt-1 lg:mx-0 lg:mt-0 mb-3 max-w-48 lg:max-w-none overflow-hidden rounded-xl active:scale-95"
+        className="group relative mx-auto mt-1 mb-3 block max-w-48 overflow-hidden rounded-xl active:scale-95 lg:mx-0 lg:mt-0 lg:max-w-none"
       >
-        <div className="absolute transition pointer-events-none group-hover:bg-black/30 group-active:bg-black/50 w-full h-full z-10 flex items-center justify-center">
-          <IdCard className="transition opacity-0 scale-90 group-hover:scale-100 group-hover:opacity-100 text-white text-5xl" />
+        <div className="pointer-events-none absolute z-10 flex h-full w-full items-center justify-center transition group-hover:bg-black/30 group-active:bg-black/50">
+          <IdCard className="scale-90 text-5xl text-white opacity-0 transition group-hover:scale-100 group-hover:opacity-100" />
         </div>
         {displayProfile.avatar ? (
           <Image
@@ -131,11 +129,11 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
             alt={`Profile Image of ${displayProfile.name}`}
             width={350}
             height={350}
-            className="profile-avatar-image mx-auto lg:w-full h-full lg:mt-0 object-cover aspect-square"
+            className="profile-avatar-image mx-auto aspect-square h-full object-cover lg:mt-0 lg:w-full"
             priority
           />
         ) : (
-          <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-pink-400 to-frost-400">
+          <div className="to-frost-400 flex aspect-square items-center justify-center bg-gradient-to-br from-pink-400">
             {/* 保留白字：头像占位块是 from-pink-400 to-frost-400 饱和渐变，white/80 在两种主题下都清晰 */}
             <User className="size-20 text-white/80" />
           </div>
@@ -143,20 +141,14 @@ function ProfileWidget({ profile, className, style }: ProfileWidgetProps) {
       </Link>
 
       <div className="px-2">
-        <div className="font-bold text-xl text-center mb-1 dark:text-neutral-50 transition">
+        <div className="mb-1 text-center text-xl font-bold transition dark:text-neutral-50">
           {displayProfile.name}
         </div>
-        <div className="h-1 w-5 bg-[var(--primary)] mx-auto rounded-full mb-2 transition" />
-        <div className="text-center text-neutral-400 mb-2.5 transition">
-          {displayProfile.bio}
-        </div>
+        <div className="mx-auto mb-2 h-1 w-5 rounded-full bg-[var(--primary)] transition" />
+        <div className="mb-2.5 text-center text-neutral-400 transition">{displayProfile.bio}</div>
 
-        <div className="flex flex-wrap gap-2 justify-center mb-1">
-          {hasMultipleLinks
-            ? links.map(renderLink)
-            : singleLink
-              ? renderLink(singleLink)
-              : null}
+        <div className="mb-1 flex flex-wrap justify-center gap-2">
+          {hasMultipleLinks ? links.map(renderLink) : singleLink ? renderLink(singleLink) : null}
         </div>
       </div>
     </div>

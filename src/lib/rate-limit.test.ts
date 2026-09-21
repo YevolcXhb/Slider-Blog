@@ -14,7 +14,10 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { __getLimiterKeyCount as KeyCountFn, rateLimit as RateLimitFn } from "@/lib/rate-limit";
+import type {
+  __getLimiterKeyCount as KeyCountFn,
+  rateLimit as RateLimitFn,
+} from "@/lib/rate-limit";
 
 const CONTRACT_POINTS = { api: 10, comment: 1, auth: 5 } as const;
 
@@ -222,9 +225,7 @@ describe("rateLimit", () => {
     for (let i = 0; i < 10; i++) {
       await expect(mod.rateLimit(key, "api")).resolves.toBeUndefined();
     }
-    await expect(mod.rateLimit(key, "api")).rejects.toThrow(
-      "Rate limit exceeded",
-    );
+    await expect(mod.rateLimit(key, "api")).rejects.toThrow("Rate limit exceeded");
 
     delete process.env.RATE_LIMIT_MAX_KEYS;
   }, 30000);

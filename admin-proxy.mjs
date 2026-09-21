@@ -41,7 +41,7 @@ if (!ADMIN_PROXY_SECRET) {
   console.error(
     "[admin-proxy] 缺少 ADMIN_PROXY_SECRET 环境变量，无法启动。\n" +
       "请在 .env 中配置 ADMIN_PROXY_SECRET（与 Next.js 侧一致），例如：\n" +
-      "ADMIN_PROXY_SECRET=\"$(openssl rand -base64 32)\"",
+      'ADMIN_PROXY_SECRET="$(openssl rand -base64 32)"',
   );
   process.exit(1);
 }

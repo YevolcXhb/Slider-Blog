@@ -20,11 +20,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { GlassInput } from "@/components/ui/glass-input";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageBackground } from "@/components/ui/page-background";
-import {
-  setupCreateAdmin,
-  setupSaveSiteInfo,
-  configureDatabase,
-} from "@/server/actions/setup";
+import { setupCreateAdmin, setupSaveSiteInfo, configureDatabase } from "@/server/actions/setup";
 import { getActionErrorMessage } from "@/lib/action-error";
 
 type DbState = "checking" | "connected" | "disconnected";
@@ -63,9 +59,7 @@ export function SetupManager() {
   const [siteTitle, setSiteTitle] = useState("");
   const [siteSubtitle, setSiteSubtitle] = useState("");
   const [siteDescription, setSiteDescription] = useState("");
-  const [siteLaunchDate, setSiteLaunchDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [siteLaunchDate, setSiteLaunchDate] = useState(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
     let cancelled = false;
@@ -142,11 +136,7 @@ export function SetupManager() {
             schemaFailed: t("dbSchemaFailed"),
           };
           const base = messages[result.error] ?? t("unexpectedError");
-          setError(
-            result.detail
-              ? `${base}（${result.detail.slice(0, 200)}）`
-              : base,
-          );
+          setError(result.detail ? `${base}（${result.detail.slice(0, 200)}）` : base);
           return;
         }
 
@@ -260,9 +250,9 @@ export function SetupManager() {
             aria-hidden="true"
           >
             {dbState === "connected" ? (
-              <Wand2 className="size-6 text-brand-pink" />
+              <Wand2 className="text-brand-pink size-6" />
             ) : (
-              <Database className="size-6 text-brand-pink" />
+              <Database className="text-brand-pink size-6" />
             )}
           </div>
           <h1 className="text-2xl font-bold text-white/90">{t("title")}</h1>
@@ -408,9 +398,7 @@ export function SetupManager() {
                 const isDone = step > s.id;
                 return (
                   <li key={s.id} className="flex items-center gap-2">
-                    {idx > 0 && (
-                      <span className="h-px w-6 bg-white/20" aria-hidden="true" />
-                    )}
+                    {idx > 0 && <span className="h-px w-6 bg-white/20" aria-hidden="true" />}
                     <span
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
                         isActive

@@ -1,64 +1,64 @@
-"use client"
+"use client";
 
-import { useState, useCallback } from "react"
-import { signIn } from "next-auth/react"
-import { useTranslations } from "next-intl"
-import { useRouter } from "@/i18n/routing"
-import { UserPlus, Loader2, AlertCircle } from "lucide-react"
+import { useState, useCallback } from "react";
+import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { UserPlus, Loader2, AlertCircle } from "lucide-react";
 
-import { GlassCard } from "@/components/ui/glass-card"
-import { GlassInput } from "@/components/ui/glass-input"
-import { GlassButton } from "@/components/ui/glass-button"
-import { PageBackground } from "@/components/ui/page-background"
-import { registerUser } from "@/server/actions/register"
-import { getActionErrorMessage } from "@/lib/action-error"
-import { Link } from "@/i18n/routing"
+import { GlassCard } from "@/components/ui/glass-card";
+import { GlassInput } from "@/components/ui/glass-input";
+import { GlassButton } from "@/components/ui/glass-button";
+import { PageBackground } from "@/components/ui/page-background";
+import { registerUser } from "@/server/actions/register";
+import { getActionErrorMessage } from "@/lib/action-error";
+import { Link } from "@/i18n/routing";
 
 export default function RegisterForm() {
-  const t = useTranslations("Register")
-  const tErr = useTranslations("AdminErrors")
-  const router = useRouter()
+  const t = useTranslations("Register");
+  const tErr = useTranslations("AdminErrors");
+  const router = useRouter();
 
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      setError("")
+      e.preventDefault();
+      setError("");
 
       if (password !== confirmPassword) {
-        setError(t("passwordMismatch"))
-        return
+        setError(t("passwordMismatch"));
+        return;
       }
 
-      setIsLoading(true)
+      setIsLoading(true);
 
       try {
-        const formData = new FormData()
-        formData.set("username", username)
-        formData.set("email", email)
-        formData.set("password", password)
+        const formData = new FormData();
+        formData.set("username", username);
+        formData.set("email", email);
+        formData.set("password", password);
 
-        await registerUser(formData)
+        await registerUser(formData);
 
         // 注册成功后自动登录
         const result = await signIn("credentials", {
           email,
           password,
           redirect: false,
-        })
+        });
 
         if (result?.error) {
           // 注册成功但自动登录失败，跳转到登录页
-          router.push("/login")
+          router.push("/login");
         } else {
-          router.push("/dashboard")
-          router.refresh()
+          router.push("/dashboard");
+          router.refresh();
         }
       } catch (err) {
         setError(
@@ -67,13 +67,13 @@ export default function RegisterForm() {
             err instanceof Error ? err.message : undefined,
             t("unexpectedError"),
           ),
-        )
+        );
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
     [username, email, password, confirmPassword, router, t, tErr],
-  )
+  );
 
   return (
     <div className="relative flex min-h-screen items-center justify-center">
@@ -81,12 +81,15 @@ export default function RegisterForm() {
 
       <GlassCard className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md" aria-hidden="true">
+          <div
+            className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md"
+            aria-hidden="true"
+          >
             <UserPlus className="size-6 text-white/70" />
           </div>
           <h1 className="text-2xl font-bold text-white/90">{t("title")}</h1>
           <p className="mt-1 text-sm text-white/50">{t("description")}</p>
-          <p className="mt-2 inline-block rounded-full bg-brand-pink/10 px-3 py-1 text-xs text-brand-pink">
+          <p className="bg-brand-pink/10 text-brand-pink mt-2 inline-block rounded-full px-3 py-1 text-xs">
             {t("firstUserHint")}
           </p>
         </div>
@@ -190,11 +193,14 @@ export default function RegisterForm() {
 
         <p className="mt-6 text-center text-sm text-white/50">
           {t("alreadyHaveAccount")}{" "}
-          <Link href="/login" className="font-medium text-white/80 transition-colors hover:text-white">
+          <Link
+            href="/login"
+            className="font-medium text-white/80 transition-colors hover:text-white"
+          >
             {t("signIn")}
           </Link>
         </p>
       </GlassCard>
     </div>
-  )
+  );
 }

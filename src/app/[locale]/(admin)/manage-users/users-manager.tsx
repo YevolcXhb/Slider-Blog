@@ -6,7 +6,13 @@ import { useFormatter } from "next-intl";
 import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Shield, ShieldCheck, Trash2, Users, UserCog, Pencil, Key, Plus } from "lucide-react";
-import { updateUserRole, deleteUser, updateUserPassword, updateUserProfile, createUserByAdmin } from "@/server/actions/register";
+import {
+  updateUserRole,
+  deleteUser,
+  updateUserPassword,
+  updateUserProfile,
+  createUserByAdmin,
+} from "@/server/actions/register";
 import { getActionErrorMessage } from "@/lib/action-error";
 import { UserRole } from "@/types/user";
 
@@ -26,13 +32,7 @@ interface UsersManagerProps {
 
 // ==================== Modal Overlay ====================
 
-function ModalOverlay({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
+function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
@@ -40,12 +40,9 @@ function ModalOverlay({
       aria-modal="true"
     >
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       {/* Panel */}
-      <div className="relative w-full max-w-md mx-4">
+      <div className="relative mx-4 w-full max-w-md">
         <div className="rounded-2xl border border-white/10 bg-gray-900/95 p-6 shadow-2xl backdrop-blur-xl">
           {children}
         </div>
@@ -88,7 +85,11 @@ function EditUserModal({
       onClose();
     } catch (err) {
       setError(
-        getActionErrorMessage(tErr, err instanceof Error ? err.message : undefined, t("operationFailed")),
+        getActionErrorMessage(
+          tErr,
+          err instanceof Error ? err.message : undefined,
+          t("operationFailed"),
+        ),
       );
     } finally {
       setBusy(false);
@@ -122,7 +123,7 @@ function EditUserModal({
             required
             minLength={2}
             maxLength={50}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           />
         </div>
 
@@ -136,12 +137,18 @@ function EditUserModal({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           />
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <GlassButton type="button" variant="secondary" size="sm" onClick={onClose} disabled={busy}>
+          <GlassButton
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={busy}
+          >
             {t("cancel")}
           </GlassButton>
           <GlassButton type="submit" variant="brand" size="sm" disabled={busy}>
@@ -186,7 +193,11 @@ function ResetPasswordModal({
       onClose();
     } catch (err) {
       setError(
-        getActionErrorMessage(tErr, err instanceof Error ? err.message : undefined, t("operationFailed")),
+        getActionErrorMessage(
+          tErr,
+          err instanceof Error ? err.message : undefined,
+          t("operationFailed"),
+        ),
       );
     } finally {
       setBusy(false);
@@ -222,7 +233,7 @@ function ResetPasswordModal({
             required
             minLength={8}
             placeholder={t("newPasswordPlaceholder")}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           />
         </div>
 
@@ -238,12 +249,18 @@ function ResetPasswordModal({
             required
             minLength={8}
             placeholder={t("confirmPassword")}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           />
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <GlassButton type="button" variant="secondary" size="sm" onClick={onClose} disabled={busy}>
+          <GlassButton
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={busy}
+          >
             {t("cancel")}
           </GlassButton>
           <GlassButton type="submit" variant="brand" size="sm" disabled={busy}>
@@ -289,7 +306,11 @@ function CreateUserModal({
       onClose();
     } catch (err) {
       setError(
-        getActionErrorMessage(tErr, err instanceof Error ? err.message : undefined, t("operationFailed")),
+        getActionErrorMessage(
+          tErr,
+          err instanceof Error ? err.message : undefined,
+          t("operationFailed"),
+        ),
       );
     } finally {
       setBusy(false);
@@ -323,7 +344,7 @@ function CreateUserModal({
             required
             minLength={2}
             maxLength={50}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           />
         </div>
 
@@ -337,7 +358,7 @@ function CreateUserModal({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           />
         </div>
 
@@ -352,7 +373,7 @@ function CreateUserModal({
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none placeholder:text-white/30 focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           />
         </div>
 
@@ -364,7 +385,7 @@ function CreateUserModal({
             id="create-role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 outline-none transition-colors focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 transition-colors outline-none focus:border-pink-400/50 focus:ring-1 focus:ring-pink-400/30"
           >
             <option value={UserRole.USER}>{t("roleUser")}</option>
             <option value={UserRole.ADMIN}>{t("roleAdmin")}</option>
@@ -372,7 +393,13 @@ function CreateUserModal({
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <GlassButton type="button" variant="secondary" size="sm" onClick={onClose} disabled={busy}>
+          <GlassButton
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={busy}
+          >
             {t("cancel")}
           </GlassButton>
           <GlassButton type="submit" variant="brand" size="sm" disabled={busy}>
@@ -417,17 +444,14 @@ export default function UsersManager({
         setError(t("cannotDemoteSelf"));
         return;
       }
-      const confirmKey =
-        nextRole === UserRole.ADMIN ? "confirmSetAdmin" : "confirmSetUser";
+      const confirmKey = nextRole === UserRole.ADMIN ? "confirmSetAdmin" : "confirmSetUser";
       if (!window.confirm(t(confirmKey))) return;
 
       setBusyId(id);
       setError(null);
       try {
         await updateUserRole(Number(id), nextRole);
-        setUsers((prev) =>
-          prev.map((u) => (u.id === id ? { ...u, role: nextRole } : u)),
-        );
+        setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role: nextRole } : u)));
         setAdminCount((prev) => {
           const target = users.find((u) => u.id === id);
           const wasAdmin = target?.role === UserRole.ADMIN;
@@ -487,7 +511,9 @@ export default function UsersManager({
       <header className="flex flex-col gap-1">
         <div className="flex items-center gap-3">
           <UserCog className="size-7 text-white/70" aria-hidden="true" />
-          <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">{t("title")}</h1>
+          <h1 className="admin-page-title text-3xl font-bold text-white/90 md:text-4xl">
+            {t("title")}
+          </h1>
         </div>
         <p className="text-sm text-white/50">{t("subtitle")}</p>
       </header>
@@ -498,20 +524,14 @@ export default function UsersManager({
           <GlassCard className="p-4">
             <div className="flex items-center gap-2 text-white/60">
               <Users className="size-4" aria-hidden="true" />
-              <span className="text-xs uppercase tracking-wide">
-                {t("totalUsers")}
-              </span>
+              <span className="text-xs tracking-wide uppercase">{t("totalUsers")}</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-white/90">
-              {users.length}
-            </p>
+            <p className="mt-2 text-2xl font-bold text-white/90">{users.length}</p>
           </GlassCard>
           <GlassCard className="p-4">
             <div className="flex items-center gap-2 text-white/60">
               <ShieldCheck className="size-4" aria-hidden="true" />
-              <span className="text-xs uppercase tracking-wide">
-                {t("adminCount")}
-              </span>
+              <span className="text-xs tracking-wide uppercase">{t("adminCount")}</span>
             </div>
             <p className="mt-2 text-2xl font-bold text-white/90">{adminCount}</p>
           </GlassCard>
@@ -552,24 +572,19 @@ export default function UsersManager({
       <GlassCard className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 bg-white/5 text-xs uppercase tracking-wide text-white/50">
+            <thead className="border-b border-white/10 bg-white/5 text-xs tracking-wide text-white/50 uppercase">
               <tr>
                 <th className="px-4 py-3 font-medium">{t("username")}</th>
                 <th className="px-4 py-3 font-medium">{t("email")}</th>
                 <th className="px-4 py-3 font-medium">{t("role")}</th>
                 <th className="px-4 py-3 font-medium">{t("createdAt")}</th>
-                <th className="px-4 py-3 text-right font-medium">
-                  {t("actions")}
-                </th>
+                <th className="px-4 py-3 text-right font-medium">{t("actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {users.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-10 text-center text-white/40"
-                  >
+                  <td colSpan={5} className="px-4 py-10 text-center text-white/40">
                     {t("noUsers")}
                   </td>
                 </tr>
@@ -579,17 +594,10 @@ export default function UsersManager({
                   const isSelf = u.id === currentUserId;
                   const isBusy = busyId === u.id;
                   return (
-                    <tr
-                      key={u.id}
-                      className="text-white/80 transition-colors hover:bg-white/5"
-                    >
+                    <tr key={u.id} className="text-white/80 transition-colors hover:bg-white/5">
                       <td className="px-4 py-3 font-medium">
                         {u.username || "—"}
-                        {isSelf && (
-                          <span className="ml-2 text-xs text-white/40">
-                            {t("you")}
-                          </span>
-                        )}
+                        {isSelf && <span className="ml-2 text-xs text-white/40">{t("you")}</span>}
                       </td>
                       <td className="px-4 py-3 text-white/60">{u.email}</td>
                       <td className="px-4 py-3">
@@ -645,9 +653,7 @@ export default function UsersManager({
                               variant="secondary"
                               size="sm"
                               disabled={isBusy || isSelf}
-                              onClick={() =>
-                                handleRoleChange(u.id, UserRole.USER)
-                              }
+                              onClick={() => handleRoleChange(u.id, UserRole.USER)}
                             >
                               {t("setUser")}
                             </GlassButton>
@@ -657,9 +663,7 @@ export default function UsersManager({
                               variant="brand"
                               size="sm"
                               disabled={isBusy}
-                              onClick={() =>
-                                handleRoleChange(u.id, UserRole.ADMIN)
-                              }
+                              onClick={() => handleRoleChange(u.id, UserRole.ADMIN)}
                             >
                               {t("setAdmin")}
                             </GlassButton>

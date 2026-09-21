@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
 /**
  * 后台路由的 template：
@@ -13,5 +13,5 @@ import type { ReactNode } from "react"
  * 3. transition-main 类配合 html.is-animating 实现淡入淡出
  */
 export default function AdminTemplate({ children }: { children: ReactNode }) {
-  return <div className="transition-main">{children}</div>
+  return <div className="transition-main">{children}</div>;
 }

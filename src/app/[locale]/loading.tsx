@@ -7,7 +7,7 @@ export default function Loading() {
           role="status"
           aria-label="Loading"
         />
-        <p className="text-sm text-30">Loading…</p>
+        <p className="text-30 text-sm">Loading…</p>
       </div>
     </div>
   );

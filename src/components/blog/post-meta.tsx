@@ -30,17 +30,13 @@ function formatYMD(date: Date | string | number): string {
   return `${year}-${month}-${day}`;
 }
 
-function getCategorySlug(
-  category: string | Pick<Category, "slug"> | null | undefined,
-): string {
+function getCategorySlug(category: string | Pick<Category, "slug"> | null | undefined): string {
   if (!category) return "";
   if (typeof category === "string") return category;
   return category.slug;
 }
 
-function getCategoryName(
-  category: string | Pick<Category, "name"> | null | undefined,
-): string {
+function getCategoryName(category: string | Pick<Category, "name"> | null | undefined): string {
   if (!category) return "";
   if (typeof category === "string") return category;
   return category.name;
@@ -129,10 +125,7 @@ function PostMeta({
 
   return (
     <div
-      className={cn(
-        "post-meta-root flex flex-wrap items-center gap-4 gap-x-4 gap-y-2",
-        className,
-      )}
+      className={cn("post-meta-root flex flex-wrap items-center gap-4 gap-x-4 gap-y-2", className)}
     >
       {pinned && (
         <div className="pinned-btn flex items-center gap-1 rounded-md bg-(--btn-regular-bg) px-2 py-1.5 font-bold text-(--btn-content)">
@@ -146,16 +139,12 @@ function PostMeta({
           <div
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
-              isCover
-                ? "bg-white/10 text-90"
-                : "bg-(--btn-regular-bg) text-(--btn-content)",
+              isCover ? "text-90 bg-white/10" : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
             <CalendarDays className="size-5" />
           </div>
-          <span className={cn("text-sm font-medium", textColor)}>
-            {formatYMD(published)}
-          </span>
+          <span className={cn("text-sm font-medium", textColor)}>{formatYMD(published)}</span>
         </div>
       )}
 
@@ -167,16 +156,12 @@ function PostMeta({
             <div
               className={cn(
                 "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
-                isCover
-                  ? "bg-white/10 text-90"
-                  : "bg-(--btn-regular-bg) text-(--btn-content)",
+                isCover ? "text-90 bg-white/10" : "bg-(--btn-regular-bg) text-(--btn-content)",
               )}
             >
               <Pencil className="size-5" />
             </div>
-            <span className={cn("text-sm font-medium", textColor)}>
-              {formatYMD(updated)}
-            </span>
+            <span className={cn("text-sm font-medium", textColor)}>{formatYMD(updated)}</span>
           </div>
         )}
 
@@ -185,9 +170,7 @@ function PostMeta({
           <div
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
-              isCover
-                ? "bg-white/10 text-90"
-                : "bg-(--btn-regular-bg) text-(--btn-content)",
+              isCover ? "text-90 bg-white/10" : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
             <BookOpen className="size-5" />
@@ -195,7 +178,7 @@ function PostMeta({
           <Link
             href={`/blog?category=${getCategorySlug(category)}`}
             className={cn(
-              "link-lg transition whitespace-nowrap text-sm font-medium hover:text-(--primary) dark:hover:text-(--primary)",
+              "link-lg text-sm font-medium whitespace-nowrap transition hover:text-(--primary) dark:hover:text-(--primary)",
               mutedColor,
             )}
           >
@@ -214,9 +197,7 @@ function PostMeta({
           <div
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
-              isCover
-                ? "bg-white/10 text-90"
-                : "bg-(--btn-regular-bg) text-(--btn-content)",
+              isCover ? "text-90 bg-white/10" : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
             <TagIcon className="size-5" />
@@ -226,16 +207,12 @@ function PostMeta({
               visibleTags.map((tag, i) => (
                 <span key={`${tag.slug}-${i}`} className="flex items-center">
                   {i > 0 && (
-                    <span
-                      className={cn("mx-1.5 text-sm font-medium", dividerColor)}
-                    >
-                      /
-                    </span>
+                    <span className={cn("mx-1.5 text-sm font-medium", dividerColor)}>/</span>
                   )}
                   <Link
                     href={`/blog?tag=${tag.slug}`}
                     className={cn(
-                      "link-lg transition whitespace-nowrap text-sm font-medium hover:text-(--primary) dark:hover:text-(--primary)",
+                      "link-lg text-sm font-medium whitespace-nowrap transition hover:text-(--primary) dark:hover:text-(--primary)",
                       mutedColor,
                     )}
                   >
@@ -244,9 +221,7 @@ function PostMeta({
                 </span>
               ))
             ) : showNoTags ? (
-              <span className={cn("text-sm font-medium", textColor)}>
-                {noTagsText}
-              </span>
+              <span className={cn("text-sm font-medium", textColor)}>{noTagsText}</span>
             ) : null}
           </div>
         </div>
@@ -257,9 +232,7 @@ function PostMeta({
           <div
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
-              isCover
-                ? "bg-white/10 text-90"
-                : "bg-(--btn-regular-bg) text-(--btn-content)",
+              isCover ? "text-90 bg-white/10" : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
             <FileText className="size-5" />
@@ -275,9 +248,7 @@ function PostMeta({
           <div
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
-              isCover
-                ? "bg-white/10 text-90"
-                : "bg-(--btn-regular-bg) text-(--btn-content)",
+              isCover ? "text-90 bg-white/10" : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
             <Clock className="size-5" />
@@ -293,16 +264,12 @@ function PostMeta({
           <div
             className={cn(
               "meta-icon flex h-8 w-8 items-center justify-center rounded-md",
-              isCover
-                ? "bg-white/10 text-90"
-                : "bg-(--btn-regular-bg) text-(--btn-content)",
+              isCover ? "text-90 bg-white/10" : "bg-(--btn-regular-bg) text-(--btn-content)",
             )}
           >
             <Lock className="size-5" />
           </div>
-          <span className={cn("text-sm font-medium", textColor)}>
-            {encryptedText}
-          </span>
+          <span className={cn("text-sm font-medium", textColor)}>{encryptedText}</span>
         </div>
       )}
     </div>

@@ -1,39 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Heart } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import { Heart } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface LikeButtonProps {
-  postId: number
-  initialCount?: number
-  label?: string
+  postId: number;
+  initialCount?: number;
+  label?: string;
 }
 
 function LikeButton({ postId, initialCount = 0, label }: LikeButtonProps) {
   const [liked, setLiked] = useState(() => {
-    if (typeof window === "undefined") return false
+    if (typeof window === "undefined") return false;
     try {
-      return Boolean(localStorage.getItem(`liked:${postId}`))
+      return Boolean(localStorage.getItem(`liked:${postId}`));
     } catch {
-      return false
+      return false;
     }
-  })
-  const [count, setCount] = useState(initialCount)
+  });
+  const [count, setCount] = useState(initialCount);
 
   const handleClick = () => {
     try {
       if (liked) {
-        localStorage.removeItem(`liked:${postId}`)
+        localStorage.removeItem(`liked:${postId}`);
       } else {
-        localStorage.setItem(`liked:${postId}`, "1")
+        localStorage.setItem(`liked:${postId}`, "1");
       }
     } catch {
       // ignore
     }
-    setLiked((value) => !value)
-    setCount((value) => Math.max(0, value + (liked ? -1 : 1)))
-  }
+    setLiked((value) => !value);
+    setCount((value) => Math.max(0, value + (liked ? -1 : 1)));
+  };
 
   return (
     <button
@@ -48,16 +48,13 @@ function LikeButton({ postId, initialCount = 0, label }: LikeButtonProps) {
       aria-label={label || "Like"}
     >
       <Heart
-        className={cn(
-          "size-4 transition",
-          liked ? "fill-current" : "group-hover:scale-110",
-        )}
+        className={cn("size-4 transition", liked ? "fill-current" : "group-hover:scale-110")}
       />
       <span>{count}</span>
       {label && <span>{label}</span>}
     </button>
-  )
+  );
 }
 
-export { LikeButton }
-export type { LikeButtonProps }
+export { LikeButton };
+export type { LikeButtonProps };

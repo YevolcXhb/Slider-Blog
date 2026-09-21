@@ -105,13 +105,10 @@ export default function CreatePostForm() {
     [isGeneratingSlug],
   );
 
-  const handleSlugChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSlug(e.target.value);
-      setIsGeneratingSlug(false);
-    },
-    [],
-  );
+  const handleSlugChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlug(e.target.value);
+    setIsGeneratingSlug(false);
+  }, []);
 
   const handleTagToggle = useCallback((tagId: number) => {
     setSelectedTags((prev) =>
@@ -138,7 +135,7 @@ export default function CreatePostForm() {
           tags: selectedTags.length > 0 ? selectedTags : undefined,
         });
 
-        router.push('/posts');
+        router.push("/posts");
         router.refresh();
       } catch (err) {
         setError(
@@ -169,12 +166,8 @@ export default function CreatePostForm() {
               {t("back_to_posts")}
             </Link>
           </div>
-          <h1 className="text-3xl font-bold text-white/90">
-            {t("create_title")}
-          </h1>
-          <p className="mt-1 text-sm text-white/50">
-            {t("create_subtitle")}
-          </p>
+          <h1 className="text-3xl font-bold text-white/90">{t("create_title")}</h1>
+          <p className="mt-1 text-sm text-white/50">{t("create_subtitle")}</p>
         </div>
       </div>
 
@@ -191,10 +184,7 @@ export default function CreatePostForm() {
 
           {/* Title */}
           <div className="space-y-2">
-            <label
-              htmlFor="title"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="title" className="text-sm font-medium text-white/70">
               {t("title_label")} <span className="text-red-400">*</span>
             </label>
             <GlassInput
@@ -210,10 +200,7 @@ export default function CreatePostForm() {
 
           {/* Slug */}
           <div className="space-y-2">
-            <label
-              htmlFor="slug"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="slug" className="text-sm font-medium text-white/70">
               {t("slug_label")} <span className="text-red-400">*</span>
             </label>
             <GlassInput
@@ -225,17 +212,12 @@ export default function CreatePostForm() {
               required
               disabled={isSubmitting}
             />
-            <p className="text-xs text-white/40">
-              {t("auto_slug_hint")}
-            </p>
+            <p className="text-xs text-white/40">{t("auto_slug_hint")}</p>
           </div>
 
           {/* Content */}
           <div className="space-y-2">
-            <label
-              htmlFor="content"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="content" className="text-sm font-medium text-white/70">
               {t("content_label")} <span className="text-red-400">*</span>
             </label>
             <textarea
@@ -255,10 +237,7 @@ export default function CreatePostForm() {
 
           {/* Excerpt */}
           <div className="space-y-2">
-            <label
-              htmlFor="excerpt"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="excerpt" className="text-sm font-medium text-white/70">
               {t("excerpt_label")}
             </label>
             <textarea
@@ -274,10 +253,7 @@ export default function CreatePostForm() {
 
           {/* Category */}
           <div className="space-y-2">
-            <label
-              htmlFor="category"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="category" className="text-sm font-medium text-white/70">
               {t("category_label")}
             </label>
             <select
@@ -285,7 +261,7 @@ export default function CreatePostForm() {
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               disabled={isSubmitting || isLoadingData}
-              className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-foreground backdrop-blur-md transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:pointer-events-none disabled:opacity-50"
+              className="text-foreground focus:ring-primary/50 w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm backdrop-blur-md transition-all focus:ring-2 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
             >
               <option value="">{t("select_category")}</option>
               {categories.map((cat) => (
@@ -295,17 +271,13 @@ export default function CreatePostForm() {
               ))}
             </select>
             {categories.length === 0 && !isLoadingData && (
-              <p className="text-xs text-white/40">
-                {t("no_categories_available")}
-              </p>
+              <p className="text-xs text-white/40">{t("no_categories_available")}</p>
             )}
           </div>
 
           {/* Tags */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/70">
-              {t("tags_label")}
-            </label>
+            <label className="text-sm font-medium text-white/70">{t("tags_label")}</label>
             {tags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
@@ -325,14 +297,9 @@ export default function CreatePostForm() {
                 ))}
               </div>
             ) : (
-              !isLoadingData && (
-                <p className="text-xs text-white/40">
-                  {t("no_tags_available")}
-                </p>
-              ))}
-            {isLoadingData && (
-              <p className="text-xs text-white/40">{t("loading_tags")}</p>
+              !isLoadingData && <p className="text-xs text-white/40">{t("no_tags_available")}</p>
             )}
+            {isLoadingData && <p className="text-xs text-white/40">{t("loading_tags")}</p>}
           </div>
 
           {/* Submit */}
@@ -342,12 +309,7 @@ export default function CreatePostForm() {
                 {t("cancel")}
               </GlassButton>
             </Link>
-            <GlassButton
-              type="submit"
-              variant="primary"
-              size="md"
-              disabled={isSubmitting}
-            >
+            <GlassButton type="submit" variant="primary" size="md" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />

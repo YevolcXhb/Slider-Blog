@@ -34,9 +34,7 @@ vi.mock("next/headers", () => ({
   headers: async () => new Headers({ "x-real-ip": "203.0.113.7" }),
 }));
 
-const rateLimitMock = vi.fn<(ip: string, kind: string) => Promise<void>>(
-  async () => undefined,
-);
+const rateLimitMock = vi.fn<(ip: string, kind: string) => Promise<void>>(async () => undefined);
 vi.mock("@/lib/rate-limit", () => ({
   rateLimit: (ip: string, kind: string) => rateLimitMock(ip, kind),
 }));
@@ -100,12 +98,7 @@ async function callPost(body: unknown, raw?: string) {
   return { status: res.status, json: (await res.json()) as Record<string, unknown> };
 }
 
-const ZOD_ENGLISH = [
-  /Invalid input:/,
-  /Unrecognized key:/,
-  /Too (small|big):/,
-  /received: /,
-];
+const ZOD_ENGLISH = [/Invalid input:/, /Unrecognized key:/, /Too (small|big):/, /received: /];
 
 beforeEach(() => {
   createMock.mockReset();

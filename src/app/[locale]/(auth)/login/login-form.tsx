@@ -45,10 +45,7 @@ function LoginFormInner() {
         // 登录成功后跳回原页面（P2-002）。
         // normalizeCallbackUrl 同时负责开放重定向防护与「去掉已有的 locale 前缀」，
         // 否则 proxy.ts 写入的 /zh/xxx 会被 router 再补一次前缀变成 /zh/zh/xxx 而 404。
-        const target = normalizeCallbackUrl(
-          searchParams.get("callbackUrl"),
-          routing.locales,
-        );
+        const target = normalizeCallbackUrl(searchParams.get("callbackUrl"), routing.locales);
         router.push(target ?? "/dashboard");
         router.refresh();
       } catch {
@@ -89,10 +86,7 @@ function LoginFormInner() {
           )}
 
           <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="email" className="text-sm font-medium text-white/70">
               {t("email")}
             </label>
             <GlassInput
@@ -108,10 +102,7 @@ function LoginFormInner() {
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="password" className="text-sm font-medium text-white/70">
               {t("password")}
             </label>
             <GlassInput

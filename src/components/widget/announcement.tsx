@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { X } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { WidgetLayout } from "./widget-layout"
-import { announcementConfig } from "@/config/announcementConfig"
-import type { AnnouncementItem } from "@/server/queries/site"
-import type { WidgetComponentConfig } from "@/types/sidebarConfig"
+import { WidgetLayout } from "./widget-layout";
+import { announcementConfig } from "@/config/announcementConfig";
+import type { AnnouncementItem } from "@/server/queries/site";
+import type { WidgetComponentConfig } from "@/types/sidebarConfig";
 
 interface AnnouncementWidgetProps {
-  announcements?: AnnouncementItem[]
-  widgetConfig?: WidgetComponentConfig
-  className?: string
-  style?: React.CSSProperties
+  announcements?: AnnouncementItem[];
+  widgetConfig?: WidgetComponentConfig;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 function AnnouncementWidget({
@@ -21,12 +21,12 @@ function AnnouncementWidget({
   className,
   style,
 }: AnnouncementWidgetProps) {
-  const t = useTranslations("Widgets")
-  const showTitle = widgetConfig?.showTitle !== false
-  const config = announcementConfig
+  const t = useTranslations("Widgets");
+  const showTitle = widgetConfig?.showTitle !== false;
+  const config = announcementConfig;
 
-  const content = announcements.length > 0 ? announcements[0].content : config.content
-  const link = config.link
+  const content = announcements.length > 0 ? announcements[0].content : config.content;
+  const link = config.link;
 
   return (
     <WidgetLayout
@@ -37,9 +37,7 @@ function AnnouncementWidget({
       style={style}
     >
       <div>
-        <div className="text-neutral-600 dark:text-neutral-300 leading-relaxed mb-3">
-          {content}
-        </div>
+        <div className="mb-3 leading-relaxed text-neutral-600 dark:text-neutral-300">{content}</div>
 
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -48,7 +46,7 @@ function AnnouncementWidget({
                 href={link.url}
                 target={link.external ? "_blank" : "_self"}
                 rel={link.external ? "noopener noreferrer" : undefined}
-                className="btn-regular rounded-lg px-3 py-1.5 text-sm font-medium active:scale-95 transition-transform"
+                className="btn-regular rounded-lg px-3 py-1.5 text-sm font-medium transition-transform active:scale-95"
               >
                 {link.text}
               </a>
@@ -58,10 +56,10 @@ function AnnouncementWidget({
           {config.closable && (
             <button
               type="button"
-              className="btn-regular rounded-lg h-8 w-8 text-sm hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+              className="btn-regular h-8 w-8 rounded-lg text-sm transition-colors hover:bg-red-100 dark:hover:bg-red-900/30"
               onClick={(e) => {
-                const widget = e.currentTarget.closest('[data-id="announcement"]')
-                if (widget) widget.classList.add("hidden")
+                const widget = e.currentTarget.closest('[data-id="announcement"]');
+                if (widget) widget.classList.add("hidden");
               }}
               aria-label={t("announcementClose")}
             >
@@ -71,8 +69,8 @@ function AnnouncementWidget({
         </div>
       </div>
     </WidgetLayout>
-  )
+  );
 }
 
-export { AnnouncementWidget, type AnnouncementWidgetProps }
-export default AnnouncementWidget
+export { AnnouncementWidget, type AnnouncementWidgetProps };
+export default AnnouncementWidget;

@@ -8,121 +8,121 @@
 // 类型定义
 // =============================================================================
 
-export type LIGHT_DARK_MODE = "light" | "dark" | "system"
-export type WALLPAPER_MODE = "banner" | "fullscreen" | "overlay" | "none"
+export type LIGHT_DARK_MODE = "light" | "dark" | "system";
+export type WALLPAPER_MODE = "banner" | "fullscreen" | "overlay" | "none";
 
 export type FaviconConfig = {
-  src: string
-  theme?: "light" | "dark"
-  sizes?: string
-}
+  src: string;
+  theme?: "light" | "dark";
+  sizes?: string;
+};
 
 export type SiteConfig = {
-  title: string
-  subtitle: string
-  site_url: string
-  description?: string
-  keywords?: string[]
-  lang: "en" | "zh_CN" | "zh_TW" | "ja" | "ru" | "ko"
+  title: string;
+  subtitle: string;
+  site_url: string;
+  description?: string;
+  keywords?: string[];
+  lang: "en" | "zh_CN" | "zh_TW" | "ja" | "ru" | "ko";
   themeColor: {
-    hue: number
-    defaultMode?: LIGHT_DARK_MODE
-  }
-  pageWidth?: number
+    hue: number;
+    defaultMode?: LIGHT_DARK_MODE;
+  };
+  pageWidth?: number;
   card: {
-    border: boolean
-    followTheme?: boolean
-  }
-  siteStartDate?: string
-  timezone?: string
-  favicon: FaviconConfig[]
+    border: boolean;
+    followTheme?: boolean;
+  };
+  siteStartDate?: string;
+  timezone?: string;
+  favicon: FaviconConfig[];
   navbar: {
     logo?: {
-      type: "icon" | "image" | "url"
-      value: string
-      alt?: string
-    }
-    title?: string
-    widthFull?: boolean
-    menuAlign?: "left" | "center"
-    followTheme?: boolean
-    stickyNavbar?: boolean
-  }
+      type: "icon" | "image" | "url";
+      value: string;
+      alt?: string;
+    };
+    title?: string;
+    widthFull?: boolean;
+    menuAlign?: "left" | "center";
+    followTheme?: boolean;
+    stickyNavbar?: boolean;
+  };
   pages: {
-    guestbook: boolean
-    gallery: boolean
-    dynamic: boolean
-  }
-  categoryBar?: boolean
-  foldArticle?: boolean
+    guestbook: boolean;
+    gallery: boolean;
+    dynamic: boolean;
+  };
+  categoryBar?: boolean;
+  foldArticle?: boolean;
   postListLayout: {
-    defaultMode: "list" | "grid"
-    mobileDefaultMode?: "list" | "grid"
-    descriptionLines?: number
-    showStatsIcons?: boolean
-    tagsPosition?: "meta" | "bottom"
+    defaultMode: "list" | "grid";
+    mobileDefaultMode?: "list" | "grid";
+    descriptionLines?: number;
+    showStatsIcons?: boolean;
+    tagsPosition?: "meta" | "bottom";
     meta?: {
-      showPublished?: boolean
-      showCategory?: boolean
-      showTags?: boolean
-      tagCount?: number
-      showWords?: boolean
-      showReadingTime?: boolean
-    }
+      showPublished?: boolean;
+      showCategory?: boolean;
+      showTags?: boolean;
+      tagCount?: number;
+      showWords?: boolean;
+      showReadingTime?: boolean;
+    };
     stats?: {
-      showPublished?: boolean
-      showWords?: boolean
-      showReadingTime?: boolean
-    }
+      showPublished?: boolean;
+      showWords?: boolean;
+      showReadingTime?: boolean;
+    };
     grid: {
-      masonry: boolean
-      columnWidth?: number
-    }
-  }
+      masonry: boolean;
+      columnWidth?: number;
+    };
+  };
   post: {
     rehypeCallouts: {
-      theme: "github" | "obsidian" | "vitepress" | "docusaurus"
-      enablePythonMarkdownAdmonitions?: boolean
-    }
-    showLastModified: boolean
-    outdatedThreshold?: number
-    sharePoster?: boolean
-    generateOgImages: boolean
-  }
+      theme: "github" | "obsidian" | "vitepress" | "docusaurus";
+      enablePythonMarkdownAdmonitions?: boolean;
+    };
+    showLastModified: boolean;
+    outdatedThreshold?: number;
+    sharePoster?: boolean;
+    generateOgImages: boolean;
+  };
   pagination: {
-    postsPerPage: number
-  }
+    postsPerPage: number;
+  };
   imageOptimization?: {
-    formats?: "avif" | "webp" | "both"
-    quality?: number
-    noReferrerDomains?: string[]
-  }
-}
+    formats?: "avif" | "webp" | "both";
+    quality?: number;
+    noReferrerDomains?: string[];
+  };
+};
 
 export type NavBarLink = {
   /**
    * i18n key（指向 messages/*.json 中的 Nav 命名空间），用于运行时翻译。
    * 组件渲染时会通过 useTranslations("Nav") 获取真实文案。
    */
-  i18nKey: string
-  url: string
-  external?: boolean
-  icon?: string
-  children?: NavBarLink[]
-  pageKey?: string
-}
+  i18nKey: string;
+  url: string;
+  external?: boolean;
+  icon?: string;
+  children?: NavBarLink[];
+  pageKey?: string;
+};
 
 export enum NavBarSearchMethod {
   PageFind = 0,
 }
 
 export type NavBarSearchConfig = {
-  method: NavBarSearchMethod
-}
+  method: NavBarSearchMethod;
+};
 
 export type NavBarConfig = {
-  links: NavBarLink[]
-}
+  links: NavBarLink[];
+};
 
 export type WidgetComponentType =
   | "profile"
@@ -135,343 +135,341 @@ export type WidgetComponentType =
   | "calendar"
   | "music"
   | "siteInfo"
-  | "dynamic"
+  | "dynamic";
 
 export type WidgetSpecificConfig = {
-  hidden?: ("mobile" | "tablet" | "desktop")[]
-  collapseThreshold?: number
+  hidden?: ("mobile" | "tablet" | "desktop")[];
+  collapseThreshold?: number;
   calendar?: {
-    showHeatmap: boolean
-  }
+    showHeatmap: boolean;
+  };
   ad?: {
-    title?: string
-    content?: string
+    title?: string;
+    content?: string;
     image?: {
-      src: string
-      alt?: string
-      link?: string
-      external?: boolean
-    }
+      src: string;
+      alt?: string;
+      link?: string;
+      external?: boolean;
+    };
     link?: {
-      text: string
-      url: string
-      external?: boolean
-    }
+      text: string;
+      url: string;
+      external?: boolean;
+    };
     padding?: {
-      top?: string
-      right?: string
-      bottom?: string
-      left?: string
-      all?: string
-    }
-    closable?: boolean
-    displayCount?: number
-    expireDate?: string
-  }
+      top?: string;
+      right?: string;
+      bottom?: string;
+      left?: string;
+      all?: string;
+    };
+    closable?: boolean;
+    displayCount?: number;
+    expireDate?: string;
+  };
   siteInfo?: {
-    unknownBuildPlatform?: string
-  }
+    unknownBuildPlatform?: string;
+  };
   dynamic?: {
-    limit?: number
-  }
-}
+    limit?: number;
+  };
+};
 
 export type WidgetComponentConfig = {
-  type: WidgetComponentType
-  enable: boolean
-  showTitle?: boolean
-  position: "top" | "sticky"
-  showOnPostPage?: boolean
-  hideOnNonPostPage?: boolean
-  specificConfig?: WidgetSpecificConfig
-  customProps?: Record<string, unknown>
-}
+  type: WidgetComponentType;
+  enable: boolean;
+  showTitle?: boolean;
+  position: "top" | "sticky";
+  showOnPostPage?: boolean;
+  hideOnNonPostPage?: boolean;
+  specificConfig?: WidgetSpecificConfig;
+  customProps?: Record<string, unknown>;
+};
 
-export type MobileBottomComponentConfig = Omit<WidgetComponentConfig, "position">
+export type MobileBottomComponentConfig = Omit<WidgetComponentConfig, "position">;
 
 export type SidebarLayoutConfig = {
-  enable: boolean
-  position: "left" | "right" | "both"
-  tabletSidebar?: "left" | "right"
-  hideSidebarOnPostPage?: boolean
-  showBothSidebarsOnPostPage?: boolean
-  leftComponents: WidgetComponentConfig[]
-  rightComponents: WidgetComponentConfig[]
-  mobileBottomComponents: MobileBottomComponentConfig[]
-}
+  enable: boolean;
+  position: "left" | "right" | "both";
+  tabletSidebar?: "left" | "right";
+  hideSidebarOnPostPage?: boolean;
+  showBothSidebarsOnPostPage?: boolean;
+  leftComponents: WidgetComponentConfig[];
+  rightComponents: WidgetComponentConfig[];
+  mobileBottomComponents: MobileBottomComponentConfig[];
+};
 
 export type BackgroundWallpaperConfig = {
-  mode: WALLPAPER_MODE
-  playerEnable?: boolean
+  mode: WALLPAPER_MODE;
+  playerEnable?: boolean;
   src:
     | string
     | string[]
     | {
-        desktop?: string | string[]
-        mobile?: string | string[]
-        playerUrl?: string | string[]
-      }
+        desktop?: string | string[];
+        mobile?: string | string[];
+        playerUrl?: string | string[];
+      };
   common?: {
-    dimOpacity?: number
-    playerMode?: "order" | "random"
+    dimOpacity?: number;
+    playerMode?: "order" | "random";
     homeText?: {
-      enable: boolean
-      title?: string
-      subtitle?: string | string[]
-      titleSize?: string
-      subtitleSize?: string
+      enable: boolean;
+      title?: string;
+      subtitle?: string | string[];
+      titleSize?: string;
+      subtitleSize?: string;
       typewriter?: {
-        enable: boolean
-        speed: number
-        deleteSpeed: number
-        pauseTime: number
-      }
-    }
+        enable: boolean;
+        speed: number;
+        deleteSpeed: number;
+        pauseTime: number;
+      };
+    };
     postInfo?: {
-      mode: "description" | "meta"
-    }
+      mode: "description" | "meta";
+    };
     navbar?: {
-      transparentMode?: "semi" | "full" | "semifull"
-      enableBlur?: boolean
-      blur?: number
-    }
+      transparentMode?: "semi" | "full" | "semifull";
+      enableBlur?: boolean;
+      blur?: number;
+    };
     waves?: {
       enable:
         | boolean
         | {
-            desktop: boolean
-            mobile: boolean
-          }
-    }
+            desktop: boolean;
+            mobile: boolean;
+          };
+    };
     gradient?: {
       enable:
         | boolean
         | {
-            desktop: boolean
-            mobile: boolean
-          }
-      height?: string
-    }
+            desktop: boolean;
+            mobile: boolean;
+          };
+      height?: string;
+    };
     carousel?: {
-      enable: boolean
-      interval?: number
-      transitionEffect?: "fade" | "zoom" | "slide" | "kenburns"
-    }
-  }
+      enable: boolean;
+      interval?: number;
+      transitionEffect?: "fade" | "zoom" | "slide" | "kenburns";
+    };
+  };
   banner?: {
-    position?: string
-  }
+    position?: string;
+  };
   overlay?: {
-    zIndex?: number
-    opacity?: number
-    blur?: number
-    cardOpacity?: number
-  }
+    zIndex?: number;
+    opacity?: number;
+    blur?: number;
+    cardOpacity?: number;
+  };
   fullscreen?: {
-    position?: string
-  }
-}
+    position?: string;
+  };
+};
 
 export type DisplaySettingsConfig = {
-  themeColorSwitchable: boolean
-  layoutSwitchable: boolean
-  cardBorderSwitchable: boolean
-  cardFollowThemeSwitchable: boolean
-  wallpaperModeSwitchable: boolean
-  wavesSwitchable: boolean
-  gradientSwitchable: boolean
-  bannerTitleSwitchable: boolean
-  bannerCarouselSwitchable: boolean
+  themeColorSwitchable: boolean;
+  layoutSwitchable: boolean;
+  cardBorderSwitchable: boolean;
+  cardFollowThemeSwitchable: boolean;
+  wallpaperModeSwitchable: boolean;
+  wavesSwitchable: boolean;
+  gradientSwitchable: boolean;
+  bannerTitleSwitchable: boolean;
+  bannerCarouselSwitchable: boolean;
   overlaySwitchable:
     | boolean
     | {
-        opacity?: boolean
-        blur?: boolean
-        cardOpacity?: boolean
-      }
-  sakuraSwitchable: boolean
-}
+        opacity?: boolean;
+        blur?: boolean;
+        cardOpacity?: boolean;
+      };
+  sakuraSwitchable: boolean;
+};
 
 export type MusicPlayerConfig = {
-  mode?: "meting" | "local"
-  volume?: number
-  playMode?: "list" | "one" | "random"
-  showLyrics?: boolean
-  showInNavbar?: boolean
-  showInSidebar?: boolean
+  mode?: "meting" | "local";
+  volume?: number;
+  playMode?: "list" | "one" | "random";
+  showLyrics?: boolean;
+  showInNavbar?: boolean;
+  showInSidebar?: boolean;
   meting?: {
-    api?: string
-    server?: "netease" | "tencent" | "kugou" | "xiami" | "baidu"
-    type?: "song" | "playlist" | "album" | "search" | "artist"
-    id?: string
-    auth?: string
-    fallbackApis?: string[]
-  }
+    api?: string;
+    server?: "netease" | "tencent" | "kugou" | "xiami" | "baidu";
+    type?: "song" | "playlist" | "album" | "search" | "artist";
+    id?: string;
+    auth?: string;
+    fallbackApis?: string[];
+  };
   local?: {
     playlist?: Array<{
-      name: string
-      artist: string
-      url: string
-      cover?: string
-      lrc?: string
-    }>
-  }
-}
+      name: string;
+      artist: string;
+      url: string;
+      cover?: string;
+      lrc?: string;
+    }>;
+  };
+};
 
 export type ProfileConfig = {
-  avatar?: string
-  name: string
-  bio?: string
+  avatar?: string;
+  name: string;
+  bio?: string;
   links: {
-    name: string
-    url: string
-    icon: string
-    showName?: boolean
-  }[]
-}
-
-
+    name: string;
+    url: string;
+    icon: string;
+    showName?: boolean;
+  }[];
+};
 
 export type AnnouncementConfig = {
-  title?: string
-  content: string
-  icon?: string
-  type?: "info" | "warning" | "success" | "error"
-  closable?: boolean
+  title?: string;
+  content: string;
+  icon?: string;
+  type?: "info" | "warning" | "success" | "error";
+  closable?: boolean;
   link?: {
-    enable: boolean
-    text: string
-    url: string
-    external?: boolean
-  }
-}
+    enable: boolean;
+    text: string;
+    url: string;
+    external?: boolean;
+  };
+};
 
 export type SakuraConfig = {
-  enable: boolean
-  sakuraNum: number
-  limitTimes: number
+  enable: boolean;
+  sakuraNum: number;
+  limitTimes: number;
   size: {
-    min: number
-    max: number
-  }
+    min: number;
+    max: number;
+  };
   opacity: {
-    min: number
-    max: number
-  }
+    min: number;
+    max: number;
+  };
   speed: {
     horizontal: {
-      min: number
-      max: number
-    }
+      min: number;
+      max: number;
+    };
     vertical: {
-      min: number
-      max: number
-    }
-    rotation: number
-    fadeSpeed: number
-  }
-  zIndex: number
-}
+      min: number;
+      max: number;
+    };
+    rotation: number;
+    fadeSpeed: number;
+  };
+  zIndex: number;
+};
 
 export type FooterConfig = {
-  enable: boolean
-  customHtml?: string
-}
+  enable: boolean;
+  customHtml?: string;
+};
 
 export type CoverImageConfig = {
-  enableInPost: boolean
-  enableInPostOverlay: boolean
-  showLoading: boolean
+  enableInPost: boolean;
+  enableInPostOverlay: boolean;
+  showLoading: boolean;
   randomCoverImage: {
-    enable: boolean
-    apis: string[]
-  }
-}
+    enable: boolean;
+    apis: string[];
+  };
+};
 
 export type DynamicConfig = {
-  title?: string
-  description?: string
-  profileUrl: string
-  showComment: boolean
-  itemsPerPage: number
-  apiUrl: string
+  title?: string;
+  description?: string;
+  profileUrl: string;
+  showComment: boolean;
+  itemsPerPage: number;
+  apiUrl: string;
   memos?: {
-    enable: boolean
-    apiUrl: string
-    parent: string
-  }
-}
+    enable: boolean;
+    apiUrl: string;
+    parent: string;
+  };
+};
 
 export type FontDefinition = {
-  name: string
-  cssVariable: string
-  provider: "fontsource" | "local" | "google" | "bunny" | "fontshare" | "npm"
-  weights?: string[]
-  styles?: string[]
-  subsets?: string[]
-  fallbacks?: string[]
+  name: string;
+  cssVariable: string;
+  provider: "fontsource" | "local" | "google" | "bunny" | "fontshare" | "npm";
+  weights?: string[];
+  styles?: string[];
+  subsets?: string[];
+  fallbacks?: string[];
   options?: {
     variants?: Array<{
-      src: string[]
-    }>
-  }
-}
+      src: string[];
+    }>;
+  };
+};
 
 export type FontSelectionConfig = {
-  enable: boolean
-  selected: string[]
-  bannerTitleFont?: string
-  bannerSubtitleFont?: string
-  navbarTitleFont?: string
-  codeFont?: string
+  enable: boolean;
+  selected: string[];
+  bannerTitleFont?: string;
+  bannerSubtitleFont?: string;
+  navbarTitleFont?: string;
+  codeFont?: string;
   subsetFonts?: Record<
     string,
     {
-      extraChars?: string
+      extraChars?: string;
     }
-  >
-}
+  >;
+};
 
 export type LicenseConfig = {
-  enable: boolean
-  name: string
-  url: string
-  icon?: string
-}
+  enable: boolean;
+  name: string;
+  url: string;
+  icon?: string;
+};
 
 export type SliderConfig = {
-  siteConfig: SiteConfig
-  navBarConfig: NavBarConfig
-  navBarSearchConfig: NavBarSearchConfig
-  sidebarConfig: SidebarLayoutConfig
-  backgroundWallpaper: BackgroundWallpaperConfig
-  displaySettingsConfig: DisplaySettingsConfig
-  musicPlayerConfig: MusicPlayerConfig
-  profileConfig: ProfileConfig
-  announcementConfig: AnnouncementConfig
-  effectsConfig: SakuraConfig
-  footerConfig: FooterConfig
-  coverImageConfig: CoverImageConfig
-  dynamicConfig: DynamicConfig
-  fontConfig: FontSelectionConfig
-  fontsList: FontDefinition[]
-  licenseConfig: LicenseConfig
-}
+  siteConfig: SiteConfig;
+  navBarConfig: NavBarConfig;
+  navBarSearchConfig: NavBarSearchConfig;
+  sidebarConfig: SidebarLayoutConfig;
+  backgroundWallpaper: BackgroundWallpaperConfig;
+  displaySettingsConfig: DisplaySettingsConfig;
+  musicPlayerConfig: MusicPlayerConfig;
+  profileConfig: ProfileConfig;
+  announcementConfig: AnnouncementConfig;
+  effectsConfig: SakuraConfig;
+  footerConfig: FooterConfig;
+  coverImageConfig: CoverImageConfig;
+  dynamicConfig: DynamicConfig;
+  fontConfig: FontSelectionConfig;
+  fontsList: FontDefinition[];
+  licenseConfig: LicenseConfig;
+};
 
 // =============================================================================
 // 路径常量：所有静态资源统一收敛到 /slider/*
 // =============================================================================
 
-const SLIDER_BASE = "/slider"
-const SLIDER_IMAGES = `${SLIDER_BASE}/images`
-const SLIDER_FONTS = `${SLIDER_BASE}/fonts`
-const SLIDER_FAVICON = `${SLIDER_BASE}/favicon`
+const SLIDER_BASE = "/slider";
+const SLIDER_IMAGES = `${SLIDER_BASE}/images`;
+const SLIDER_FONTS = `${SLIDER_BASE}/fonts`;
+const SLIDER_FAVICON = `${SLIDER_BASE}/favicon`;
 
 // =============================================================================
 // 核心配置
 // =============================================================================
 
-const SITE_LANG: SiteConfig["lang"] = "zh_CN"
+const SITE_LANG: SiteConfig["lang"] = "zh_CN";
 
 export const siteConfig: SiteConfig = {
   title: "Slider",
@@ -479,15 +477,7 @@ export const siteConfig: SiteConfig = {
   site_url: "https://slider.cuteleaf.cn",
   description:
     "Slider 是一款基于 Astro 框架和 Fuwari 模板开发的清新美观且现代化个人博客主题模板，专为技术爱好者和内容创作者设计。该主题融合了现代 Web 技术栈，提供了丰富的功能模块和高度可定制的界面，让您能够轻松打造出专业且美观的个人博客网站。",
-  keywords: [
-    "Slider",
-    "Fuwari",
-    "Astro",
-    "ACGN",
-    "博客",
-    "技术博客",
-    "静态博客",
-  ],
+  keywords: ["Slider", "Fuwari", "Astro", "ACGN", "博客", "技术博客", "静态博客"],
   themeColor: {
     hue: 165,
     defaultMode: "system",
@@ -566,7 +556,7 @@ export const siteConfig: SiteConfig = {
     noReferrerDomains: [],
   },
   lang: SITE_LANG,
-}
+};
 
 // ============================================================================
 // 导航栏配置
@@ -610,33 +600,33 @@ export const LinkPresets: Record<string, NavBarLink> = {
     icon: "material-symbols:photo-library",
     pageKey: "gallery",
   },
-}
+};
 
 const getDynamicNavBarConfig = (): NavBarConfig => {
-  const links: NavBarLink[] = []
+  const links: NavBarLink[] = [];
 
-  links.push(LinkPresets.Home)
+  links.push(LinkPresets.Home);
 
   links.push({
     i18nKey: "blog",
     url: "#",
     icon: "material-symbols:article",
     children: [LinkPresets.Archive, LinkPresets.Categories, LinkPresets.Tags],
-  })
+  });
 
   links.push({
     i18nKey: "me",
     url: "#",
     icon: "material-symbols:person",
     children: [LinkPresets.Dynamic, LinkPresets.Gallery],
-  })
+  });
 
   links.push({
     i18nKey: "info",
     url: "#",
     icon: "material-symbols:info",
     children: [LinkPresets.About],
-  })
+  });
 
   links.push({
     i18nKey: "links",
@@ -656,16 +646,16 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
         icon: "material-symbols:cloud",
       },
     ],
-  })
+  });
 
-  return { links }
-}
+  return { links };
+};
 
-export const navBarConfig: NavBarConfig = getDynamicNavBarConfig()
+export const navBarConfig: NavBarConfig = getDynamicNavBarConfig();
 
 export const navBarSearchConfig: NavBarSearchConfig = {
   method: NavBarSearchMethod.PageFind,
-}
+};
 
 // ============================================================================
 // 侧边栏布局配置
@@ -859,7 +849,7 @@ export const sidebarConfig: SidebarLayoutConfig = {
       },
     },
   ],
-}
+};
 
 // ============================================================================
 // 背景壁纸配置
@@ -948,7 +938,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
   fullscreen: {
     position: "center",
   },
-}
+};
 
 // ============================================================================
 // 显示设置面板开关配置
@@ -970,7 +960,7 @@ export const displaySettingsConfig: DisplaySettingsConfig = {
     cardOpacity: true,
   },
   sakuraSwitchable: true,
-}
+};
 
 // ============================================================================
 // 音乐播放器配置
@@ -997,7 +987,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
   local: {
     playlist: [],
   },
-}
+};
 
 // ============================================================================
 // 用户资料配置
@@ -1027,7 +1017,7 @@ export const profileConfig: ProfileConfig = {
       showName: false,
     },
   ],
-}
+};
 
 // ============================================================================
 // 公告配置
@@ -1043,7 +1033,7 @@ export const announcementConfig: AnnouncementConfig = {
     url: "/about/",
     external: false,
   },
-}
+};
 
 // ============================================================================
 // 特效配置（樱花等）
@@ -1074,7 +1064,7 @@ export const effectsConfig: SakuraConfig = {
     fadeSpeed: 0.03,
   },
   zIndex: 100,
-}
+};
 
 // ============================================================================
 // 页脚配置
@@ -1082,7 +1072,7 @@ export const effectsConfig: SakuraConfig = {
 
 export const footerConfig: FooterConfig = {
   enable: false,
-}
+};
 
 // ============================================================================
 // 文章封面图配置
@@ -1100,7 +1090,7 @@ export const coverImageConfig: CoverImageConfig = {
       "https://uapis.cn/api/v1/random/image?category=acg&type=pc",
     ],
   },
-}
+};
 
 // ============================================================================
 // 动态页面配置
@@ -1118,7 +1108,7 @@ export const dynamicConfig: DynamicConfig = {
     apiUrl: "https://memos.example.com",
     parent: "users/xiaye",
   },
-}
+};
 
 // ============================================================================
 // 字体配置（已适配 Next.js：本地字体通过 /slider/fonts 提供）
@@ -1138,7 +1128,7 @@ export const fontsList: FontDefinition[] = [
       ],
     },
   },
-]
+];
 
 export const fontConfig: FontSelectionConfig = {
   enable: true,
@@ -1152,7 +1142,7 @@ export const fontConfig: FontSelectionConfig = {
       extraChars: "",
     },
   },
-}
+};
 
 // ============================================================================
 // 许可证配置
@@ -1163,7 +1153,7 @@ export const licenseConfig: LicenseConfig = {
   name: "CC BY-NC-SA 4.0",
   url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
   icon: "",
-}
+};
 
 // =============================================================================
 // 统一导出：sliderConfig
@@ -1186,6 +1176,6 @@ export const sliderConfig: SliderConfig = {
   fontConfig,
   fontsList,
   licenseConfig,
-}
+};
 
-export default sliderConfig
+export default sliderConfig;

@@ -1,7 +1,7 @@
-import { cva, type VariantProps } from "class-variance-authority"
-import type { ComponentPropsWithoutRef } from "react"
+import { cva, type VariantProps } from "class-variance-authority";
+import type { ComponentPropsWithoutRef } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const glassButtonVariants = cva(
   "backdrop-blur-md border border-black/5 dark:border-white/20 rounded-xl transition-all inline-flex items-center justify-center font-medium whitespace-nowrap select-none disabled:pointer-events-none disabled:opacity-50",
@@ -32,23 +32,13 @@ const glassButtonVariants = cva(
       size: "md",
     },
   },
-)
+);
 
 type GlassButtonProps = ComponentPropsWithoutRef<"button"> &
-  VariantProps<typeof glassButtonVariants>
+  VariantProps<typeof glassButtonVariants>;
 
-function GlassButton({
-  className,
-  variant = "primary",
-  size = "md",
-  ...props
-}: GlassButtonProps) {
-  return (
-    <button
-      className={cn(glassButtonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+function GlassButton({ className, variant = "primary", size = "md", ...props }: GlassButtonProps) {
+  return <button className={cn(glassButtonVariants({ variant, size, className }))} {...props} />;
 }
 
-export { GlassButton, glassButtonVariants, type GlassButtonProps }
+export { GlassButton, glassButtonVariants, type GlassButtonProps };

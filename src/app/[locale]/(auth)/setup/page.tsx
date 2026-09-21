@@ -8,11 +8,7 @@ import { SetupManager } from "./setup-manager";
  * 服务端守卫：user 表非空（系统已初始化）时跳转后台，
  * 防止已初始化后通过 /setup 重新引导覆盖配置。
  */
-export default async function SetupPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function SetupPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
 
   if (process.env.DATABASE_URL) {

@@ -10,27 +10,27 @@
  * @returns 解析出的 title 和 artist
  */
 export function parseMusicInfoFromUrl(url: string): {
-  title: string
-  artist: string
+  title: string;
+  artist: string;
 } {
   try {
-    const u = new URL(url)
-    const last = u.pathname.split("/").pop() || ""
-    const withoutExt = last.replace(/\.[^.]+$/, "")
-    const decoded = decodeURIComponent(withoutExt)
+    const u = new URL(url);
+    const last = u.pathname.split("/").pop() || "";
+    const withoutExt = last.replace(/\.[^.]+$/, "");
+    const decoded = decodeURIComponent(withoutExt);
 
-    const dashIdx = decoded.indexOf("-")
+    const dashIdx = decoded.indexOf("-");
     if (dashIdx > 0) {
       return {
         title: decoded.slice(0, dashIdx).trim(),
         artist: decoded.slice(dashIdx + 1).trim(),
-      }
+      };
     }
     return {
       title: decoded.trim(),
       artist: "",
-    }
+    };
   } catch {
-    return { title: "", artist: "" }
+    return { title: "", artist: "" };
   }
 }

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  startTransition,
-} from "react";
+import { useState, useRef, useEffect, useCallback, startTransition } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -44,10 +38,7 @@ import { useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import { siteConfig, navBarConfig } from "@/config/slider-config";
 import { Link } from "@/i18n/routing";
-import {
-  LanguageSwitcher,
-  type LocaleOption,
-} from "@/components/layout/language-switcher";
+import { LanguageSwitcher, type LocaleOption } from "@/components/layout/language-switcher";
 import { type NavBarLink } from "@/components/layout/dropdown-menu";
 import { NavBar } from "@/components/layout/navbar";
 import { AnimatePresence, motion } from "motion/react";
@@ -95,16 +86,12 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   "fa7-brands:qq": UserCircle,
 };
 
-function resolveIcon(
-  iconName?: string,
-): React.ComponentType<{ className?: string }> | undefined {
+function resolveIcon(iconName?: string): React.ComponentType<{ className?: string }> | undefined {
   if (!iconName) return undefined;
   return iconMap[iconName];
 }
 
-function filterLinks(
-  link: (typeof navBarConfig.links)[0],
-): (typeof navBarConfig.links)[0] | null {
+function filterLinks(link: (typeof navBarConfig.links)[0]): (typeof navBarConfig.links)[0] | null {
   if (link.pageKey) {
     const key = link.pageKey as keyof typeof siteConfig.pages;
     if (siteConfig.pages[key] === false) return null;
@@ -130,9 +117,7 @@ function mapConfigLinks(links: typeof navBarConfig.links): NavBarLink[] {
         ? link.children.map((child) => ({
             ...child,
             icon: resolveIcon(child.icon),
-            children: child.children
-              ? mapConfigLinks(child.children)
-              : undefined,
+            children: child.children ? mapConfigLinks(child.children) : undefined,
           }))
         : undefined,
     }));
@@ -146,9 +131,7 @@ const navbarBlur = 20;
  * 将数据库存储的外链配置映射为 NavBarLink[]。
  * 仅用于 Header 内部，当 navExternalLinks prop 存在时调用。
  */
-function mapDbExternalLinks(
-  dbLinks: NonNullable<HeaderProps["navExternalLinks"]>,
-): NavBarLink[] {
+function mapDbExternalLinks(dbLinks: NonNullable<HeaderProps["navExternalLinks"]>): NavBarLink[] {
   return dbLinks.map((link) => ({
     i18nKey: link.i18nKey || link.name || "link",
     name: link.name,
@@ -162,15 +145,11 @@ function mapDbExternalLinks(
  * 合并默认 navItems 与数据库外链。
  * 当 navExternalLinks 存在且非空时，替换 "links" 下拉菜单的 children。
  */
-function buildNavItems(
-  dbExternalLinks: HeaderProps["navExternalLinks"],
-): NavBarLink[] {
+function buildNavItems(dbExternalLinks: HeaderProps["navExternalLinks"]): NavBarLink[] {
   if (!dbExternalLinks || dbExternalLinks.length === 0) return navItems;
   const mapped = mapDbExternalLinks(dbExternalLinks);
   return navItems.map((item) =>
-    item.i18nKey === "links" && item.children
-      ? { ...item, children: mapped }
-      : item,
+    item.i18nKey === "links" && item.children ? { ...item, children: mapped } : item,
   );
 }
 
@@ -278,7 +257,7 @@ function ThemeToggleButton() {
         aria-haspopup="menu"
         title={t("theme")}
         id="theme-menu-switch"
-        className="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90 flex items-center justify-center"
+        className="btn-plain scale-animation flex h-9 w-9 items-center justify-center rounded-lg active:scale-90 md:h-11 md:w-11"
         type="button"
         suppressHydrationWarning
       >
@@ -295,10 +274,10 @@ function ThemeToggleButton() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-0 top-full mt-2 w-36 z-50 origin-top-right"
+            className="absolute top-full right-0 z-50 mt-2 w-36 origin-top-right"
             role="menu"
           >
-            <div className="glass-card rounded-xl p-1 shadow-2xl border border-black/5 dark:border-white/10">
+            <div className="glass-card rounded-xl border border-black/5 p-1 shadow-2xl dark:border-white/10">
               {options.map((opt) => {
                 const Icon = opt.icon;
                 const active = current === opt.value;
@@ -314,7 +293,7 @@ function ThemeToggleButton() {
                       setOpen(false);
                     }}
                     className={cn(
-                      "w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                       active
                         ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                         : "text-neutral-700 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10",
@@ -347,14 +326,11 @@ function BgPlayerToggle() {
       setPlaying(custom.detail?.playing ?? false);
     };
     const sync = () => {
-      setPlaying(
-        document.documentElement.hasAttribute("data-bg-video-playing"),
-      );
+      setPlaying(document.documentElement.hasAttribute("data-bg-video-playing"));
     };
     window.addEventListener("bg-player-state-change", handleStateChange);
     sync();
-    return () =>
-      window.removeEventListener("bg-player-state-change", handleStateChange);
+    return () => window.removeEventListener("bg-player-state-change", handleStateChange);
   }, []);
 
   const handleClick = () => {
@@ -366,23 +342,15 @@ function BgPlayerToggle() {
       onClick={handleClick}
       aria-label={playing ? t("bgPlayerPause") : t("bgPlayerPlay")}
       title={playing ? t("bgPlayerPause") : t("bgPlayerPlay")}
-      className="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90 flex items-center justify-center"
+      className="btn-plain scale-animation flex h-9 w-9 items-center justify-center rounded-lg active:scale-90 md:h-11 md:w-11"
       id="bg-player-toggle"
       type="button"
     >
-      <span
-        className={cn(
-          "bg-player-icon-play transition-opacity",
-          playing && "opacity-0 hidden",
-        )}
-      >
+      <span className={cn("bg-player-icon-play transition-opacity", playing && "hidden opacity-0")}>
         <Play className="size-5" />
       </span>
       <span
-        className={cn(
-          "bg-player-icon-pause transition-opacity",
-          !playing && "opacity-0 hidden",
-        )}
+        className={cn("bg-player-icon-pause transition-opacity", !playing && "hidden opacity-0")}
       >
         <Pause className="size-5" />
       </span>
@@ -401,7 +369,7 @@ function MusicToggle() {
       onClick={handleClick}
       aria-label={t("music")}
       title={t("music")}
-      className="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90 flex items-center justify-center"
+      className="btn-plain scale-animation flex h-9 w-9 items-center justify-center rounded-lg active:scale-90 md:h-11 md:w-11"
       id="music-player-switch"
       type="button"
     >
@@ -426,16 +394,14 @@ function DesktopSearchBar({ onSearch }: { onSearch: (query: string) => void }) {
     <form
       onSubmit={handleSubmit}
       id="search-bar"
-      className="hidden lg:flex relative transition-all items-center h-11 mr-2 rounded-lg
-        bg-black/4 hover:bg-black/6 focus-within:bg-black/6
-        dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10"
+      className="relative mr-2 hidden h-11 items-center rounded-lg bg-black/4 transition-all focus-within:bg-black/6 hover:bg-black/6 lg:flex dark:bg-white/5 dark:focus-within:bg-white/10 dark:hover:bg-white/10"
     >
-      <Search className="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30 size-5" />
+      <Search className="pointer-events-none absolute my-auto ml-3 size-5 text-[1.25rem] text-black/30 transition dark:text-white/30" />
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("placeholder")}
-        className="transition-all pl-10 text-sm bg-transparent outline-0 h-full w-40 active:w-60 focus:w-60 text-black/50 dark:text-white/50 placeholder:text-black/30 dark:placeholder:text-white/30"
+        className="h-full w-40 bg-transparent pl-10 text-sm text-black/50 outline-0 transition-all placeholder:text-black/30 focus:w-60 active:w-60 dark:text-white/50 dark:placeholder:text-white/30"
       />
     </form>
   );
@@ -473,26 +439,26 @@ function SearchPanel({
     <div
       id="search-panel"
       className={cn(
-        "float-panel search-panel absolute top-full right-0 mt-2 left-4 md:left-[unset] md:w-[30rem] shadow-2xl rounded-2xl p-2 z-50",
+        "float-panel search-panel absolute top-full right-0 left-4 z-50 mt-2 rounded-2xl p-2 shadow-2xl md:left-[unset] md:w-[30rem]",
         !isOpen && "float-panel-closed",
       )}
     >
       <form
         onSubmit={handleSubmit}
-        className="flex relative lg:hidden items-center h-11 rounded-xl bg-black/4 hover:bg-black/6 focus-within:bg-black/6 dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10"
+        className="relative flex h-11 items-center rounded-xl bg-black/4 focus-within:bg-black/6 hover:bg-black/6 lg:hidden dark:bg-white/5 dark:focus-within:bg-white/10 dark:hover:bg-white/10"
       >
-        <Search className="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30 size-5" />
+        <Search className="pointer-events-none absolute my-auto ml-3 size-5 text-[1.25rem] text-black/30 transition dark:text-white/30" />
         <input
           ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("placeholder")}
-          className="pl-10 absolute inset-0 text-sm bg-transparent outline-0 text-black/50 dark:text-white/50"
+          className="absolute inset-0 bg-transparent pl-10 text-sm text-black/50 outline-0 dark:text-white/50"
         />
       </form>
 
-      <div className="transition first-of-type:mt-2 lg:first-of-type:mt-0 block rounded-xl text-base px-3 py-2 text-black/50 dark:text-white/50">
-        <div className="hidden lg:flex items-center gap-2">
+      <div className="block rounded-xl px-3 py-2 text-base text-black/50 transition first-of-type:mt-2 lg:first-of-type:mt-0 dark:text-white/50">
+        <div className="hidden items-center gap-2 lg:flex">
           <Search className="size-4" />
           <span>{t("hint")}</span>
         </div>
@@ -533,7 +499,7 @@ function MobileNavMenu({
     <div
       id="nav-menu-panel"
       className={cn(
-        "float-panel transition-all fixed right-4 top-full mt-2 px-2 py-2 max-h-[80vh] overflow-y-auto z-[90] w-72",
+        "float-panel fixed top-full right-4 z-[90] mt-2 max-h-[80vh] w-72 overflow-y-auto px-2 py-2 transition-all",
         !isOpen && "float-panel-closed",
       )}
     >
@@ -546,23 +512,19 @@ function MobileNavMenu({
         return (
           <div key={link.i18nKey} className="mobile-menu-item">
             {hasChildren ? (
-              <div
-                className="mobile-dropdown"
-                data-expanded={isExpanded}
-                data-mobile-dropdown
-              >
+              <div className="mobile-dropdown" data-expanded={isExpanded} data-mobile-dropdown>
                 <button
                   onClick={() => toggleExpand(link.i18nKey)}
-                  className="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8 w-full text-left hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
+                  className="group flex w-full items-center justify-between gap-8 rounded-lg py-2 pr-1 pl-3 text-left transition hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]"
                   data-mobile-dropdown-trigger
                   aria-expanded={isExpanded}
                   type="button"
                 >
-                  <div className="flex items-center transition text-black/75 dark:text-white/75 font-bold group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
-                    {Icon && <Icon className="size-[1.1rem] mr-2" />}
+                  <div className="flex items-center font-bold text-black/75 transition group-hover:text-[var(--primary)] group-active:text-[var(--primary)] dark:text-white/75">
+                    {Icon && <Icon className="mr-2 size-[1.1rem]" />}
                     {linkLabel}
                   </div>
-                  <ChevronDown className="transition text-[1.25rem] text-[var(--primary)] mobile-dropdown-arrow duration-200 size-5" />
+                  <ChevronDown className="mobile-dropdown-arrow size-5 text-[1.25rem] text-[var(--primary)] transition duration-200" />
                 </button>
                 <div className="mobile-submenu" data-mobile-submenu>
                   {link.children!.map((child) => {
@@ -574,24 +536,18 @@ function MobileNavMenu({
                           if (!child.external) {
                             window.location.href = child.url;
                           } else {
-                            window.open(
-                              child.url,
-                              "_blank",
-                              "noopener,noreferrer",
-                            );
+                            window.open(child.url, "_blank", "noopener,noreferrer");
                           }
                           onClose();
                         }}
-                        className="group flex justify-between items-center py-2 pl-6 pr-1 rounded-lg gap-8 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition w-full text-left"
+                        className="group flex w-full items-center justify-between gap-8 rounded-lg py-2 pr-1 pl-6 text-left transition hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]"
                       >
-                        <div className="flex items-center transition text-black/60 dark:text-white/60 font-medium group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
-                          {ChildIcon && (
-                            <ChildIcon className="size-[1.1rem] mr-2" />
-                          )}
+                        <div className="flex items-center font-medium text-black/60 transition group-hover:text-[var(--primary)] group-active:text-[var(--primary)] dark:text-white/60">
+                          {ChildIcon && <ChildIcon className="mr-2 size-[1.1rem]" />}
                           {t(child.i18nKey)}
                         </div>
                         {child.external && (
-                          <ArrowUpRight className="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1 size-3" />
+                          <ArrowUpRight className="size-3 -translate-x-1 text-[0.75rem] text-black/25 transition dark:text-white/25" />
                         )}
                       </button>
                     );
@@ -608,17 +564,17 @@ function MobileNavMenu({
                   }
                   onClose();
                 }}
-                className="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition w-full text-left"
+                className="group flex w-full items-center justify-between gap-8 rounded-lg py-2 pr-1 pl-3 text-left transition hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]"
               >
-                <div className="flex items-center transition text-black/75 dark:text-white/75 font-bold group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
-                  {Icon && <Icon className="size-[1.1rem] mr-2" />}
+                <div className="flex items-center font-bold text-black/75 transition group-hover:text-[var(--primary)] group-active:text-[var(--primary)] dark:text-white/75">
+                  {Icon && <Icon className="mr-2 size-[1.1rem]" />}
                   {linkLabel}
                 </div>
                 {!link.external && (
-                  <ChevronRight className="transition text-[1.25rem] text-[var(--primary)] size-5" />
+                  <ChevronRight className="size-5 text-[1.25rem] text-[var(--primary)] transition" />
                 )}
                 {link.external && (
-                  <ArrowUpRight className="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1 size-3" />
+                  <ArrowUpRight className="size-3 -translate-x-1 text-[0.75rem] text-black/25 transition dark:text-white/25" />
                 )}
               </button>
             )}
@@ -627,7 +583,7 @@ function MobileNavMenu({
       })}
 
       <div className="mt-3 border-t border-black/10 pt-3 dark:border-white/10">
-        <p className="mb-2 text-xs font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">
+        <p className="mb-2 text-xs font-medium tracking-wider text-black/50 uppercase dark:text-white/50">
           {tHeader("language")}
         </p>
         <LanguageSwitcher
@@ -681,15 +637,12 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
 
     let ticking = false;
     const updateNavbarState = () => {
-      if (
-        document.documentElement.classList.contains("is-page-transitioning")
-      ) {
+      if (document.documentElement.classList.contains("is-page-transitioning")) {
         navbar.classList.remove("scrolled");
         ticking = false;
         return;
       }
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       if (scrollTop > 50) {
         navbar.classList.add("scrolled");
       } else {
@@ -758,25 +711,23 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
       // light-adapt：浅色模式下导航卡片（#navbar > div 在浅色下取 --card-bg 纯白）
       // 的内部文字补偿作用域，见 globals.css 亮色适配块
       className="light-adapt z-50"
-      style={
-        { "--navbar-glass-blur": `${navbarBlur}px` } as React.CSSProperties
-      }
+      style={{ "--navbar-glass-blur": `${navbarBlur}px` } as React.CSSProperties}
       data-transparent-mode={navbarTransparentMode}
       data-enable-blur={navbarEnableBlur}
       data-is-home={navbarIsHome}
       data-full-width={navbarFullWidth}
     >
-      <div className="overflow-visible h-16 relative">
-        <div className="mx-auto h-full w-full max-w-[--page-width] flex items-center px-4 relative">
+      <div className="relative h-16 overflow-visible">
+        <div className="relative mx-auto flex h-full w-full max-w-[--page-width] items-center px-4">
           {/* Left group: logo + nav flush against each other */}
-          <div className="flex items-center gap-1 min-w-0">
+          <div className="flex min-w-0 items-center gap-1">
             <Link
               href="/"
-              className="btn-plain scale-animation rounded-lg h-13 px-3 md:px-5 font-bold active:scale-95 flex items-center shrink-0"
+              className="btn-plain scale-animation flex h-13 shrink-0 items-center rounded-lg px-3 font-bold active:scale-95 md:px-5"
             >
               <div
                 className={cn(
-                  "flex flex-row items-center text-md",
+                  "text-md flex flex-row items-center",
                   siteConfig.navbar.followTheme
                     ? "text-[var(--primary)]"
                     : "text-black dark:text-white",
@@ -785,7 +736,7 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
                 suppressHydrationWarning
               >
                 {siteConfig.navbar.logo?.type === "icon" ? (
-                  <Home className="text-[1.75rem] mb-1 mr-2 size-7" />
+                  <Home className="mr-2 mb-1 size-7 text-[1.75rem]" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -793,7 +744,7 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
                     alt={siteConfig.navbar.logo?.alt || navbarTitle}
                     width={28}
                     height={28}
-                    className="h-7 w-7 mb-1 mr-2 object-contain"
+                    className="mr-2 mb-1 h-7 w-7 object-contain"
                     loading="eager"
                     decoding="sync"
                     suppressHydrationWarning
@@ -804,13 +755,13 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
             </Link>
 
             {/* Middle navigation menu - flush against the logo */}
-            <div className="hidden lg:flex items-center">
+            <div className="hidden items-center lg:flex">
               <NavBar items={effectiveNavItems} className="space-x-0.5" />
             </div>
           </div>
 
           {/* Right function buttons */}
-          <div className="flex items-center shrink-0 ml-auto">
+          <div className="ml-auto flex shrink-0 items-center">
             <DesktopSearchBar onSearch={handleSearch} />
 
             <MusicToggle />
@@ -822,18 +773,14 @@ function Header({ locales, navExternalLinks, siteTitle }: HeaderProps) {
             <button
               ref={mobileMenuButtonRef}
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="btn-plain scale-animation rounded-lg w-9 h-9 md:w-11 md:h-11 active:scale-90 lg:hidden flex items-center justify-center"
+              className="btn-plain scale-animation flex h-9 w-9 items-center justify-center rounded-lg active:scale-90 md:h-11 md:w-11 lg:hidden"
               aria-label={tHeader("menu")}
               aria-expanded={mobileMenuOpen}
               name="Nav Menu"
               id="nav-menu-switch"
               type="button"
             >
-              {mobileMenuOpen ? (
-                <X className="size-5" />
-              ) : (
-                <MenuIcon className="size-5" />
-              )}
+              {mobileMenuOpen ? <X className="size-5" /> : <MenuIcon className="size-5" />}
             </button>
           </div>
         </div>

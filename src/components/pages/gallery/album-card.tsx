@@ -15,9 +15,9 @@ export function AlbumCard({ album, photoLabel = "张照片" }: AlbumCardProps) {
     <Link
       href={`/gallery/${album.id}`}
       data-tags={album.description || ""}
-      className="album-card group relative block overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+      className="album-card group relative block overflow-hidden rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
     >
-      <div className="aspect-4/3 relative overflow-hidden">
+      <div className="relative aspect-4/3 overflow-hidden">
         {album.cover ? (
           <Image
             src={album.cover}
@@ -25,7 +25,7 @@ export function AlbumCard({ album, photoLabel = "张照片" }: AlbumCardProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             unoptimized
-            className="w-full h-full object-cover pointer-events-none transition-all duration-500 ease-out group-hover:scale-105"
+            className="pointer-events-none h-full w-full object-cover transition-all duration-500 ease-out group-hover:scale-105"
           />
         ) : album.photos && album.photos.length > 0 ? (
           <Image
@@ -34,28 +34,28 @@ export function AlbumCard({ album, photoLabel = "张照片" }: AlbumCardProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             unoptimized
-            className="w-full h-full object-cover pointer-events-none transition-all duration-500 ease-out group-hover:scale-105"
+            className="pointer-events-none h-full w-full object-cover transition-all duration-500 ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <div className="text-gray-400 text-5xl">📷</div>
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
+            <div className="text-5xl text-gray-400">📷</div>
           </div>
         )}
 
-        <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs text-white font-medium bg-black/50 backdrop-blur-sm">
+        <div className="absolute top-2 right-2 rounded-full bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
           {album.photos?.length || 0} {photoLabel}
         </div>
 
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="absolute right-0 bottom-0 left-0 p-4">
           {/* 保留白字：封面图 + from-black/70 渐变蒙层上，两种主题都必须保持白色 */}
-          <h3 className="font-bold text-base text-white line-clamp-1 drop-shadow-lg">
+          <h3 className="line-clamp-1 text-base font-bold text-white drop-shadow-lg">
             {album.name}
           </h3>
           {/* 保留白字 75%：同上，图片蒙层 */}
           {album.description && (
             <p
-              className="text-xs text-white/75 line-clamp-1 mt-1 leading-relaxed"
+              className="mt-1 line-clamp-1 text-xs leading-relaxed text-white/75"
               title={album.description}
             >
               {album.description}

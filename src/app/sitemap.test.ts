@@ -28,7 +28,7 @@ vi.mock("@/i18n/routing", () => ({
 }));
 
 vi.mock("@/lib/safe-db", () => ({
-  safeDbQuery: async <T,>(fn: () => Promise<T>, fallback: T): Promise<T> => {
+  safeDbQuery: async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
     try {
       return await fn();
     } catch {
@@ -143,9 +143,8 @@ describe("sitemap", () => {
     findMany.mockResolvedValue([]);
     vi.resetModules();
     vi.doMock("@/config/slider-config", async () => {
-      const actual = await vi.importActual<typeof import("@/config/slider-config")>(
-        "@/config/slider-config",
-      );
+      const actual =
+        await vi.importActual<typeof import("@/config/slider-config")>("@/config/slider-config");
       return { ...actual, siteConfig: { ...actual.siteConfig, site_url: "javascript:alert(1)" } };
     });
     const mod = await import("@/app/sitemap");

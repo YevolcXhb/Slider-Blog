@@ -72,13 +72,10 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
     [isGeneratingSlug],
   );
 
-  const handleSlugChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSlug(e.target.value);
-      setIsGeneratingSlug(false);
-    },
-    [],
-  );
+  const handleSlugChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlug(e.target.value);
+    setIsGeneratingSlug(false);
+  }, []);
 
   const handleTagToggle = useCallback((tagId: number) => {
     setSelectedTags((prev) =>
@@ -98,9 +95,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
         // 被整段替换掉，于是 updatePost 会把不带 locale 的 slug 原样写库，
         // 详情页立刻 404。这里与 create-form 保持一致，提交前补齐缺失的前缀。
         const rawSlug = slug.trim() || slugify(title);
-        const fullSlug = rawSlug.includes("/")
-          ? rawSlug
-          : `${locale}/${rawSlug}`;
+        const fullSlug = rawSlug.includes("/") ? rawSlug : `${locale}/${rawSlug}`;
         await updatePost(post.id, {
           title,
           slug: fullSlug,
@@ -110,7 +105,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
           tags: selectedTags.length > 0 ? selectedTags : undefined,
         });
 
-        router.push('/posts');
+        router.push("/posts");
         router.refresh();
       } catch (err) {
         setError(
@@ -141,12 +136,8 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
               {t("back_to_posts")}
             </Link>
           </div>
-          <h1 className="text-3xl font-bold text-white/90">
-            {t("edit_title")}
-          </h1>
-          <p className="mt-1 text-sm text-white/50">
-            {t("edit_subtitle")}
-          </p>
+          <h1 className="text-3xl font-bold text-white/90">{t("edit_title")}</h1>
+          <p className="mt-1 text-sm text-white/50">{t("edit_subtitle")}</p>
         </div>
       </div>
 
@@ -163,10 +154,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
 
           {/* Title */}
           <div className="space-y-2">
-            <label
-              htmlFor="title"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="title" className="text-sm font-medium text-white/70">
               {t("title_label")} <span className="text-red-400">*</span>
             </label>
             <GlassInput
@@ -182,10 +170,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
 
           {/* Slug */}
           <div className="space-y-2">
-            <label
-              htmlFor="slug"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="slug" className="text-sm font-medium text-white/70">
               {t("slug_label")} <span className="text-red-400">*</span>
             </label>
             <GlassInput
@@ -197,17 +182,12 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
               required
               disabled={isSubmitting}
             />
-            <p className="text-xs text-white/40">
-              {t("auto_slug_hint")}
-            </p>
+            <p className="text-xs text-white/40">{t("auto_slug_hint")}</p>
           </div>
 
           {/* Content */}
           <div className="space-y-2">
-            <label
-              htmlFor="content"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="content" className="text-sm font-medium text-white/70">
               {t("content_label")} <span className="text-red-400">*</span>
             </label>
             <textarea
@@ -227,10 +207,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
 
           {/* Excerpt */}
           <div className="space-y-2">
-            <label
-              htmlFor="excerpt"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="excerpt" className="text-sm font-medium text-white/70">
               {t("excerpt_label")}
             </label>
             <textarea
@@ -246,10 +223,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
 
           {/* Category */}
           <div className="space-y-2">
-            <label
-              htmlFor="category"
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor="category" className="text-sm font-medium text-white/70">
               {t("category_label")}
             </label>
             <select
@@ -257,7 +231,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               disabled={isSubmitting}
-              className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-foreground backdrop-blur-md transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:pointer-events-none disabled:opacity-50"
+              className="text-foreground focus:ring-primary/50 w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm backdrop-blur-md transition-all focus:ring-2 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
             >
               <option value="">{t("select_category")}</option>
               {categories.map((cat) => (
@@ -267,17 +241,13 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
               ))}
             </select>
             {categories.length === 0 && (
-              <p className="text-xs text-white/40">
-                {t("no_categories_available")}
-              </p>
+              <p className="text-xs text-white/40">{t("no_categories_available")}</p>
             )}
           </div>
 
           {/* Tags */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white/70">
-              {t("tags_label")}
-            </label>
+            <label className="text-sm font-medium text-white/70">{t("tags_label")}</label>
             {tags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
@@ -308,12 +278,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
                 {t("cancel")}
               </GlassButton>
             </Link>
-            <GlassButton
-              type="submit"
-              variant="primary"
-              size="md"
-              disabled={isSubmitting}
-            >
+            <GlassButton type="submit" variant="primary" size="md" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
