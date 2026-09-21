@@ -39,6 +39,17 @@ function TableOfContents({ content, className }: TableOfContentsProps) {
   const elementsRef = useRef<Map<string, HTMLElement>>(new Map())
   const visibilityRef = useRef<Map<string, number>>(new Map())
 
+  // 清理点：observer 是每次 headings 变化时新建的，但下面的 click 处理只受
+  // elementsRef 影响。把 observer 存进 ref 是为了让组件在卸载时也能主动断开，
+  // 而不是只依赖 effect 的 cleanup（StrictMode 下 effect 会跑两遍，先建后拆）。
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect()
+    }
+  }, [])
+
   useEffect(() => {
     const elementsMap = new Map<string, HTMLElement>()
     for (const heading of headings) {
@@ -56,9 +67,15 @@ function TableOfContents({ content, className }: TableOfContentsProps) {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          visibilityRef.current.set(entry.target.id, entry.intersectionRatio)
-        }
+        // visibilityRef 是「本 effect 内这批 heading」的可见度快照。这里必须先
+        // 清空再写入：IntersectionObserver 只在**比值发生变化**时回调，
+        // 于是已经滚出视口、比值停在 0 的旧 heading 永远不会再被回调覆盖，
+        // 它的 0 会一直留在 map 里参与下面的 "最大比值" 竞争；更糟的是它会把
+        // 一个早已不可见的条目保留成候选。每次回调都从本次 entries 重建，
+        // 语义是"这批观测结果里谁最可见"。
+        visibilityRef.current = new Map(
+          entries.map((entry) => [entry.target.id, entry.intersectionRatio]),
+        )
 
         let maxRatio = 0
         let mostVisibleId = ""
@@ -86,9 +103,13 @@ function TableOfContents({ content, className }: TableOfContentsProps) {
     )
 
     elementsMap.forEach((el) => observer.observe(el))
+    observerRef.current = observer
 
     return () => {
       observer.disconnect()
+      if (observerRef.current === observer) {
+        observerRef.current = null
+      }
       elementsRef.current = new Map()
       visibilityRef.current = new Map()
     }

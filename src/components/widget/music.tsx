@@ -152,6 +152,7 @@ function ProgressBar({
   onSeekEnd: (value: number) => void
 }) {
   // 进度直接来自 store（拖拽时 store 的 progress 由 seekPreview 实时更新）
+  const t = useTranslations("Player")
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0
 
   const handleCommit = (fraction: number) => {
@@ -179,7 +180,7 @@ function ProgressBar({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         role="slider"
-        aria-label="播放进度"
+        aria-label={t("progress")}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(progressPercent)}
@@ -208,6 +209,7 @@ function VolumeControl({
   onToggleMute: () => void
   onVolumeChange: (value: number) => void
 }) {
+  const t = useTranslations("Player")
   // 音量直接来自 store，拖拽时实时调用 onVolumeChange 更新 store
   const displayVolume = isMuted ? 0 : volume
 
@@ -226,8 +228,8 @@ function VolumeControl({
       <button
         onClick={onToggleMute}
         className="p-1 rounded-md text-neutral-400 hover:text-[var(--primary)] transition-colors"
-        aria-label={isMuted ? "取消静音" : "静音"}
-        title="音量"
+        aria-label={isMuted ? t("unmute") : t("mute")}
+        title={t("volume")}
       >
         {isMuted || displayVolume === 0 ? (
           <VolumeX className="size-4" />
@@ -243,7 +245,7 @@ function VolumeControl({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         role="slider"
-        aria-label="音量"
+        aria-label={t("volume")}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(displayVolume * 100)}
@@ -259,6 +261,7 @@ function VolumeControl({
 
 function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetProps) {
   const t = useTranslations("Widgets")
+  const tPlayer = useTranslations("Player")
   const showTitle = widgetConfig?.showTitle !== false
 
   const { state, togglePlay, nextTrack, prevTrack, playTrack, seekStart, seekPreview, seekEnd, setVolume, toggleMute, cyclePlayMode } =
@@ -284,7 +287,12 @@ function MusicWidget({ musicList, widgetConfig, className, style }: MusicWidgetP
   }
 
   const ModeIcon = playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat
-  const modeTitle = playMode === "sequence" ? "顺序播放" : playMode === "repeat" ? "单曲循环" : "随机播放"
+  const modeTitle =
+    playMode === "sequence"
+      ? tPlayer("sequence")
+      : playMode === "repeat"
+        ? tPlayer("repeat")
+        : tPlayer("shuffle")
 
   return (
     <WidgetLayout name={t("music")} showTitle={showTitle} id="music" className={className} style={style}>

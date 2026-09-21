@@ -31,8 +31,8 @@ npm install
 # 2. 配置环境变量（参照 .env.example，务必设置 NEXTAUTH_SECRET、ADMIN_PROXY_SECRET）
 cp .env.example .env
 
-# 3. 初始化数据库
-npx prisma db push
+# 3. 初始化数据库（应用 prisma/migrations 下的迁移）
+npx prisma migrate deploy
 
 # 4. 启动前台（4000）
 npm run dev
@@ -41,18 +41,40 @@ npm run dev
 npm run dev:admin
 ```
 
-首次访问 `http://localhost:4100` 进入初始化向导：先填写数据库连接信息（地址/端口/库名/用户名/密码），服务端验证连接后写入容器内的 `/data/config.env` 并自动重启，随后创建管理员并配置站点。完整说明见 [快速开始文档](docs-site/guide/getting-started.md)。
+首次访问 `http://localhost:4100` 进入初始化向导：先填写数据库连接信息（地址/端口/库名/用户名/密码），服务端验证连接后写入容器内的 `/data/config.env` 并自动重启，随后创建管理员并配置站点。完整的部署与排错说明见 [部署指南](DEPLOY.md)。
+
+### 会话 cookie 与 HTTPS（重要）
+
+NextAuth 会话 cookie 的 `Secure` 属性与 `__Secure-` / `__Host-` 前缀由 **构建期常量 `NODE_ENV`** 决定
+（`src/auth.config.ts` 的 `resolveUseSecureCookies`），**不看请求头**：
+
+| 环境 | 命令 | session / callback-url | csrf |
+| --- | --- | --- | --- |
+| 开发 | `npm run dev` | `authjs.session-token`（无 Secure） | `authjs.csrf-token` |
+| 生产 | `npm run build` + `npm start` | `__Secure-authjs.session-token`（Secure） | `__Host-authjs.csrf-token` |
+
+由此带来两条部署要求：
+
+- **开发**：`http://localhost:4000` 与 `http://192.168.x.x:4100` 都照常登录，无需任何额外配置。
+- **生产**：**必须**对客户端提供 HTTPS（由 Nginx / Caddy 等终止 TLS）。若生产以明文 http 对外服务，
+  浏览器会直接丢弃带 `Secure` 的 cookie，表现为「登录成功但立刻跳回登录页」。
+
+> 不要改成「按 `x-forwarded-proto` 动态判定」：`admin-proxy.mjs` 出于安全原因会剥掉该请求头，
+> 生产里 Next.js 看到的上游协议是明文 http，动态判定反而会把生产会话 cookie 降级为非 Secure。
 
 ## Docker 部署
 
-项目内置 `Dockerfile` + `docker-compose.yml`（单镜像：前台 4000 + 管理端 4100）：
+项目内置 `Dockerfile`（单镜像：前台 4000 + 管理端 4100）。仓库中不含 `docker-compose.yml`，
+请自行编排数据库容器，或直接使用外部数据库实例：
 
 ```bash
-docker compose up -d db        # 使用内置数据库时先起库
-docker compose up -d --build
+# 构建并启动（需先准备好外部 MariaDB 并设置好 .env 中的 DATABASE_URL）
+docker build -t slider-blog .
+docker run -d --name slider-blog -p 4000:4000 -p 4100:4100 \
+  -v slider-data:/data --env-file .env slider-blog
 ```
 
-支持直连外部数据库：在 `.env` 设置 `DATABASE_URL=mariadb://user:password@主机IP:3306/库名` 即可。详见 [部署指南](docs-site/guide/deploy.md)。
+支持直连外部数据库：在 `.env` 设置 `DATABASE_URL=mariadb://user:password@主机IP:3306/库名` 即可。详见 [部署指南](DEPLOY.md)。
 
 ## 项目结构
 
@@ -69,13 +91,11 @@ slider-blog/
 │   └── proxy.ts             # 中间件（端口隔离 + 后台鉴权）
 ├── admin-proxy.mjs          # 管理面板入口代理（4100 → 4000）
 ├── Dockerfile               # 一体镜像
-├── docker-compose.yml       # 一键部署编排
-├── docs-site/               # 文档
+├── DEPLOY.md                # 部署指南
 └── messages/                # i18n 翻译（zh / en）
 ```
 
 ## 文档
 
-- [快速开始](docs-site/guide/getting-started.md)
-- [部署指南](docs-site/guide/deploy.md)
-- [环境变量参考](docs-site/guide/env.md)
+- [部署指南](DEPLOY.md)：从零到上线的完整部署流程
+- [环境变量参考](.env.example)：所有可配置项与默认值

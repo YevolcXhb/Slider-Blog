@@ -8,6 +8,8 @@ import {
   Heart,
   MessageCircle,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
+
 import { cn } from "@/lib/utils"
 import { formatYMD } from "./post-meta"
 
@@ -86,12 +88,17 @@ function PostStats({
   showReadingTime = true,
   showIcons = false,
   className,
-  locale = "zh",
+  // locale 仍然保留在 PostStatsProps 里（调用方会传，属于公开 props 契约），
+  // 但文案已改由 next-intl 提供，因此这里不再解构使用。
   viewCount,
   likeCount,
   commentCount,
   onLike,
 }: PostStatsProps) {
+  // PostStats 是普通客户端组件，位于 NextIntlClientProvider 下游，useTranslations 安全。
+  const tMeta = useTranslations("PostMeta")
+  const tArchive = useTranslations("Archive")
+
   const hasPublished = showPublished && published !== undefined
   const hasWords = showWords && typeof words === "number"
   const hasMinutes = showReadingTime && typeof minutes === "number"
@@ -142,7 +149,7 @@ function PostStats({
       {hasPublished && (
         <StatItem
           icon={CalendarDays}
-          label={locale === "zh" ? "发布于" : "Published at"}
+          label={tArchive("publishedAt")}
           value={formatYMD(published)}
           showIcons={showIcons}
           textClass={textClass}
@@ -155,7 +162,7 @@ function PostStats({
       {hasWords && (
         <StatItem
           icon={FileText}
-          value={`${words} ${locale === "zh" ? "字" : "words"}`}
+          value={tMeta("word", { count: words })}
           showIcons={showIcons}
           textClass={textClass}
           iconWrapperClass={iconWrapperClass}
@@ -169,7 +176,7 @@ function PostStats({
       {hasMinutes && (
         <StatItem
           icon={Clock}
-          value={`${minutes} ${locale === "zh" ? "分钟" : "min"}`}
+          value={tMeta("minute", { count: minutes })}
           showIcons={showIcons}
           textClass={textClass}
           iconWrapperClass={iconWrapperClass}

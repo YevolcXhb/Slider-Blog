@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import Image from "next/image"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
 import {
@@ -94,6 +95,7 @@ function ProgressBar({
   onSeekPreview: (value: number) => void
   onSeekEnd: (value: number) => void
 }) {
+  const t = useTranslations("Player")
   // 进度直接来自 store（拖拽时由 seekPreview 实时更新 store.progress）
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0
   const containerRef = useRef<HTMLDivElement>(null)
@@ -141,7 +143,7 @@ function ProgressBar({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         role="slider"
-        aria-label="播放进度"
+        aria-label={t("progress")}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(progressPercent)}
@@ -170,6 +172,7 @@ function VolumeControl({
   onToggleMute: () => void
   onVolumeChange: (value: number) => void
 }) {
+  const t = useTranslations("Player")
   // 音量直接来自 store，拖拽时实时调用 onVolumeChange 同步 store + audio
   const displayVolume = isMuted ? 0 : volume
   const containerRef = useRef<HTMLDivElement>(null)
@@ -211,8 +214,8 @@ function VolumeControl({
       <button
         onClick={onToggleMute}
         className="p-1 rounded-md text-neutral-400 hover:text-[var(--primary)] transition-colors"
-        aria-label={isMuted ? "取消静音" : "静音"}
-        title="音量"
+        aria-label={isMuted ? t("unmute") : t("mute")}
+        title={t("volume")}
       >
         {isMuted || displayVolume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
       </button>
@@ -224,7 +227,7 @@ function VolumeControl({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         role="slider"
-        aria-label="音量"
+        aria-label={t("volume")}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(displayVolume * 100)}
@@ -251,6 +254,7 @@ function PlaylistDrawer({
   isPlaying: boolean
   onPlayTrack: (i: number) => void
 }) {
+  const t = useTranslations("Player")
   return (
     <AnimatePresence>
       {isOpen && (
@@ -266,7 +270,7 @@ function PlaylistDrawer({
               <div
                 className="playlist-container max-h-48 overflow-y-auto custom-scrollbar pr-1 pb-1 relative"
                 role="listbox"
-                aria-label="播放列表"
+                aria-label={t("playlist")}
               >
                 {playlist.map((track, index) => (
                   <button
@@ -358,6 +362,8 @@ function PlayerCard({
   onToggleExpanded: () => void
   onPlayTrack: (i: number) => void
 }) {
+  const t = useTranslations("Player")
+  const tWidgets = useTranslations("Widgets")
   const currentTrack = playlist[currentIndex] || null
   const [showPlaylist, setShowPlaylist] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -378,7 +384,12 @@ function PlayerCard({
   if (!currentTrack) return null
 
   const ModeIcon = playMode === "shuffle" ? Shuffle : playMode === "repeat" ? Repeat1 : Repeat
-  const modeTitle = playMode === "sequence" ? "顺序播放" : playMode === "repeat" ? "单曲循环" : "随机播放"
+  const modeTitle =
+    playMode === "sequence"
+      ? t("sequence")
+      : playMode === "repeat"
+        ? t("repeat")
+        : t("shuffle")
 
   return (
     <motion.div
@@ -389,10 +400,15 @@ function PlayerCard({
       exit={{ scale: 0.9, opacity: 0 }}
       transition={{ type: "spring", damping: 32, stiffness: 320 }}
       className={cn(
-        "fixed right-4 z-40 overflow-hidden shadow-2xl",
+        // bottom-* 必须写死成一个值：原先折叠态没有 bottom，motion 的 layout
+        // 动画在展开/收起时会因为"展开态有 bottom-24、折叠态没有"而把卡片
+        // 从底部弹到顶再落回，同时收起态用 w-auto 让宽度随标题长度抖一下。
+        // 折叠态给一个固定的 w-64，两种状态的左右锚点一致，layout 动画就只
+        // 剩下高度变化，不会出现整块跳位。
+        "fixed right-4 bottom-24 z-40 overflow-hidden shadow-2xl",
         isExpanded
-          ? "bottom-24 w-80 sm:w-96 rounded-2xl glass-card p-4"
-          : "bottom-24 w-auto rounded-2xl glass-card p-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+          ? "w-80 sm:w-96 rounded-2xl glass-card p-4"
+          : "w-64 rounded-2xl glass-card p-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
       )}
       onClick={!isExpanded ? onToggleExpanded : undefined}
     >
@@ -409,7 +425,7 @@ function PlayerCard({
               onTogglePlay()
             }}
             className="flex size-9 items-center justify-center rounded-full bg-[var(--primary)] text-white transition-transform hover:scale-105 active:scale-95"
-            aria-label={isPlaying ? "暂停" : "播放"}
+            aria-label={isPlaying ? tWidgets("pause") : tWidgets("play")}
           >
             {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
           </button>
@@ -417,11 +433,11 @@ function PlayerCard({
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">音乐播放器</span>
+            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{t("title")}</span>
             <button
               onClick={onToggleExpanded}
               className="rounded-lg p-1 text-neutral-400 transition-colors hover:bg-black/5 hover:text-neutral-700 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white"
-              aria-label="收起"
+              aria-label={t("collapse")}
             >
               <ChevronDown className="size-4" />
             </button>
@@ -472,21 +488,21 @@ function PlayerCard({
             <button
               onClick={onPrev}
               className="p-2 rounded-lg text-neutral-600 dark:text-neutral-300 hover:text-[var(--primary)] transition-colors active:scale-95"
-              aria-label="上一首"
+              aria-label={t("previous")}
             >
               <SkipBack className="size-6" />
             </button>
             <button
               onClick={onTogglePlay}
               className="size-12 rounded-full bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)] text-[var(--primary)] flex items-center justify-center transition-all active:scale-95"
-              aria-label={isPlaying ? "暂停" : "播放"}
+              aria-label={isPlaying ? tWidgets("pause") : tWidgets("play")}
             >
               {isPlaying ? <Pause className="size-6" /> : <Play className="size-6 ml-0.5" />}
             </button>
             <button
               onClick={onNext}
               className="p-2 rounded-lg text-neutral-600 dark:text-neutral-300 hover:text-[var(--primary)] transition-colors active:scale-95"
-              aria-label="下一首"
+              aria-label={t("next")}
             >
               <SkipForward className="size-6" />
             </button>
@@ -496,8 +512,8 @@ function PlayerCard({
                 "p-2 rounded-lg transition-colors active:scale-95",
                 showPlaylist ? "text-[var(--primary)]" : "text-neutral-400 hover:text-[var(--primary)]"
               )}
-              aria-label="播放列表"
-              title="播放列表"
+              aria-label={t("playlist")}
+              title={t("playlist")}
             >
               <ListMusic className="size-5" />
             </button>
@@ -548,8 +564,12 @@ function GlobalPlayer() {
   useEffect(() => {
     let mounted = true
     fetch("/api/music")
-      .then((res) => res.json())
-      .then((tracks: MusicItem[]) => {
+      .then((res) => (res.ok ? res.json() : null))
+      .then((tracks: MusicItem[] | null) => {
+        // 先判 mounted 再写共享 store：原来 fetch 失败 / 返回非 2xx（例如
+        // 500 的 JSON 错误体）时，finally 分支会把 store 重置成空列表，
+        // 而成功分支又可能在 unmount 之后才写入，晚到的网络结果会覆盖掉
+        // 更新的状态。两个分支都在 mounted 为 false 时直接放弃。
         if (!mounted) return
         loadPlaylist(Array.isArray(tracks) ? tracks : [])
       })

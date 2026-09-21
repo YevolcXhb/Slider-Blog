@@ -56,7 +56,7 @@ export async function createCategory(formData: FormData) {
   }
 
   revalidateTag('categories', 'max');
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
 }
 
 export async function updateCategory(id: number, formData: FormData) {
@@ -83,7 +83,7 @@ export async function updateCategory(id: number, formData: FormData) {
   }
 
   revalidateTag('categories', 'max');
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
 }
 
 export async function deleteCategory(id: number) {
@@ -96,7 +96,7 @@ export async function deleteCategory(id: number) {
   });
 
   revalidateTag('categories', 'max');
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
 }
 
 // ==================== Tag Actions ====================
@@ -123,7 +123,7 @@ export async function createTag(formData: FormData) {
   }
 
   revalidateTag('categories', 'max');
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
 }
 
 export async function updateTag(id: number, formData: FormData) {
@@ -150,7 +150,7 @@ export async function updateTag(id: number, formData: FormData) {
   }
 
   revalidateTag('categories', 'max');
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
 }
 
 export async function deleteTag(id: number) {
@@ -163,5 +163,5 @@ export async function deleteTag(id: number) {
   });
 
   revalidateTag('categories', 'max');
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
 }

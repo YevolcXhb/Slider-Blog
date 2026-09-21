@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTags } from "@/server/queries/post";
+import { getClientIp } from "@/lib/client-ip";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
   try {
-    // Rate limiting: API 10 req/s
-    const ip = (request.headers.get("x-forwarded-for") || "unknown")
-      .split(",")[0]
-      .trim();
+    // 限流：api 配额 10 次/秒；IP 取信统一走 getClientIp（优先 x-real-ip）
+    const ip = getClientIp(request.headers);
     try {
       await rateLimit(ip, "api");
     } catch {

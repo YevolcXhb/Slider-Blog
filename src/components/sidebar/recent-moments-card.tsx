@@ -5,7 +5,7 @@ import Link from "next/link"
 
 import type { MomentItem } from "@/server/queries/site"
 import { formatDate } from "@/lib/utils"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 interface RecentMomentsCardProps {
   moments: MomentItem[]
@@ -13,6 +13,7 @@ interface RecentMomentsCardProps {
 
 function RecentMomentsCard({ moments }: RecentMomentsCardProps) {
   const locale = useLocale()
+  const t = useTranslations("Widgets")
 
   if (moments.length === 0) {
     return null
@@ -22,12 +23,12 @@ function RecentMomentsCard({ moments }: RecentMomentsCardProps) {
     <div className="card-base rounded-2xl p-5">
       <div className="widget-title mb-4 pb-3">
         <Clock className="widget-title-icon size-4" />
-        <span className="widget-title-text">最新动态</span>
+        <span className="widget-title-text">{t("latestDynamics")}</span>
         <Link
           href="/moments"
           className="ml-auto text-xs text-pink-500 transition-colors hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300"
         >
-          更多
+          {t("more")}
         </Link>
       </div>
       <div className="relative space-y-4 pl-2">
@@ -46,7 +47,7 @@ function RecentMomentsCard({ moments }: RecentMomentsCardProps) {
                 {moment.isPinned && (
                   <span className="mr-1.5 inline-flex items-center rounded-md bg-pink-100 px-1.5 py-0.5 text-[10px] font-medium text-pink-600 dark:bg-pink-500/20 dark:text-pink-300">
                     <Pin className="mr-0.5 size-2.5" />
-                    置顶
+                    {t("pinned")}
                   </span>
                 )}
                 {moment.content}

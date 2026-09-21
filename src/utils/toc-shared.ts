@@ -4,6 +4,36 @@ export interface TocInput {
   text: string
 }
 
+
+/**
+ * 锚点的编码方式必须唯一，否则侧栏目录里点得动的链接会指向一个不存在的 id。
+ *
+ * 一旦 slug 落在 HTML 片段标识符里，`#` 之后的内容按 RFC 3986 是 fragment，
+ * 浏览器取 `location.hash` 时返回的是**原始（未解码）**文本；因此消费方必须
+ * 对 `href` 与 `location.hash` 做同一套解码，才不会各解一次。
+ *
+ * 这里统一提供编码/解码一对纯函数：编码端只转义确实会改变 fragment 解析结果
+ * 的字符，解码端对畸形百分号序列（如孤立的 `%`）安全降级为原串，绝不抛 URIError。
+ */
+export function encodeHeadingFragment(slug: string): string {
+  // 只转义 % # ? 与空白：encodeURIComponent 会连 - _ . ! ~ * ' ( ) 一起转义，
+  // 那些字符在 fragment 里本就不需要转义，转义后反而让 href 不可读、
+  // 也会让旧数据里已经写好的 `#中文标题` 与新的 href 形态不一致。
+  return slug.replace(/[%#?\s]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`)
+}
+
+export function decodeHeadingFragment(fragment: string): string {
+  const raw = fragment.startsWith("#") ? fragment.slice(1) : fragment
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    // 畸形百分号序列（单个 `%`、`%zz`、被截断的 UTF-8 序列）：原样返回，
+    // 让 getElementById 去失败并走「找不到锚点」的分支，而不是抛 URIError
+    // 把整棵组件树打成错误边界。
+    return raw
+  }
+}
+
 export interface TocItem {
   headingId: string
   href: string
@@ -53,7 +83,7 @@ export function computeTocItems(
 
     items.push({
       headingId: h.slug,
-      href: `#${h.slug}`,
+      href: `#${encodeHeadingFragment(h.slug)}`,
       depthLevel,
       badgeKind,
       badgeIndex,

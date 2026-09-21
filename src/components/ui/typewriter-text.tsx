@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -21,14 +21,24 @@ function TypewriterText({
   className,
   cursor = true,
 }: TypewriterTextProps) {
+  const list = useMemo(() => texts ?? [], [texts])
   const [displayText, setDisplayText] = useState("")
   const [textIndex, setTextIndex] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  useEffect(() => {
-    if (texts.length === 0) return
+  // textIndex 可能落在 [0, list.length) 之外：list 缩短（例如切换语言、翻译 hot
+  // reload）时旧的 index 会越界，currentText 变成 undefined，effect 里读
+  // currentText.length 立刻抛错；即使不抛，打字段也会退化成 undefined.slice。
+  // 这里把越界索引归一化回 0，让组件自愈而不是崩溃。
+  const safeIndex = list.length === 0 ? 0 : textIndex % list.length
+  if (safeIndex !== textIndex) {
+    setTextIndex(safeIndex)
+  }
 
-    const currentText = texts[textIndex]
+  useEffect(() => {
+    if (list.length === 0) return
+
+    const currentText = list[safeIndex]
 
     if (!isDeleting) {
       if (displayText.length < currentText.length) {
@@ -51,12 +61,12 @@ function TypewriterText({
       } else {
         const timeout = setTimeout(() => {
           setIsDeleting(false)
-          setTextIndex((prev) => (prev + 1) % texts.length)
+          setTextIndex((prev) => (prev + 1) % list.length)
         }, 0)
         return () => clearTimeout(timeout)
       }
     }
-  }, [displayText, isDeleting, textIndex, texts, typingSpeed, deletingSpeed, pauseTime])
+  }, [displayText, isDeleting, safeIndex, list, typingSpeed, deletingSpeed, pauseTime])
 
   return (
     <span className={cn("inline-flex items-center", className)}>

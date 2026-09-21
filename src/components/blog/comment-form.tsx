@@ -7,6 +7,7 @@ import { Loader2, AlertCircle, CheckCircle2, MessageSquare, CornerDownRight } fr
 import { GlassInput } from "@/components/ui/glass-input"
 import { GlassButton } from "@/components/ui/glass-button"
 import { useComment } from "@/hooks/use-comment"
+import { getActionErrorMessage } from "@/lib/action-error"
 
 interface CommentFormProps {
   postId: number
@@ -24,6 +25,9 @@ export function CommentForm({
   onSuccess,
 }: CommentFormProps) {
   const t = useTranslations("Blog")
+  // 服务端校验失败以 `action_error:<key>` 形式回传（见 src/lib/action-error.ts），
+  // 必须用 getActionErrorMessage 解析前缀再翻译；直接渲染 error 会让用户看到裸错误码。
+  const tErr = useTranslations("AdminErrors")
 
   const { submitComment, loading, error } = useComment(postId)
 
@@ -94,7 +98,10 @@ export function CommentForm({
           {(error || validationError) && (
             <div className="mb-3 flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm text-red-600 dark:text-red-400">
               <AlertCircle className="size-4 shrink-0" />
-              <span>{validationError ?? error}</span>
+              <span>
+                {validationError ??
+                  getActionErrorMessage(tErr, error ?? undefined, t("comments.postFailed"))}
+              </span>
             </div>
           )}
 

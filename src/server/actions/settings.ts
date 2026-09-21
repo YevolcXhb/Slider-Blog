@@ -111,10 +111,13 @@ export async function saveProfileSettings(formData: FormData) {
   revalidateTag("stats", "max");
   revalidateTag("posts", "max");
   revalidateTag("site-settings", "max");
-  revalidatePath("/");
-  revalidatePath("/dashboard");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  // 正确写法是路由结构路径 + "layout"：让 (public) 子树下所有页面重新渲染。
+  // 旧的 revalidatePath("/zh") / ("/en") 指向的是不存在的路由文件
+  // （src/app 下没有 [locale]/page.tsx），而 revalidatePath("/dashboard") 也不是
+  // 公开页面（src/proxy.ts 在后台入口把 /zh、/en、/ 307 重定向到 /zh/dashboard），
+  // 三者都命中不了任何缓存条目，等于没刷新。
+  revalidatePath("/[locale]", "layout");
+  revalidatePath("/[locale]/(public)", "layout");
 }
 
 /**
@@ -177,7 +180,8 @@ export async function saveSocialLinks(formData: FormData) {
 
   revalidateTag("profile", "max");
   revalidateTag("site-settings", "max");
-  revalidatePath("/");
+  // 社交链接渲染在 (public) 树的侧栏里，按路由结构整棵子树失效
+  revalidatePath("/[locale]/(public)", "layout");
 }
 
 /**
@@ -239,7 +243,8 @@ export async function saveNavExternalLinks(formData: FormData) {
   });
 
   revalidateTag("site-settings", "max");
-  revalidatePath("/");
+  // 导航外链渲染在 (public) 树的 Header 中
+  revalidatePath("/[locale]/(public)", "layout");
 }
 
 /**
@@ -261,8 +266,9 @@ export async function saveAboutContent(formData: FormData) {
 
   revalidateTag("site-settings", "max");
   revalidateTag("about", "max");
-  revalidatePath("/zh/about");
-  revalidatePath("/en/about");
+  // /about 是页面而不是布局，用动态段 + "page" 显式声明；
+  // 旧的 "/zh/about" 形式对 [locale] 动态段不生效。
+  revalidatePath("/[locale]/about", "page");
 }
 
 /**
@@ -307,11 +313,12 @@ export async function saveThemeSettings(formData: FormData) {
     create: { key: THEME_SETTINGS_KEY, value, type: "json" },
   });
 
-  // 刷新客户端主题设置缓存
+  // 刷新客户端主题设置缓存。主题通过 (public) / (admin) / (auth) 三个布局的
+  // 内联 <style> 注入，必须按路由结构逐棵树失效，"/"、"zh"、"en" 都匹配不到。
   revalidateTag("theme-settings", "max");
-  revalidatePath("/");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  revalidatePath("/[locale]/(public)", "layout");
+  revalidatePath("/[locale]/(admin)", "layout");
+  revalidatePath("/[locale]/(auth)", "layout");
 }
 
 /**
@@ -335,7 +342,6 @@ export async function saveMediaSettings(formData: FormData) {
   });
 
   revalidateTag("site-settings", "max");
-  revalidatePath("/");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  // 首页背景视频由 (public) 树渲染
+  revalidatePath("/[locale]/(public)", "layout");
 }

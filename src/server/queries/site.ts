@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { unstable_cache } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
-import { estimateWords } from "@/lib/post";
+import { queryTotalContentChars } from "@/server/queries/stats";
 import { siteConfig } from "@/config/siteConfig";
 import { licenseConfig } from "@/config/slider-config";
 import { getTranslations } from "next-intl/server";
@@ -30,24 +30,49 @@ export interface SidebarProfile {
  * 获取站点启动日期。
  * 优先级：SiteSetting.site_launch_date > 最早文章 created_at > null
  * 返回 null 表示站点尚未启动（显示 0 天）。
+ *
+ * 【为什么必须缓存】本函数只被 getSidebarStats 与 getSiteStats 两个已缓存的
+ * 聚合函数调用，因此它此前是「缓存体内的未缓存查询」：每次聚合缓存未命中，
+ * 它都会先打一次 siteSetting、未命中再打一次 post（两条 SQL），却没有任何
+ * tag 能让它单独失效 —— saveSiteSettings 只失效 profile/stats/posts/site-settings，
+ * 覆盖不到它自身。
+ *
+ * 缓存 600 秒，与原调用方 getSidebarStats 的 revalidate 一致。该值按定义就是
+ * 「站点创建那一刻」的常量（最早文章的 created_at，或管理端配置的启动日期），
+ * 实际上不会变化，600 秒的 TTL 已足够宽松。
+ *
+ * 【不挂 tag 是刻意的】不能挂 site-settings：getSidebarStats 已经带 site-settings，
+ * 而 getSiteLaunchDate 在它内部被调用 —— 若本函数也挂 site-settings，保存站点设置
+ * 时两者会一起失效、本函数的缓存同样被清空，等于没有缓存。同理不挂 posts：
+ * 文章的增删改会频繁失效它，而这个值在一次失效之后几乎总会算出同一个结果。
+ * 因此这里只靠 TTL。key 用仓库统一的 kebab-case 数组形式
+ * （unstable_cache 的类型是 keyParts: string[]，字符串会被静默忽略）。
+ *
+ * 注意返回值是 Date：Date 可被 Next 缓存层序列化（JSON 化后反序列化为 Date 对象），
+ * 调用方 calcRunningDays 只读取 getTime()，不会就地修改，因此缓存安全。
+ * 但它是服务端内部值，不要再直接透传给客户端组件。
  */
-export async function getSiteLaunchDate(): Promise<Date | null> {
-  const setting = await prisma.siteSetting.findUnique({
-    where: { key: "site_launch_date" },
-    select: { value: true },
-  });
-  if (setting?.value) {
-    const date = new Date(setting.value);
-    if (!Number.isNaN(date.getTime())) return date;
-  }
+export const getSiteLaunchDate = unstable_cache(
+  async (): Promise<Date | null> => {
+    const setting = await prisma.siteSetting.findUnique({
+      where: { key: "site_launch_date" },
+      select: { value: true },
+    });
+    if (setting?.value) {
+      const date = new Date(setting.value);
+      if (!Number.isNaN(date.getTime())) return date;
+    }
 
-  const earliestPost = await prisma.post.findFirst({
-    orderBy: { created_at: "asc" },
-    select: { created_at: true },
-  });
+    const earliestPost = await prisma.post.findFirst({
+      orderBy: { created_at: "asc" },
+      select: { created_at: true },
+    });
 
-  return earliestPost?.created_at ?? null;
-}
+    return earliestPost?.created_at ?? null;
+  },
+  ["site-launch-date"],
+  { revalidate: 600 },
+);
 
 /**
  * 计算从站点启动日期到当前的天数。
@@ -111,6 +136,16 @@ export interface SidebarStats {
   totalTags: number;
   totalViews: number;
   totalComments: number;
+  /**
+   * 全站正文字符数（content_mdx 原始字符数，含 Markdown 标记、代码块与草稿）。
+   *
+   * 与 src/server/queries/stats.ts 的 SiteStats.totalWords 共用同一 SQL 实现
+   * （queryTotalContentChars），因此两个页面显示的同名「总字数」数值一致。
+   *
+   * 注意：它与 estimateWords()（文章卡片/编辑器的单篇「字数」，剔除代码块、
+   * 只数 CJK 汉字与英文字母）口径不同，两者本来就不相等，属预期行为；
+   * 单篇阅读量级请用 estimateWords()，全站累计请用本字段。
+   */
   totalWords: number;
   runningDays: number;
 }
@@ -256,47 +291,127 @@ export const getThemeSettings = unstable_cache(
   { revalidate: 3600, tags: ["theme-settings"] },
 );
 
-export async function getMoments(
-  page: number = 1,
-  limit: number = 10,
-): Promise<{ items: MomentItem[]; total: number }> {
-  const [items, total] = await Promise.all([
-    prisma.dynamic.findMany({
-      where: { status: 1 },
-      orderBy: [{ is_pinned: "desc" }, { created_at: "desc" }],
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.dynamic.count({ where: { status: 1 } }),
-  ]);
-  return {
-    items: serializeBigInt(items).map((m) => {
-      const serialized = m as unknown as SerializedDynamic;
+/**
+ * 侧栏「最新动态」与 /moments 页共用的动态列表查询。
+ *
+ * 【为什么必须缓存】该查询此前未做任何缓存，是首页每次渲染固定打库的来源之一：
+ * 一次 findMany + 一次 count，加上同页面的导航外链查询，构成每请求 3 条 SQL。
+ * 动态属低频更新内容，这里用 unstable_cache 缓存 300 秒，并由
+ * src/server/actions/dynamic.ts 的全部写操作调用 revalidateTag("moments")
+ * 主动失效 —— 管理员发布后前台立即更新，不依赖 TTL 到期。
+ *
+ * 注意 page/limit 参与缓存键（unstable_cache 默认把实参并入 key），因此
+ * 侧栏的 (1, 3) 与动态页的 (1, itemsPerPage) 是两个独立缓存条目。
+ */
+export const getMoments = unstable_cache(
+  async (
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ items: MomentItem[]; total: number }> => {
+    const [items, total] = await Promise.all([
+      prisma.dynamic.findMany({
+        where: { status: 1 },
+        orderBy: [{ is_pinned: "desc" }, { created_at: "desc" }],
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.dynamic.count({ where: { status: 1 } }),
+    ]);
+    return {
+      items: serializeBigInt(items).map((m) => {
+        const serialized = m as unknown as SerializedDynamic;
+        return {
+          id: serialized.id,
+          content: serialized.content,
+          images: serialized.images,
+          location: serialized.location,
+          likes: serialized.likes,
+          isPinned: serialized.is_pinned === 1,
+          createdAt: serialized.created_at,
+        };
+      }),
+      total,
+    };
+  },
+  ["moments"],
+  { revalidate: 300, tags: ["moments"] },
+);
+
+/**
+ * 相册列表（/gallery 页）。
+ *
+ * 【为什么必须缓存】此前未缓存，每次访问 /gallery 固定打库两条 SQL
+ * （gallery_album + 关联的 gallery_photo）。相册属低频更新内容，缓存 300 秒；
+ * src/server/actions/gallery.ts 的全部写操作已调用 revalidateTag("gallery")，
+ * 管理端增删改后前台立即失效，不依赖 TTL 到期。
+ */
+export const getGalleryAlbums = unstable_cache(
+  async (): Promise<GalleryAlbumItem[]> => {
+    const albums = await prisma.galleryAlbum.findMany({
+      orderBy: { sort_order: "asc" },
+      include: {
+        photos: {
+          orderBy: [{ sort_order: "asc" }, { taken_at: "desc" }],
+        },
+      },
+    });
+    return serializeBigInt(albums).map((a) => {
+      const serialized = a as unknown as SerializedGalleryAlbum;
       return {
         id: serialized.id,
-        content: serialized.content,
-        images: serialized.images,
-        location: serialized.location,
-        likes: serialized.likes,
-        isPinned: serialized.is_pinned === 1,
-        createdAt: serialized.created_at,
+        name: serialized.name,
+        description: serialized.description,
+        cover: serialized.cover,
+        photos: serialized.photos.map((p) => ({
+          id: p.id,
+          url: p.url,
+          thumbnail: p.thumbnail,
+          title: p.title,
+          description: p.description,
+          takenAt: p.taken_at,
+        })),
       };
-    }),
-    total,
-  };
+    });
+  },
+  ["gallery-albums"],
+  { revalidate: 300, tags: ["gallery"] },
+);
+
+/**
+ * 判断路由段 /gallery/[album] 传来的 id 是否可能是相册主键。
+ *
+ * 只接受纯十进制数字串（允许一个前导 + 号）：不接受空串、空白、负号、小数点、
+ * 0x/科学计数法、下划线等 BigInt() 会接受或会抛错的宽松写法。
+ * BigInt("") 是 0n、BigInt("0x10") 是 16n、BigInt("abc") 直接抛异常 —— 三种
+ * 都不该被当成一次合法的相册查询。
+ */
+export function isGalleryAlbumId(id: string): boolean {
+  return /^\+?[0-9]+$/.test(id);
 }
 
-export async function getGalleryAlbums(): Promise<GalleryAlbumItem[]> {
-  const albums = await prisma.galleryAlbum.findMany({
-    orderBy: { sort_order: "asc" },
-    include: {
-      photos: {
-        orderBy: [{ sort_order: "asc" }, { taken_at: "desc" }],
+/**
+ * 单个相册详情（/gallery/[album] 页）。与 getGalleryAlbums 同属 gallery 标签，
+ * 管理端任何相册/照片写操作都会通过 revalidateTag("gallery") 一并失效。
+ * id 参与缓存键，因此每个相册是独立条目。
+ */
+export const getGalleryAlbumById = unstable_cache(
+  async (id: string): Promise<GalleryAlbumItem | null> => {
+    // id 直接来自路由段（/gallery/[album]），可能是任意字符串。
+    // BigInt("abc") 会抛 RangeError/SyntaxError，让整个页面变成 500；
+    // 但它语义上显然是「找不到相册」→ 返回 null，由页面调用 notFound() 给出 404。
+    // 非法 id 直接当作「相册不存在」返回 null，让页面走 notFound() 给出 404。
+    if (!isGalleryAlbumId(id)) return null;
+
+    const album = await prisma.galleryAlbum.findUnique({
+      where: { id: BigInt(id) },
+      include: {
+        photos: {
+          orderBy: [{ sort_order: "asc" }, { taken_at: "desc" }],
+        },
       },
-    },
-  });
-  return serializeBigInt(albums).map((a) => {
-    const serialized = a as unknown as SerializedGalleryAlbum;
+    });
+    if (!album) return null;
+    const serialized = serializeBigInt(album) as unknown as SerializedGalleryAlbum;
     return {
       id: serialized.id,
       name: serialized.name,
@@ -311,37 +426,10 @@ export async function getGalleryAlbums(): Promise<GalleryAlbumItem[]> {
         takenAt: p.taken_at,
       })),
     };
-  });
-}
-
-export async function getGalleryAlbumById(
-  id: string,
-): Promise<GalleryAlbumItem | null> {
-  const album = await prisma.galleryAlbum.findUnique({
-    where: { id: BigInt(id) },
-    include: {
-      photos: {
-        orderBy: [{ sort_order: "asc" }, { taken_at: "desc" }],
-      },
-    },
-  });
-  if (!album) return null;
-  const serialized = serializeBigInt(album) as unknown as SerializedGalleryAlbum;
-  return {
-    id: serialized.id,
-    name: serialized.name,
-    description: serialized.description,
-    cover: serialized.cover,
-    photos: serialized.photos.map((p) => ({
-      id: p.id,
-      url: p.url,
-      thumbnail: p.thumbnail,
-      title: p.title,
-      description: p.description,
-      takenAt: p.taken_at,
-    })),
-  };
-}
+  },
+  ["gallery-album"],
+  { revalidate: 300, tags: ["gallery"] },
+);
 
 export interface SidebarStatsWithDate extends SidebarStats {
   lastPostDate: Date | null;
@@ -474,14 +562,14 @@ export const getSidebarStats = unstable_cache(
       getSiteLaunchDate(),
     ]);
 
-    const postsForWordCount = await prisma.post.findMany({
-      where: { status: 1 },
-      select: { content_mdx: true },
-    });
-    const totalWords = postsForWordCount.reduce(
-      (total, post) => total + estimateWords(post.content_mdx),
-      0,
-    );
+    // 字数口径与管理后台统一为「全站正文字符数」SQL 聚合（见 stats.ts 的
+    // queryTotalContentChars 注释）。这里不再 findMany 把全站 content_mdx 拉回 Node
+    // 逐篇 estimateWords()，那是第一轮修掉的性能问题。
+    //
+    // 已知差异边界：该 SQL 口径包含草稿文章，而侧边栏其它统计（totalPosts）只算
+    // status = 1，因此当存在草稿时「总字数」会略大于「文章数量」所对应的正文量。
+    // 这是刻意取舍：宁可让字数口径覆盖草稿（数据不丢），也不为对齐而多扫一遍全表。
+    const totalWords = await queryTotalContentChars();
 
     const runningDays = calcRunningDays(launchDate);
 
@@ -504,13 +592,6 @@ export const getSidebarStats = unstable_cache(
   { revalidate: 600, tags: ["posts", "stats"] },
 );
 
-export interface SocialLinkItem {
-  name: string;
-  url: string;
-  icon: string;
-  showName?: boolean;
-}
-
 export interface NavExternalLinkItem {
   i18nKey: string;
   name: string;
@@ -526,61 +607,57 @@ export interface SiteInfoSettings {
 }
 
 /**
- * 读取侧边栏社交链接。
- * 数据库为空时回退到默认 GitHub 链接。
- */
-export async function getSocialLinks(): Promise<SocialLinkItem[]> {
-  const defaultLinks: SocialLinkItem[] = [
-    { name: "GitHub", url: "https://github.com/YevolcXhb", icon: "github", showName: false },
-  ];
-  try {
-    const setting = await prisma.siteSetting.findUnique({
-      where: { key: "social_links" },
-      select: { value: true },
-    });
-    if (!setting?.value) return defaultLinks;
-    const parsed = JSON.parse(setting.value);
-    if (!Array.isArray(parsed) || parsed.length === 0) return defaultLinks;
-    return parsed as SocialLinkItem[];
-  } catch {
-    return defaultLinks;
-  }
-}
-
-/**
  * 读取导航栏外链（GitHub、Slider云盘等）。
  * 数据库为空时返回 null，调用方应回退到 slider-config.ts 的 navBarConfig。
  */
-export async function getNavExternalLinks(): Promise<NavExternalLinkItem[] | null> {
-  try {
-    const setting = await prisma.siteSetting.findUnique({
-      where: { key: "nav_external_links" },
-      select: { value: true },
-    });
-    if (!setting?.value) return null;
-    const parsed = JSON.parse(setting.value);
-    if (!Array.isArray(parsed)) return null;
-    return parsed as NavExternalLinkItem[];
-  } catch {
-    return null;
-  }
-}
+/**
+ * 【为什么必须缓存】该查询被 (public)/layout.tsx 在每次页面渲染时调用，
+ * 此前未缓存，是首页每请求 3 条 SQL 中的一条。导航外链几乎不变，
+ * 缓存 3600 秒；管理端 saveNavExternalLinks 已调用
+ * revalidateTag("site-settings")，保存后立即失效。
+ */
+export const getNavExternalLinks = unstable_cache(
+  async (): Promise<NavExternalLinkItem[] | null> => {
+    try {
+      const setting = await prisma.siteSetting.findUnique({
+        where: { key: "nav_external_links" },
+        select: { value: true },
+      });
+      if (!setting?.value) return null;
+      const parsed = JSON.parse(setting.value);
+      if (!Array.isArray(parsed)) return null;
+      return parsed as NavExternalLinkItem[];
+    } catch {
+      return null;
+    }
+  },
+  ["nav-external-links"],
+  { revalidate: 3600, tags: ["site-settings"] },
+);
 
 /**
- * 读取关于我页面 MDX 内容。
- * 数据库为空时返回 null，调用方应回退到 src/content/spec/about.md。
+ * 读取关于我页面 MDX 内容。数据库为空时返回 null，调用方回退到
+ * src/content/spec/about.md。
+ *
+ * 【为什么必须缓存】此前未缓存，每次访问 /about 都会打库一次。缓存 3600 秒；
+ * saveAboutContent 已调用 revalidateTag("site-settings") 与 revalidateTag("about")，
+ * 管理端保存后前台立即失效。
  */
-export async function getAboutContent(): Promise<string | null> {
-  try {
-    const setting = await prisma.siteSetting.findUnique({
-      where: { key: "about_content" },
-      select: { value: true },
-    });
-    return setting?.value ?? null;
-  } catch {
-    return null;
-  }
-}
+export const getAboutContent = unstable_cache(
+  async (): Promise<string | null> => {
+    try {
+      const setting = await prisma.siteSetting.findUnique({
+        where: { key: "about_content" },
+        select: { value: true },
+      });
+      return setting?.value ?? null;
+    } catch {
+      return null;
+    }
+  },
+  ["about-content"],
+  { revalidate: 3600, tags: ["site-settings", "about"] },
+);
 
 /**
  * 读取站点信息（标题、副标题、描述）。

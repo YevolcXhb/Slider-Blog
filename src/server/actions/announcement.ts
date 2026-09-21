@@ -44,12 +44,12 @@ export async function createAnnouncement(formData: FormData) {
     },
   });
 
-  revalidatePath("/manage-announcements");
+  revalidatePath("/[locale]/(admin)/manage-announcements", "page");
   revalidateTag("announcements", "max");
   // 刷新客户端公告缓存，确保公告弹窗和侧边栏立即更新
-  revalidatePath("/");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  // 公告渲染在 (public) 布局里（弹窗 + 侧栏），按模板字符串传路由结构路径
+  // 才能真正命中："/"、"/zh"、"en" 都不是 src/app 下的路由文件，等于没刷新。
+  revalidatePath("/[locale]/(public)", "layout");
 }
 
 export async function updateAnnouncement(id: number, formData: FormData) {
@@ -73,11 +73,11 @@ export async function updateAnnouncement(id: number, formData: FormData) {
     },
   });
 
-  revalidatePath("/manage-announcements");
+  revalidatePath("/[locale]/(admin)/manage-announcements", "page");
   revalidateTag("announcements", "max");
-  revalidatePath("/");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  // 公告渲染在 (public) 布局里（弹窗 + 侧栏），按模板字符串传路由结构路径
+  // 才能真正命中："/"、"/zh"、"en" 都不是 src/app 下的路由文件，等于没刷新。
+  revalidatePath("/[locale]/(public)", "layout");
 }
 
 export async function deleteAnnouncement(id: number) {
@@ -89,11 +89,11 @@ export async function deleteAnnouncement(id: number) {
     where: { id: announcementId },
   });
 
-  revalidatePath("/manage-announcements");
+  revalidatePath("/[locale]/(admin)/manage-announcements", "page");
   revalidateTag("announcements", "max");
-  revalidatePath("/");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  // 公告渲染在 (public) 布局里（弹窗 + 侧栏），按模板字符串传路由结构路径
+  // 才能真正命中："/"、"/zh"、"en" 都不是 src/app 下的路由文件，等于没刷新。
+  revalidatePath("/[locale]/(public)", "layout");
 }
 
 export async function toggleAnnouncementPin(id: number) {
@@ -112,11 +112,11 @@ export async function toggleAnnouncementPin(id: number) {
     data: { is_pinned: announcement.is_pinned ? 0 : 1 },
   });
 
-  revalidatePath("/manage-announcements");
+  revalidatePath("/[locale]/(admin)/manage-announcements", "page");
   revalidateTag("announcements", "max");
-  revalidatePath("/");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  // 公告渲染在 (public) 布局里（弹窗 + 侧栏），按模板字符串传路由结构路径
+  // 才能真正命中："/"、"/zh"、"en" 都不是 src/app 下的路由文件，等于没刷新。
+  revalidatePath("/[locale]/(public)", "layout");
 }
 
 export async function toggleAnnouncementActive(id: number) {
@@ -135,9 +135,9 @@ export async function toggleAnnouncementActive(id: number) {
     data: { is_active: announcement.is_active ? 0 : 1 },
   });
 
-  revalidatePath("/manage-announcements");
+  revalidatePath("/[locale]/(admin)/manage-announcements", "page");
   revalidateTag("announcements", "max");
-  revalidatePath("/");
-  revalidatePath("/zh");
-  revalidatePath("/en");
+  // 公告渲染在 (public) 布局里（弹窗 + 侧栏），按模板字符串传路由结构路径
+  // 才能真正命中："/"、"/zh"、"en" 都不是 src/app 下的路由文件，等于没刷新。
+  revalidatePath("/[locale]/(public)", "layout");
 }

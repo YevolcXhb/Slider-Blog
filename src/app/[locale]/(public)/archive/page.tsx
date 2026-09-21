@@ -23,8 +23,8 @@ async function ArchivePageContent() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white/90">归档</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-white/50">所有文章按年份整理</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white/90">{t("title")}</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-white/50">{t("description")}</p>
       </div>
       <ArchivePanel
         posts={posts}

@@ -1,6 +1,7 @@
 import { GitBranch, Mail, Globe, User, IdCard } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 import type { SidebarProfile } from "@/server/queries/site"
 
@@ -9,6 +10,7 @@ interface ProfileCardProps {
 }
 
 function ProfileCard({ profile }: ProfileCardProps) {
+  const t = useTranslations("Nav")
   const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     github: GitBranch,
     email: Mail,
@@ -19,7 +21,7 @@ function ProfileCard({ profile }: ProfileCardProps) {
     <div className="card-base onload-animation p-3">
       <Link
         href="/about"
-        aria-label="关于我"
+        aria-label={t("about")}
         className="group block relative mx-auto mt-1 lg:mx-0 lg:mt-0 mb-3 max-w-48 lg:max-w-none overflow-hidden rounded-xl active:scale-95"
       >
         <div className="absolute transition pointer-events-none group-hover:bg-black/30 group-active:bg-black/50 w-full h-full z-10 flex items-center justify-center">

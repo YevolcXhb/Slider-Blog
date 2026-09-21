@@ -1,4 +1,6 @@
 import { FolderOpen, ChevronRight } from "lucide-react"
+import { useTranslations } from "next-intl"
+
 import { Link } from "@/i18n/routing"
 
 interface Category {
@@ -13,6 +15,8 @@ interface CategoriesCardProps {
 }
 
 function CategoriesCard({ categories }: CategoriesCardProps) {
+  const t = useTranslations("Widgets")
+
   if (categories.length === 0) {
     return null
   }
@@ -21,12 +25,12 @@ function CategoriesCard({ categories }: CategoriesCardProps) {
     <div className="card-base rounded-2xl p-5">
       <div className="widget-title mb-4 pb-3">
         <FolderOpen className="widget-title-icon size-4" />
-        <span className="widget-title-text">分类</span>
+        <span className="widget-title-text">{t("categories")}</span>
         <Link
           href="/categories"
           className="ml-auto text-xs text-pink-500 transition-colors hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300"
         >
-          更多
+          {t("more")}
         </Link>
       </div>
       <div className="flex flex-col gap-1">

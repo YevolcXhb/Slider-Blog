@@ -58,7 +58,7 @@ export async function registerUser(formData: FormData) {
     },
   });
 
-  revalidatePath("/login");
+  revalidatePath("/[locale]/(auth)/login", "page");
 }
 
 // ==================== User Management Actions ====================
@@ -109,7 +109,7 @@ export async function updateUserRole(id: number, role: number) {
     });
   });
 
-  revalidatePath("/manage-users");
+  revalidatePath("/[locale]/(admin)/manage-users", "page");
 }
 
 export async function deleteUser(id: number) {
@@ -145,7 +145,7 @@ export async function deleteUser(id: number) {
     await tx.user.delete({ where: { id: userId } });
   });
 
-  revalidatePath("/manage-users");
+  revalidatePath("/[locale]/(admin)/manage-users", "page");
 }
 
 // ==================== Admin User Management Actions ====================
@@ -171,7 +171,7 @@ export async function updateUserPassword(userId: number, newPassword: string) {
     data: { password_hash: passwordHash },
   });
 
-  revalidatePath("/manage-users");
+  revalidatePath("/[locale]/(admin)/manage-users", "page");
 }
 
 /**
@@ -214,7 +214,7 @@ export async function updateUserProfile(userId: number, formData: FormData) {
     data: { username, email },
   });
 
-  revalidatePath("/manage-users");
+  revalidatePath("/[locale]/(admin)/manage-users", "page");
 }
 
 /**
@@ -262,5 +262,5 @@ export async function createUserByAdmin(formData: FormData) {
     },
   });
 
-  revalidatePath("/manage-users");
+  revalidatePath("/[locale]/(admin)/manage-users", "page");
 }

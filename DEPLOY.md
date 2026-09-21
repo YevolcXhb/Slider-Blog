@@ -173,7 +173,16 @@ SENTRY_AUTH_TOKEN=
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 # ===== 上传目录 =====
-UPLOAD_DIR=public/uploads
+# 必须写绝对路径，且只能指向<项目>/public 的子目录（否则应用拒绝上传），
+# 例如 /home/user/slider-blog/public/uploads。
+# 不设置时默认使用 <项目>/public/uploads。
+UPLOAD_DIR=/home/user/slider-blog/public/uploads
+
+# ===== 限流存储（可选，Redis） =====
+# 留空 = 进程内存限流（默认，单实例部署保持不变）。
+# 多副本 / 负载均衡 / PM2 cluster 时才需要填；详见 4.3.1「限流与 Redis（可选）」。
+# 建议指向 Redis 上本项目**专属的 db**（示例为 5 号库，db 序号按实际可用情况替换）。
+REDIS_URL=redis://10.0.0.10:6379/5
 
 # ===== 邮件（SMTP，用于评论拒绝通知） =====
 EMAIL_HOST=smtp.your-provider.com
@@ -190,6 +199,65 @@ EMAIL_FROM=noreply@your-domain.com
 - **DATABASE_URL**：密码中的特殊字符需 URL 编码（如 `@` → `%40`、`#` → `%23`）。
 - **Sentry**：DSN 留空则 SDK 不上报，不影响功能。
 - **邮件**：不配置则评论拒绝通知跳过，不影响拒绝操作本身。
+- **REDIS_URL**：可选。留空即沿用进程内存限流（当前默认行为）；仅多副本部署需要，详见 4.3.1。
+
+#### 4.3.1 限流与 Redis（可选）
+
+限流（Rate Limiting）是项目自带的防护，用于挡掉登录爆破、评论刷屏、公开只读接口被高频轮询等场景。
+它**不是鉴权**：限流只控制「单位时间内允许多少次请求」，不做身份认证与权限判定，
+绕过它并不等于获得任何权限（权限仍由 next-auth 会话与角色校验决定）。
+
+**默认形态（无需任何配置）**：限流计数保存在 **Node.js 进程自己的内存**里，
+`REDIS_URL` 留空时行为与现在完全一致，单实例部署**不需要** Redis，也不需要改动 `.env`。
+
+**什么时候需要开启 Redis**——只有「同一份限流计数需要被多个进程共享」时才需要：
+
+| 部署形态 | 是否需要 Redis |
+|----------|----------------|
+| 单实例 + 单容器 / 单进程 standalone（当前部署形态） | **不需要** |
+| Nginx 之后跑多个应用副本 | 需要 |
+| 负载均衡（LVS / 云 LB）后挂多台后端 | 需要 |
+| PM2 cluster 模式（`pm2 start -i N`，N > 1） | 需要 |
+| Serverless / 容器平台横向扩容（同一部署并发多实例） | 需要 |
+
+理由：内存限流按**进程**计数，多副本时请求会分散到不同进程，每个进程各自持有一份配额，
+等效于配额被乘以副本数——例如登录限流「同 IP 60 秒 5 次」在两个副本下实际放宽到约 10 次。
+把计数放进 Redis 后，所有副本读写同一个计数器，配额才是全局的。
+
+**开启方式**：在 `.env` 中设置 `REDIS_URL` 后**重启应用进程**（变量在进程启动时读取，
+不支持热更新）。PM2 用 `pm2 restart slider-blog`，systemd 用 `sudo systemctl restart slider-blog`。
+
+```bash
+# 格式：redis://[用户名:密码@]主机:端口/库序号
+REDIS_URL=redis://10.0.0.10:6379/5
+```
+
+- 上面是**中性示例**（假设 Redis 在内网 10.0.0.10），请替换为你的实际地址；
+  同机部署也可以用 `redis://127.0.0.1:6379/5`。
+- **建议使用本项目专属的 db 序号**（示例用 5 号库），避免与其他应用在同一 db 里互相覆盖键。
+- 若 Redis 启用了密码或 ACL，按 `redis://用户名:密码@主机:端口/库序号` 填写，密码中的特殊字符需 URL 编码。
+- 不需要 TLS 的普通内网连接用 `redis://`，需要 TLS 时用 `rediss://`。
+
+**降级语义（重要，请运维知悉）**：Redis 不可用时，限流会**降级为每个实例各自的内存限流**，
+请求**不会**因此失败（不会返回 5xx），站点功能不受影响。
+但代价是配额不再全局生效：**此时多实例部署的实际配额会放大到「副本数 × 配额」**。
+换句话说，Redis 故障不会让站点不可用，但会让限流在这段时间内变松——这是一次刻意的可用性取舍，
+不是故障漏报，请不要据此判定「Redis 没接上也没关系」。
+
+**共享 Redis 的安全注意**：
+
+1. **不要与其他应用共用键空间**。本项目所有限流键统一带前缀 `slider-blog:rl:`，
+   且只读写带该前缀的键；请勿在同一 db 中让其他应用使用相同前缀。
+2. **建议使用独立 db**（如示例的 5 号库），与同一台 Redis 上的其他应用物理隔离。
+3. 请勿对该 Redis 执行 `FLUSHDB` / `FLUSHALL` 或大范围 `KEYS` / `SCAN` / `DEL`：
+   它是共享实例，这些操作会影响其他应用。清理本项目数据请只针对 `slider-blog:rl:` 前缀的键
+   （限流键本身都带 TTL，通常无需清理，等待自动过期即可）。
+4. **不要把 Redis 当成鉴权手段**：Redis 里存的是限流计数，不含任何身份信息，
+   接入 Redis 不会也不应该带来任何权限变化；反之，绕过限流也不代表获得了后台权限。
+5. Redis 连接串可能含密码，`.env` 的权限建议设为 `600`，且不要提交进版本库。
+
+> 若当前就是「单实例 + 单容器」的部署形态，**保持 `REDIS_URL` 留空即可**，
+> 无需为了限流额外部署 Redis。
 
 ### 4.4 生成 Prisma Client
 
@@ -199,17 +267,96 @@ npx prisma generate
 
 ### 4.5 执行数据库迁移
 
-由于项目无 migration 历史，使用 `prisma db push` 将 schema 直接同步到数据库：
+迁移文件已随仓库提供（`prisma/migrations/`），生产环境统一使用 `prisma migrate deploy`
+按目录顺序应用，它只执行尚未应用的迁移并记录到 `_prisma_migrations` 表，不会清库：
 
 ```bash
-npx prisma db push
+npx prisma migrate deploy
 ```
 
-> **生产环境提示**：`db push` 不生成 migration 文件。如需可追溯的迁移历史，建议改用：
-> ```bash
-> npx prisma migrate dev --name init
-> ```
-> 此命令会创建 `prisma/migrations/` 目录，便于后续版本升级时增量迁移。
+**不要使用 `npx prisma db push`**：它不生成、不读取迁移记录，改动无法审计，
+且可能执行破坏性变更（例如删除列）。`prisma migrate dev`、`prisma migrate reset`
+仅限本地开发使用，后者会清空数据库，禁止在生产执行。
+
+#### 已有数据库首次接入迁移历史（基线对齐）
+
+如果目标库里已经存在与当前 `schema.prisma` 一致的表（此前用 `db push` 建的库），
+直接执行 `migrate deploy` 会因为迁移试图重建表而失败。此时先用
+`migrate resolve --applied` 把已有迁移标记为「已应用」，完成基线对齐：
+
+```bash
+# 1. 先确认库结构确实已与 schema 一致（不会写入数据库）
+npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script
+#    输出应为空；若有差异，先人工处理差异再继续
+
+# 2. 标记初始迁移已应用（只写 _prisma_migrations 记录，不改表结构）
+npx prisma migrate resolve --applied 20260615000000_init
+
+# 3. 查看迁移状态，确认没有待应用迁移
+npx prisma migrate status
+```
+
+**禁止执行会清库的命令**：`prisma migrate reset`（删除并重建数据库）、
+`prisma db push --force-reset`，以及任何手写的 `DROP DATABASE` / `DROP TABLE`。
+容器部署时这一步由镜像的启动脚本自动完成（`docker-entrypoint.sh` 调用
+`prisma migrate deploy`），无需手动执行。
+
+#### 后续 schema 变更流程
+
+```bash
+# 本地开发：改完 schema.prisma 后生成新迁移并提交到仓库
+npx prisma migrate dev --name 变更说明
+
+# 生产部署：只应用待执行的迁移
+npx prisma migrate deploy
+```
+
+#### 迁移与 schema 的离线等价性校验
+
+上面两条命令都要求连上**目标数据库**，因此在提交迁移、合并 PR 或上线前的评审环节没法用。
+若想在不接触任何真实业务库的前提下，确认「`prisma/migrations/` 从头重放出来的表结构」与
+「`prisma/schema.prisma` 的模型定义」完全等价，可以用一个一次性的**影子库**（shadow database）：
+
+影子库是一个**可以被随意重建的空库**，`migrate diff --from-migrations` 会把
+`prisma/migrations/` 里的全部迁移依次重放进它，再与 `schema.prisma` 比对，只输出差异、
+不写业务库。它只需要能建表，容量和持久性都无所谓，**绝对不要指向生产库或开发业务库**。
+
+配置方式（`.env`，参照 `.env.example`）：
+
+```bash
+SHADOW_DATABASE_URL="mariadb://user:pass@localhost:3306/slider_blog_shadow"
+```
+
+该变量是可选的：**留空即禁用**，此时 `prisma.config.ts` 不会写入 `datasource.shadowDatabaseUrl`，
+其余全部命令（`migrate deploy` / `migrate status` / `generate` / `validate`）与不配置时行为完全一致。
+
+配置好之后，在仓库根目录执行下面这条命令完成校验：
+
+```bash
+# 纯离线比对：源取迁移目录，目标取 schema.prisma。
+# 该命令是只读的，不会修改影子库之外的任何东西，也不会写入文件。
+# --exit-code 把「是否存在差异」编码进退出码，便于放进 CI：
+#   0 = 迁移与 schema 完全等价（期望结果）
+#   2 = 存在差异（有人改了 schema.prisma 却忘了生成迁移，或迁移本身有漂移）
+#   1 = 执行出错（例如影子库连不上、变量没配）
+npx prisma migrate diff \
+  --from-migrations prisma/migrations \
+  --to-schema prisma/schema.prisma \
+  --exit-code
+```
+
+期望结果为「没有差异」且退出码为 0。若退出码为 2，请**先补生成迁移**（见上一小节的
+`migrate dev --name`）再重新校验，不要带着漂移的迁移上线。
+
+常见问题：
+
+- 报错 `You must set 'datasource.shadowDatabaseUrl' in your 'prisma.config.ts'`
+  ：说明 `SHADOW_DATABASE_URL` 为空或没被读到，检查 `.env` 是否在仓库根目录、变量是否已取消注释。
+- 报错 `P1001 Can't reach database server`：影子库地址写错，或该库尚未创建 / 服务未启动。
+- 校验命令**不修改**任何现有迁移文件；如确有差异，改动应体现在**新生成的**迁移里。
+
+> 说明：本节只覆盖「离线等价性校验」。生产环境的迁移应用仍然使用
+> `npx prisma migrate deploy`，且**不要使用** `prisma db push`。
 
 ### 4.6 创建管理员账号（首次注册机制）
 
@@ -276,12 +423,64 @@ Route (app)
 
 > `output: "standalone"` 已在 `next.config.ts` 中启用，构建产物位于 `.next/standalone/`，包含独立运行所需的最小化 `node_modules`。
 
-### 4.8 创建上传目录
+### 4.8 准备上传目录
+
+用户上传的图片保存在 `UPLOAD_DIR` 指向的目录中，该目录**必须**是 `<项目>/public` 的子目录，
+否则 `/uploads/**` 无法被静态服务命中，应用会直接拒绝写入并在日志中报出原因。
 
 ```bash
-mkdir -p public/uploads
-chmod 755 public/uploads
+# 默认位置（不设置 UPLOAD_DIR 时使用）
+mkdir -p /home/user/slider-blog/public/uploads
+chmod 755 /home/user/slider-blog/public/uploads
+
+# 目录属主必须是运行 Node.js 的用户，否则上传会因 EACCES 失败
+sudo chown -R "$(whoami)":"$(whoami)" /home/user/slider-blog/public/uploads
 ```
+
+> **重要**：图片是运行时数据，不要放进会被整体覆盖的构建产物目录。
+> 每次重新部署（`npm run build` 或替换 `.next`）都不会影响 `public/uploads`，
+> 但**不要**在清理时删除它，也不要把 `public/` 整个从压缩包覆盖式还原。
+> 建议把上传目录单独放在项目外的持久化路径，再用绝对路径指回 public 之下
+> （仍须位于 `public` 内才可被访问，因此更推荐下面的 Docker 挂载方式）。
+
+**Docker 部署**：镜像已把 `/app/public/uploads` 声明为数据卷，把宿主目录挂载上去即可：
+
+```bash
+docker run -d --name slider-blog \
+  -p 4000:4000 -p 4100:4100 \
+  -v /srv/slider-blog/data:/data \
+  -v /srv/slider-blog/uploads:/app/public/uploads \
+  -e UPLOAD_DIR=/app/public/uploads \
+  slider-blog:latest
+```
+
+不挂载该卷时图片会写入容器可写层，`docker rm` 后重建容器即丢失，请务必挂载。
+
+### 4.9 配置 Nginx 上传目录
+
+Nginx 直接用 `alias` 指向同一个上传目录，让图片绕过 Node.js 进程：
+
+```nginx
+location /uploads/ {
+    # 与 UPLOAD_DIR 保持完全一致
+    alias /home/user/slider-blog/public/uploads/;
+    expires 30d;
+    add_header Cache-Control "public";
+}
+```
+
+Docker 部署且把宿主目录挂在 `/srv/slider-blog/uploads` 时，`alias` 指向宿主路径：
+
+```nginx
+location /uploads/ {
+    alias /srv/slider-blog/uploads/;
+    expires 30d;
+    add_header Cache-Control "public";
+}
+```
+
+> **注意**：`alias` 路径必须与 `UPLOAD_DIR` 指向的物理目录一致，且结尾斜杠不能省略，
+> 否则会出现 404 或路径拼接错误。`/uploads/` 由 Nginx 直接返回，不经过 `proxy_pass`。
 
 ---
 
@@ -412,6 +611,7 @@ server {
     }
 
     # 上传文件（直接由 Nginx 提供服务，避免经过 Node.js）
+    # alias 路径必须与 UPLOAD_DIR 指向的物理目录完全一致，结尾斜杠不可省略
     location /uploads/ {
         alias /home/user/slider-blog/public/uploads/;
         expires 30d;
@@ -566,8 +766,8 @@ npm install
 # 重新生成 Prisma Client（如 schema.prisma 有变化）
 npx prisma generate
 
-# 执行数据库迁移（如 schema 有变化）
-npx prisma db push
+# 应用数据库迁移（如 schema 有变化；不要用 db push）
+npx prisma migrate deploy
 
 # 重新构建
 npm run build
@@ -593,6 +793,10 @@ crontab -e
 
 ### 8.5 上传文件备份
 
+图片不在数据库里，必须单独备份。备份的目录与 `UPLOAD_DIR` 保持一致
+（默认即 `/home/user/slider-blog/public/uploads`；Docker 部署时是宿主挂载点
+`/srv/slider-blog/uploads`）：
+
 ```bash
 # 备份上传目录
 tar -czf /backup/uploads_$(date +%Y%m%d).tar.gz -C /home/user/slider-blog/public/uploads .
@@ -601,6 +805,8 @@ tar -czf /backup/uploads_$(date +%Y%m%d).tar.gz -C /home/user/slider-blog/public
 crontab -e
 0 3 * * * tar -czf /backup/uploads_$(date +\%Y\%m\%d).tar.gz -C /home/user/slider-blog/public/uploads .
 ```
+
+> 只备份数据库而不备份该目录，恢复后文章中的图片链接会全部 404。
 
 ---
 
@@ -672,7 +878,23 @@ client_max_body_size 10M;  # 已在示例配置中设置
 2. 服务端错误检查 `SENTRY_DSN`，客户端错误检查 `NEXT_PUBLIC_SENTRY_DSN`
 3. DSN 留空时 SDK 静默跳过，不影响应用功能
 
-### Q7：内存不足导致构建失败
+### Q7：已经设置了 `REDIS_URL`，但限流看起来还是每个副本各算各的
+
+**现象**：多副本部署下，超出配额后仍能继续请求，实测可用次数约等于「配置配额 × 副本数」。
+
+**排查**：
+1. 确认变量确实被进程读到（`.env` 在项目根目录、systemd 的 `EnvironmentFile` 指向同一文件），
+   改完 `.env` 后**必须重启**：`pm2 restart slider-blog` 或 `sudo systemctl restart slider-blog`。
+2. 确认 Redis 连通：`redis-cli -h <主机> -p 6379 ping` 应返回 `PONG`；连接串里的库序号要与实际一致。
+3. 这是**设计上的降级行为**：Redis 不可用时限流会退回到每实例内存计数，请求不会失败，
+   但多实例下配额会放大到「副本数 × 配额」。看到配额变宽，通常意味着 Redis 没连上，
+   而不是限流没生效——请按第 1、2 步定位。
+4. 排查过程中**不要**对共享 Redis 执行 `FLUSHDB` / `FLUSHALL` 或大范围 `KEYS` / `SCAN` / `DEL`，
+   只操作 `slider-blog:rl:` 前缀的键。
+
+> 提示：单实例部署本来就不需要 Redis；只在多副本形态下才需要关注本节。
+
+### Q8：内存不足导致构建失败
 
 **现象**：构建过程中进程被 OOM Killer 杀死。
 
@@ -688,7 +910,7 @@ sudo swapon /swapfile
 # 在本地执行 npm run build，将 .next/standalone 上传到服务器
 ```
 
-### Q8：proxy（middleware）不生效
+### Q9：proxy（middleware）不生效
 
 **现象**：未登录可访问后台页面。
 
@@ -708,7 +930,7 @@ sudo swapon /swapfile
 | `NEXTAUTH_SECRET` | 是 | JWT 签名密钥 | `openssl rand -base64 32` 的输出 |
 | `NEXTAUTH_URL` | 是 | 站点完整 URL | `https://your-domain.com` |
 | `NEXT_PUBLIC_SITE_URL` | 是 | 站点 URL（客户端可见） | `https://your-domain.com` |
-| `UPLOAD_DIR` | 否 | 上传目录路径 | `public/uploads` |
+| `UPLOAD_DIR` | 否 | 上传目录的**绝对路径**，且必须位于 `<项目>/public` 之下；不设置时默认 `<项目>/public/uploads` | `/home/user/slider-blog/public/uploads` |
 | `SENTRY_DSN` | 否 | Sentry 服务端 DSN | `https://xxx@sentry.io/123` |
 | `NEXT_PUBLIC_SENTRY_DSN` | 否 | Sentry 客户端 DSN | `https://xxx@sentry.io/123` |
 | `SENTRY_ORG` | 否 | Sentry 组织 | `your-org` |
@@ -719,6 +941,7 @@ sudo swapon /swapfile
 | `EMAIL_USER` | 否 | SMTP 用户名 | `your@gmail.com` |
 | `EMAIL_PASS` | 否 | SMTP 密码或应用专用密码 | `your-app-password` |
 | `EMAIL_FROM` | 否 | 发件人地址 | `noreply@your-domain.com` |
+| `REDIS_URL` | 否 | 限流计数存储。留空即进程内存限流（默认，单实例无需配置）；多副本时填 Redis 以共享计数，键前缀 `slider-blog:rl:`，详见 4.3.1 | `redis://10.0.0.10:6379/5` |
 | `SEED_ADMIN_PASSWORD` | 否 | seed 时的管理员密码（仅运行 seed 时需要） | `YourStrongPassword123!` |
 
 ---
@@ -728,9 +951,10 @@ sudo swapon /swapfile
 ```
 slider-blog/
 ├── public/                    # 静态资源
-│   └── uploads/               # 用户上传文件（运行时生成）
+│   └── uploads/               # 用户上传文件（运行时生成，位置由 UPLOAD_DIR 决定）
 ├── prisma/
 │   ├── schema.prisma          # 数据库模型定义
+│   ├── migrations/            # Prisma 迁移目录（生产用 migrate deploy 应用）
 │   └── seed.ts                # 种子数据脚本（可选，创建默认 admin）
 ├── sentry.client.config.ts    # Sentry 客户端配置
 ├── sentry.server.config.ts    # Sentry 服务端配置
@@ -801,9 +1025,9 @@ npm install --legacy-peer-deps
 echo "[2/6] 生成 Prisma Client..."
 npx prisma generate
 
-# 4. 同步数据库 schema
-echo "[3/6] 同步数据库 schema..."
-npx prisma db push
+# 4. 应用数据库迁移
+echo "[3/6] 应用数据库迁移..."
+npx prisma migrate deploy
 
 # 5. 管理员账号（首次注册机制，无需 seed）
 echo "[4/6] 管理员账号将在应用启动后通过 /register 注册创建"

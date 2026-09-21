@@ -16,6 +16,11 @@ coverage
 # Prisma 生成代码
 /src/generated/prisma
 
+# 运行时用户上传的图片（用 /* 逐层忽略；若写成 /public/uploads/ 会连
+# !/public/uploads/.gitkeep 的例外一起失效，.gitkeep 无法入库）
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # 系统与编辑器文件
 .DS_Store
 Thumbs.db

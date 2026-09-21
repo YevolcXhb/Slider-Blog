@@ -16,6 +16,11 @@ export const metadata: Metadata = {
 export const revalidate = 300
 
 export default function GalleryPage() {
+  // notFound() 必须在 <Suspense> 之外：否则状态码已锁定为 200（见 streaming.md）。
+  if (!siteConfig.pages.gallery) {
+    notFound()
+  }
+
   return (
     <Suspense fallback={null}>
       <GalleryPageContent />
@@ -24,10 +29,6 @@ export default function GalleryPage() {
 }
 
 async function GalleryPageContent() {
-  if (!siteConfig.pages.gallery) {
-    notFound()
-  }
-
   const t = await getTranslations("Gallery")
   const albums = await getGalleryAlbums()
 

@@ -1,7 +1,4 @@
 {
-  "Index": {
-    "title": "Hello world!"
-  },
   "Public": {
     "nav": {
       "home": "Home",
@@ -58,39 +55,14 @@
     "music": "Music",
     "bgPlayerPlay": "Play background video",
     "bgPlayerPause": "Pause background video",
-    "themeSettings": "Theme settings",
     "language": "Language"
-  },
-  "Home": {
-    "hero": {
-      "badge": "Now in beta",
-      "title": "A Modern Blog Built with Next.js",
-      "subtitle": "Sharing thoughts on web development, design, and technology. Powered by Next.js 16, Prisma, and MariaDB.",
-      "ctaPosts": "Browse Posts",
-      "ctaAbout": "About Me"
-    },
-    "featured": {
-      "title": "Featured Posts",
-      "viewAll": "View all",
-      "empty": "No posts published yet. Check back soon!"
-    },
-    "categories": {
-      "title": "Categories",
-      "post": "post",
-      "posts": "posts"
-    }
   },
   "Blog": {
     "title": "Blog",
     "description": "Articles about web development, design, and more.",
     "search": {
       "placeholder": "Search posts...",
-      "results": "Search results for \"{query}\"",
-      "button": "Search"
-    },
-    "categories": {
-      "title": "Categories",
-      "all": "All"
+      "results": "Search results for \"{query}\""
     },
     "pagination": {
       "prev": "Previous",
@@ -98,10 +70,7 @@
     },
     "empty": "No posts found.",
     "comments": {
-      "leaveComment": "Leave a Comment",
-      "name": "Nickname",
       "namePlaceholder": "Your nickname",
-      "content": "Comment",
       "contentPlaceholder": "Be nice, share your thoughts...",
       "submit": "Post",
       "submitting": "Posting...",
@@ -114,13 +83,11 @@
       "replyPlaceholder": "Write your reply...",
       "anonymous": "Anonymous",
       "expandReplies": "{count} replies",
-      "collapseReplies": "Collapse replies"
+      "collapseReplies": "Collapse replies",
+      "postFailed": "Failed to post the comment, please try again later"
     }
   },
   "BlogPost": {
-    "backToBlog": "Back to blog",
-    "minRead": "min read",
-    "views": "views",
     "relatedPosts": "Related Posts",
     "randomPosts": "Random Posts",
     "smartRecommend": "Smart",
@@ -133,22 +100,13 @@
     "minute": "min",
     "minutes": "mins",
     "like": "Like",
+    "encrypted": "Encrypted",
     "comments": {
       "title": "{count} comments"
     }
   },
   "About": {
-    "title": "About Me",
-    "role": "Full-Stack Developer & Content Creator",
-    "bio": "I build modern web applications and write about the technologies I use.",
-    "bioTitle": "Who I Am",
-    "bioParagraph1": "I'm a full-stack developer passionate about crafting beautiful, performant web experiences with modern tools like Next.js, React, and TypeScript.",
-    "bioParagraph2": "When I'm not coding, I enjoy writing technical articles, exploring new technologies, and contributing to open-source projects.",
-    "skills": "Skills & Technologies",
-    "stackTitle": "Tech Stack",
-    "stackFrontend": "Frontend",
-    "stackBackend": "Backend & Infrastructure",
-    "stackNote": "Built with Next.js 16, Prisma ORM, MariaDB — deployed on the edge."
+    "title": "About Me"
   },
   "Gallery": {
     "title": "Gallery",
@@ -190,9 +148,12 @@
     "backHome": "Back to Home"
   },
   "Archive": {
+    "title": "Archive",
+    "description": "All posts organized by year",
     "categories": "Categories",
     "tags": "Tags",
     "uncategorized": "Uncategorized",
+    "publishedAt": "Published at",
     "postCount": "post",
     "postsCount": "posts"
   },
@@ -213,9 +174,6 @@
     "title": "Login",
     "email": "Email",
     "password": "Password",
-    "submit": "Sign In",
-    "error": "Invalid email or password",
-    "loading": "Signing in...",
     "invalidCredentials": "Invalid email or password",
     "unexpectedError": "An unexpected error occurred. Please try again.",
     "signingIn": "Signing in...",
@@ -312,15 +270,12 @@
     "setUser": "Set as User",
     "delete": "Delete",
     "confirmDelete": "Delete this user? This action cannot be undone.",
-    "confirmSetAdmin": "Promote this user to admin?",
-    "confirmSetUser": "Demote this admin to a regular user?",
     "noUsers": "No users yet.",
     "totalUsers": "Total Users",
     "adminCount": "Admins",
     "you": "(you)",
     "cannotDeleteSelf": "Cannot delete yourself",
     "cannotDemoteSelf": "Cannot demote yourself",
-    "cannotDeleteLastAdmin": "Cannot delete the last admin",
     "editUser": "Edit User",
     "editUserDesc": "Modify username and email address.",
     "resetPassword": "Reset Password",
@@ -329,9 +284,9 @@
     "createUserDesc": "Create a new user account.",
     "newPassword": "New Password",
     "newPasswordPlaceholder": "Enter new password (min. 8 characters)",
+    "confirmPassword": "Confirm New Password",
     "passwordResetSuccess": "Password has been reset",
     "userUpdated": "User information updated",
-    "userCreated": "User created",
     "passwordNotMatch": "Passwords do not match",
     "edit": "Edit",
     "password": "Password",
@@ -340,7 +295,6 @@
     "creating": "Creating…",
     "saving": "Saving…",
     "resetting": "Resetting…",
-    "selectRole": "Select role",
     "roleLabel": "Role",
     "operationFailed": "Operation failed, please retry"
   },
@@ -392,7 +346,6 @@
     "edit": "Edit",
     "delete": "Delete",
     "publish": "Publish",
-    "unpublish": "Unpublish",
     "confirm_delete": "Are you sure?",
     "title_label": "Title",
     "slug_label": "Slug",
@@ -429,9 +382,7 @@
     "loading_tags": "Loading tags...",
     "failed_create": "Failed to create post",
     "failed_update": "Failed to update post",
-    "title_required": "Title is required",
-    "slug_required": "Slug is required",
-    "content_required": "Content is required"
+    "failed_load_meta": "Failed to load categories and tags ({reason})"
   },
   "AdminComments": {
     "title": "Comments",
@@ -460,13 +411,8 @@
     "tags": "Tags",
     "add_category": "Add",
     "add_tag": "Add",
-    "name": "Name",
-    "slug": "Slug",
-    "posts_count": "Posts",
     "post": "post",
     "posts": "posts",
-    "edit": "Edit",
-    "delete": "Delete",
     "no_categories": "No categories yet. Create one above.",
     "no_tags": "No tags yet. Create one above.",
     "new_category_placeholder": "New category name...",
@@ -493,7 +439,6 @@
     "delete": "Delete",
     "save": "Save",
     "cancel": "Cancel",
-    "create": "Create",
     "album_name": "Album name",
     "photo_title": "Photo title",
     "confirm_delete_album": "Delete this album and all its photos?",
@@ -573,7 +518,6 @@
     "unpublished": "Unpublished",
     "batch_import_placeholder": "One audio URL per line",
     "batch_import_hint": "One audio URL per line. Will auto-parse title-artist.mp3 from filename.",
-    "url_required": "Audio URL is required",
     "confirm_delete": "Delete this track?",
     "operation_failed": "Operation failed. Please try again.",
     "created": "Added successfully",
@@ -669,7 +613,8 @@
     "slugExists": "Slug already exists, please choose another",
     "themeHueOutOfRange": "Theme hue must be between 0 and 360",
     "themePostLayoutInvalid": "Invalid post layout",
-    "alreadyInitialized": "The system has already been initialized"
+    "alreadyInitialized": "The system has already been initialized",
+    "validationFailed": "The submission failed validation, please check and retry"
   },
   "AdminSettings": {
     "title": "Settings",
@@ -684,14 +629,11 @@
     "profileBioPlaceholder": "A short bio",
     "profileLocationPlaceholder": "e.g. Hangzhou",
     "siteLaunchDate": "Site Launch Date",
-    "siteLaunchDatePlaceholder": "YYYY-MM-DD",
     "siteLaunchDateHint": "Running days are counted from this date. Leave empty to use the first post's publish date.",
     "save": "Save",
     "saving": "Saving...",
     "saved": "Saved",
     "saveFailed": "Save failed, please retry",
-    "currentValue": "Current",
-    "defaultValue": "Default",
     "socialLinksSection": "Social Links",
     "socialLinksHint": "Social links displayed in the sidebar (GitHub, Email, etc.). Leave empty to use defaults.",
     "navLinksSection": "Navigation External Links",
@@ -737,7 +679,6 @@
     "musicManageHint": "Manage music direct links in \"Music Management\"; no music is configured by default."
   },
   "Widgets": {
-    "profile": "Profile",
     "announcement": "Announcement",
     "categories": "Categories",
     "tags": "Tags",
@@ -795,30 +736,44 @@
     "tocEmpty": "No table of contents",
     "dynamicEmpty": "No dynamics",
     "moreDynamics": "More Dynamics",
-    "dynamic": "Dynamic",
-    "musicNoPlaying": "Not Playing",
-    "musicPlay": "Play",
-    "musicPlayButton": "Play",
-    "musicPause": "Pause",
-    "musicPrev": "Previous",
     "previous": "Previous",
-    "musicNext": "Next",
     "next": "Next",
     "play": "Play",
     "pause": "Pause",
-    "playMode": "Play Mode",
     "mute": "Mute",
     "unmute": "Unmute",
     "playlist": "Playlist",
     "musicEmpty": "Unknown Track",
-    "musicVolume": "Volume",
-    "musicProgress": "Progress",
-    "musicPlaylist": "Playlist",
-    "musicPlayMode": "Play Mode",
     "musicNoSongs": "No Songs",
-    "musicError": "Failed to load",
-    "musicCover": "Cover",
     "announcementClose": "Close Announcement",
     "close": "Close"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. You can try again, or head back to the home page.",
+    "errorId": "Error ID: {digest}",
+    "retry": "Retry",
+    "backHome": "Back to home",
+    "blogTitle": "Failed to load article",
+    "blogDescription": "An unexpected error occurred while loading this article. Please try again, or return to the blog listing.",
+    "backToBlog": "Back to blog"
+  },
+  "Player": {
+    "title": "Music Player",
+    "collapse": "Collapse",
+    "sequence": "Play in Order",
+    "repeat": "Repeat One",
+    "shuffle": "Shuffle",
+    "progress": "Playback Progress",
+    "volume": "Volume",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "previous": "Previous",
+    "next": "Next",
+    "playlist": "Playlist"
+  },
+  "PostMeta": {
+    "word": "{count} word",
+    "minute": "{count} min"
   }
 }

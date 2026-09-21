@@ -43,7 +43,7 @@ COPY --from=builder /app/public ./public
 # Prisma generated client (not always captured by standalone tracing)
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Runtime tools: prisma CLI (db push), http-proxy (admin proxy), dotenv (prisma config).
+# Runtime tools: prisma CLI (migrate deploy), http-proxy (admin proxy), dotenv (prisma config).
 # Install them into a separate prefix and symlink only the missing packages into
 # /app/node_modules. The traced standalone node_modules (including `next`) is
 # never touched, so server.js keeps resolving `next` while the image stays small.
@@ -62,11 +62,16 @@ COPY admin-proxy.mjs ./admin-proxy.mjs
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
-# Non-root user and persistent config volume
+# Non-root user and persistent volumes
+# /data         持久化运行时配置（config.env 等）
+# /app/public/uploads  持久化用户上传的图片；不声明为卷时图片写在容器可写层，
+#                      容器重建（docker rm + run）即丢失。建议把宿主目录挂载到这里：
+#                      -v /srv/slider-blog/uploads:/app/public/uploads
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001 \
     && chown -R nextjs:nodejs /app \
-    && mkdir -p /data && chown -R nextjs:nodejs /data
-VOLUME ["/data"]
+    && mkdir -p /data /app/public/uploads \
+    && chown -R nextjs:nodejs /data /app/public/uploads
+VOLUME ["/data", "/app/public/uploads"]
 USER nextjs
 
 EXPOSE 4000 4100

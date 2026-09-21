@@ -6,10 +6,11 @@ datasource db {
   provider = "mysql"
 }
 
-// NOTE: The indexes added below (Post.user_id, Post.category_id, Comment.user_id,
-// PostTag.tag_id, FriendLink.group_id) require a database migration when deploying.
-// Run: npx prisma migrate dev --name add_indexes
-// (Not run in dev environment — apply during deployment.)
+// NOTE: 初始迁移已入库（prisma/migrations），生产部署必须用迁移而非 prisma db push。
+// 修改模型后本地执行 npx prisma migrate dev --name <变更名> 生成新迁移并提交；
+// 生产环境由容器启动脚本执行 npx prisma migrate deploy 应用迁移。
+// 已有数据库首次接入迁移历史时，先用 prisma migrate resolve --applied <迁移名> 做基线对齐，
+// 详见 DEPLOY.md「数据库迁移」章节。
 
 model User {
   id            BigInt    @id @default(autoincrement())

@@ -4,8 +4,8 @@ import {
   getSidebarProfile,
   getActiveAnnouncements,
   getSiteInfoData,
+  getMusicList,
 } from "@/server/queries/site"
-import { getMusicListWithAutoSync } from "@/server/queries/music-sync"
 import { getCategories, getTags } from "@/server/queries/post"
 import { safeDbQuery } from "@/lib/safe-db"
 
@@ -58,7 +58,7 @@ async function LeftSidebar() {
           _count?: { posts: number }
         }>,
       ),
-      safeDbQuery(getMusicListWithAutoSync, []),
+      safeDbQuery(getMusicList, []),
       safeDbQuery(() => getSiteInfoData("Unknown CI"), siteInfoFallback),
     ])
 

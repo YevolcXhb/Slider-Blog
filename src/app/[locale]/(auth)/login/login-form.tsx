@@ -4,13 +4,14 @@ import { useState, useCallback, Suspense } from "react"
 import { signIn } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
-import { useRouter, Link } from "@/i18n/routing"
+import { useRouter, Link, routing } from "@/i18n/routing"
 import { LogIn, Loader2, AlertCircle } from "lucide-react"
 
 import { GlassCard } from "@/components/ui/glass-card"
 import { GlassInput } from "@/components/ui/glass-input"
 import { GlassButton } from "@/components/ui/glass-button"
 import { PageBackground } from "@/components/ui/page-background"
+import { normalizeCallbackUrl } from "@/lib/callback-url"
 
 function LoginFormInner() {
   const t = useTranslations("Login")
@@ -40,13 +41,14 @@ function LoginFormInner() {
           return
         }
 
-        // 登录成功后跳回原页面（P2-002）；仅接受站内相对路径，防止开放重定向
-        const callbackUrl = searchParams.get("callbackUrl")
-        if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")) {
-          router.push(callbackUrl)
-        } else {
-          router.push("/dashboard")
-        }
+        // 登录成功后跳回原页面（P2-002）。
+        // normalizeCallbackUrl 同时负责开放重定向防护与「去掉已有的 locale 前缀」，
+        // 否则 proxy.ts 写入的 /zh/xxx 会被 router 再补一次前缀变成 /zh/zh/xxx 而 404。
+        const target = normalizeCallbackUrl(
+          searchParams.get("callbackUrl"),
+          routing.locales,
+        )
+        router.push(target ?? "/dashboard")
         router.refresh()
       } catch {
         setError(t("unexpectedError"))

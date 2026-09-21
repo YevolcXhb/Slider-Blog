@@ -23,26 +23,40 @@ interface AlbumPageProps {
   }>
 }
 
-export default function AlbumPage({ params }: AlbumPageProps) {
-  return (
-    <Suspense fallback={null}>
-      <AlbumPageContent params={params} />
-    </Suspense>
-  )
-}
+type AlbumDetail = NonNullable<Awaited<ReturnType<typeof getGalleryAlbumById>>>
 
-async function AlbumPageContent({ params }: AlbumPageProps) {
+/**
+ * 取相册，并把"这个 id 没有相册"归一化成 null。
+ *
+ * 解码：与 blog/[slug] 同理 —— Next.js 16 交给页面的动态段**已经是解码态**
+ * （route-matcher 里解过一次），这里不能再 decodeURIComponent。albumId 只是
+ * 十进制主键，getGalleryAlbumById 内部用 isGalleryAlbumId 做白名单校验，
+ * 任何非数字（含带 `%`、`/` 的畸形值）都直接返回 null → 调用方 notFound()。
+ * 也就是说这条路径**不可能**抛出 URIError，无需额外 try/catch。
+ */
+export default async function AlbumPage({ params }: AlbumPageProps) {
   if (!siteConfig.pages.gallery) {
     notFound()
   }
 
   const { album: albumId } = await params
-  const album = await getGalleryAlbumById(albumId)
-  const t = await getTranslations("Gallery")
 
+  // 同 blog/[slug]：notFound() 必须发生在 <Suspense> 之前，否则 200 已经发出，
+  // 不存在的相册会被搜索引擎当有效页面收录。
+  const album = await getGalleryAlbumById(albumId)
   if (!album) {
     notFound()
   }
+
+  return (
+    <Suspense fallback={null}>
+      <AlbumPageContent album={album} />
+    </Suspense>
+  )
+}
+
+async function AlbumPageContent({ album }: { album: AlbumDetail }) {
+  const t = await getTranslations("Gallery")
 
   const cover = album.cover || (album.photos.length > 0 ? album.photos[0].url : null)
 

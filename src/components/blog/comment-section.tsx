@@ -10,6 +10,40 @@ import { sanitizePlainText } from "@/lib/sanitize"
 import { CommentForm } from "./comment-form"
 
 // ---------------------------------------------------------------------------
+// Comment refresh
+// ---------------------------------------------------------------------------
+/**
+ * 提交/回复成功后重新拉取评论列表。
+ *
+ * 两个调用点（新评论、回复）原本各自复制了一份 fetch 链，其中一条的 catch 是
+ * 空实现。这里收敛成一处，并显式处理三种失败：
+ *   - 网络错误 / 非 2xx；
+ *   - 响应体不是 JSON（res.json() 抛 SyntaxError）；
+ *   - 响应形状不符合预期（data.comments 不是数组）。
+ * 任何一条路径都保持现有列表不变，并 resolve（不向调用方抛 rejection，
+ * 避免产生 unhandled rejection —— 调用点是同步回调，没人 await 它）。
+ */
+async function refreshComments(
+  postId: number,
+  setComments: (comments: Comment[]) => void,
+): Promise<void> {
+  try {
+    const res = await fetch(`/api/comments?postId=${postId}`)
+    if (!res.ok) return
+    const data: unknown = await res.json()
+    if (
+      data &&
+      typeof data === "object" &&
+      Array.isArray((data as { comments?: unknown }).comments)
+    ) {
+      setComments((data as { comments: Comment[] }).comments)
+    }
+  } catch {
+    // 静默失败：列表保持旧内容，下次整页加载会拿到最新数据
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Avatar color palette
 // ---------------------------------------------------------------------------
 const AVATAR_COLORS = [
@@ -162,24 +196,15 @@ export function CommentSection({ postId, initialComments }: CommentSectionProps)
 
   const handleReplySuccess = useCallback(() => {
     setReplyTo(null)
-    // Refresh comments from API
-    fetch(`/api/comments?postId=${postId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.comments) setComments(data.comments)
-      })
-      .catch(() => {
-        // Silently fail, comments will refresh on next page load
-      })
+    void refreshComments(postId, setComments)
   }, [postId])
 
   const handleNewCommentSuccess = useCallback(() => {
-    fetch(`/api/comments?postId=${postId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.comments) setComments(data.comments)
-      })
-      .catch(() => {})
+    // 提交新评论后从 API 重新拉取列表：调用方是 onSubmit 回调（fire-and-forget），
+    // 因此这里必须自己吞掉 rejection —— 原来的 .catch(() => {}) 是空实现，
+    // 但 res.json() 在 500 响应体不是 JSON 时同样会 reject，那条路径没有任何
+    // 兜底提示（列表保持旧内容，用户以为评论没发出去）。
+    void refreshComments(postId, setComments)
   }, [postId])
 
   return (

@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { getLocale } from "next-intl/server"
+import { getLocale, getTranslations } from "next-intl/server"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 
 import { Link } from "@/i18n/routing"
@@ -41,6 +41,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
 async function BlogListContent({ searchParams }: BlogPageProps) {
   const locale = await getLocale()
+  const t = await getTranslations("Blog")
 
   const params = await searchParams
   const currentPage = Math.max(1, Number(params.page) || 1)
@@ -61,8 +62,8 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white/90">博客</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-white/50">分享技术、生活与思考</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white/90">{t("title")}</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-white/50">{t("description")}</p>
         </div>
 
         <form
@@ -77,7 +78,7 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
             <input
               name="q"
               defaultValue={searchQuery}
-              placeholder="搜索文章..."
+              placeholder={t("search.placeholder")}
               className="glass-input w-full rounded-xl py-2 pl-10 pr-4 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-pink-400/50 dark:text-white dark:placeholder:text-white/40"
             />
           </div>
@@ -88,7 +89,7 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
 
       {searchQuery && (
         <p className="text-sm text-gray-500 dark:text-white/50">
-          搜索 &quot;{searchQuery}&quot; 的结果
+          {t("search.results", { query: searchQuery })}
         </p>
       )}
 
@@ -116,7 +117,7 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
                   className="glass-card inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm text-gray-700 transition-all hover:-translate-y-0.5 dark:text-white/70"
                 >
                   <ChevronLeft className="size-4" />
-                  上一页
+                  {t("pagination.prev")}
                 </Link>
               )}
 
@@ -137,7 +138,7 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
                   }}
                   className="glass-card inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm text-gray-700 transition-all hover:-translate-y-0.5 dark:text-white/70"
                 >
-                  下一页
+                  {t("pagination.next")}
                   <ChevronRight className="size-4" />
                 </Link>
               )}
@@ -146,7 +147,7 @@ async function BlogListContent({ searchParams }: BlogPageProps) {
         </>
       ) : (
         <div className="glass-card rounded-2xl p-12 text-center">
-          <p className="text-gray-500 dark:text-white/50">暂无文章</p>
+          <p className="text-gray-500 dark:text-white/50">{t("empty")}</p>
         </div>
       )}
     </div>

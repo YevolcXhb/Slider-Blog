@@ -1,7 +1,4 @@
 {
-  "Index": {
-    "title": "你好，世界！"
-  },
   "Public": {
     "nav": {
       "home": "首页",
@@ -58,39 +55,14 @@
     "music": "音乐",
     "bgPlayerPlay": "播放背景视频",
     "bgPlayerPause": "暂停背景视频",
-    "themeSettings": "主题设置",
     "language": "语言"
-  },
-  "Home": {
-    "hero": {
-      "badge": "Beta 版",
-      "title": "基于 Next.js 的现代博客",
-      "subtitle": "分享关于 Web 开发、设计和技术的思考。基于 Next.js 16、Prisma 和 MariaDB 构建。",
-      "ctaPosts": "浏览文章",
-      "ctaAbout": "关于我"
-    },
-    "featured": {
-      "title": "精选文章",
-      "viewAll": "查看全部",
-      "empty": "暂无已发布文章，敬请期待！"
-    },
-    "categories": {
-      "title": "分类",
-      "post": "篇文章",
-      "posts": "篇文章"
-    }
   },
   "Blog": {
     "title": "博客",
     "description": "关于 Web 开发、设计等方面的文章。",
     "search": {
       "placeholder": "搜索文章...",
-      "results": "搜索 \"{query}\" 的结果",
-      "button": "搜索"
-    },
-    "categories": {
-      "title": "分类",
-      "all": "全部"
+      "results": "搜索 \"{query}\" 的结果"
     },
     "pagination": {
       "prev": "上一页",
@@ -98,10 +70,7 @@
     },
     "empty": "暂无文章。",
     "comments": {
-      "leaveComment": "发表评论",
-      "name": "昵称",
       "namePlaceholder": "你的昵称",
-      "content": "评论内容",
       "contentPlaceholder": "友善交流，分享你的想法...",
       "submit": "发布",
       "submitting": "发布中...",
@@ -114,13 +83,11 @@
       "replyPlaceholder": "写下你的回复...",
       "anonymous": "匿名用户",
       "expandReplies": "{count} 条回复",
-      "collapseReplies": "收起回复"
+      "collapseReplies": "收起回复",
+      "postFailed": "评论发布失败，请稍后重试"
     }
   },
   "BlogPost": {
-    "backToBlog": "返回博客",
-    "minRead": "分钟阅读",
-    "views": "次浏览",
     "relatedPosts": "相关文章",
     "randomPosts": "随机文章",
     "smartRecommend": "智能推荐",
@@ -133,22 +100,13 @@
     "minute": "分钟",
     "minutes": "分钟",
     "like": "点赞",
+    "encrypted": "加密文章",
     "comments": {
       "title": "{count} 条评论"
     }
   },
   "About": {
-    "title": "关于我",
-    "role": "全栈开发者 & 内容创作者",
-    "bio": "我构建现代 Web 应用，并撰写关于我所使用技术的文章。",
-    "bioTitle": "关于我",
-    "bioParagraph1": "我是一名全栈开发者，热衷于使用 Next.js、React 和 TypeScript 等现代工具打造美观、高性能的 Web 体验。",
-    "bioParagraph2": "不写代码的时候，我喜欢撰写技术文章、探索新技术，并为开源项目做贡献。",
-    "skills": "技能与技术",
-    "stackTitle": "技术栈",
-    "stackFrontend": "前端",
-    "stackBackend": "后端与基础设施",
-    "stackNote": "基于 Next.js 16、Prisma ORM、MariaDB 构建——部署在边缘网络。"
+    "title": "关于我"
   },
   "Gallery": {
     "title": "相册",
@@ -190,9 +148,12 @@
     "backHome": "返回首页"
   },
   "Archive": {
+    "title": "归档",
+    "description": "所有文章按年份整理",
     "categories": "分类",
     "tags": "标签",
     "uncategorized": "未分类",
+    "publishedAt": "发布于",
     "postCount": "篇文章",
     "postsCount": "篇文章"
   },
@@ -213,9 +174,6 @@
     "title": "登录",
     "email": "邮箱",
     "password": "密码",
-    "submit": "登录",
-    "error": "邮箱或密码错误",
-    "loading": "登录中...",
     "invalidCredentials": "邮箱或密码错误",
     "unexpectedError": "发生意外错误，请重试",
     "signingIn": "登录中...",
@@ -312,15 +270,12 @@
     "setUser": "设为普通用户",
     "delete": "删除",
     "confirmDelete": "确定删除该用户？此操作不可恢复。",
-    "confirmSetAdmin": "确定将该用户提升为管理员？",
-    "confirmSetUser": "确定将该管理员降级为普通用户？",
     "noUsers": "暂无用户。",
     "totalUsers": "用户总数",
     "adminCount": "管理员数",
     "you": "（你）",
     "cannotDeleteSelf": "不能删除自己",
     "cannotDemoteSelf": "不能降低自己的管理员权限",
-    "cannotDeleteLastAdmin": "不能删除最后一个管理员账号",
     "editUser": "编辑用户",
     "editUserDesc": "修改用户名和邮箱地址。",
     "resetPassword": "重置密码",
@@ -329,9 +284,9 @@
     "createUserDesc": "创建一个新的用户账号。",
     "newPassword": "新密码",
     "newPasswordPlaceholder": "输入新密码（至少 8 位）",
+    "confirmPassword": "确认新密码",
     "passwordResetSuccess": "密码已重置",
     "userUpdated": "用户信息已更新",
-    "userCreated": "用户已创建",
     "passwordNotMatch": "两次密码输入不一致",
     "edit": "编辑",
     "password": "密码",
@@ -340,7 +295,6 @@
     "creating": "创建中…",
     "saving": "保存中…",
     "resetting": "重置中…",
-    "selectRole": "选择角色",
     "roleLabel": "角色",
     "operationFailed": "操作失败，请重试"
   },
@@ -392,7 +346,6 @@
     "edit": "编辑",
     "delete": "删除",
     "publish": "发布",
-    "unpublish": "下架",
     "confirm_delete": "确定删除？",
     "title_label": "标题",
     "slug_label": "Slug",
@@ -429,9 +382,7 @@
     "loading_tags": "加载标签中...",
     "failed_create": "创建文章失败",
     "failed_update": "更新文章失败",
-    "title_required": "请填写标题",
-    "slug_required": "请填写 Slug",
-    "content_required": "请填写内容"
+    "failed_load_meta": "分类与标签加载失败（{reason}）"
   },
   "AdminComments": {
     "title": "评论管理",
@@ -460,13 +411,8 @@
     "tags": "标签",
     "add_category": "添加",
     "add_tag": "添加",
-    "name": "名称",
-    "slug": "Slug",
-    "posts_count": "文章数",
     "post": "篇",
     "posts": "篇",
-    "edit": "编辑",
-    "delete": "删除",
     "no_categories": "暂无分类，请在上方创建。",
     "no_tags": "暂无标签，请在上方创建。",
     "new_category_placeholder": "新分类名称...",
@@ -493,7 +439,6 @@
     "delete": "删除",
     "save": "保存",
     "cancel": "取消",
-    "create": "创建",
     "album_name": "相册名称",
     "photo_title": "照片标题",
     "confirm_delete_album": "确定要删除这个相册及其全部照片吗？",
@@ -573,7 +518,6 @@
     "unpublished": "已下架",
     "batch_import_placeholder": "每行一个音频 URL",
     "batch_import_hint": "每行一个音频 URL，将自动从文件名解析 歌名-艺术家.mp3 格式",
-    "url_required": "请填写音频 URL",
     "confirm_delete": "确定要删除这首音乐吗？",
     "operation_failed": "操作失败，请重试",
     "created": "添加成功",
@@ -669,7 +613,8 @@
     "slugExists": "Slug 已存在，请更换",
     "themeHueOutOfRange": "主题色相必须在 0-360 之间",
     "themePostLayoutInvalid": "无效的文章布局",
-    "alreadyInitialized": "系统已完成初始化"
+    "alreadyInitialized": "系统已完成初始化",
+    "validationFailed": "提交内容未通过校验，请检查后重试"
   },
   "AdminSettings": {
     "title": "系统设置",
@@ -684,14 +629,11 @@
     "profileBioPlaceholder": "一句话介绍自己",
     "profileLocationPlaceholder": "如：杭州",
     "siteLaunchDate": "站点启动日期",
-    "siteLaunchDatePlaceholder": "YYYY-MM-DD",
     "siteLaunchDateHint": "运行天数从此日期开始计算。留空则使用第一篇文章的发布日期。",
     "save": "保存",
     "saving": "保存中...",
     "saved": "已保存",
     "saveFailed": "保存失败，请重试",
-    "currentValue": "当前值",
-    "defaultValue": "默认值",
     "socialLinksSection": "社交链接",
     "socialLinksHint": "侧边栏展示的社交链接（GitHub、邮箱等）。留空将使用默认值。",
     "navLinksSection": "导航外链",
@@ -737,7 +679,6 @@
     "musicManageHint": "音乐直链请在「音乐管理」中增删改，默认不配置任何音乐。"
   },
   "Widgets": {
-    "profile": "个人资料",
     "announcement": "公告",
     "categories": "分类",
     "tags": "标签",
@@ -795,30 +736,44 @@
     "tocEmpty": "暂无目录",
     "dynamicEmpty": "暂无动态",
     "moreDynamics": "更多动态",
-    "dynamic": "动态",
-    "musicNoPlaying": "未在播放",
-    "musicPlay": "播放",
-    "musicPlayButton": "播放",
-    "musicPause": "暂停",
-    "musicPrev": "上一首",
     "previous": "上一首",
-    "musicNext": "下一首",
     "next": "下一首",
     "play": "播放",
     "pause": "暂停",
-    "playMode": "播放模式",
     "mute": "静音",
     "unmute": "取消静音",
     "playlist": "播放列表",
     "musicEmpty": "未知歌曲",
-    "musicVolume": "音量",
-    "musicProgress": "进度",
-    "musicPlaylist": "播放列表",
-    "musicPlayMode": "播放模式",
     "musicNoSongs": "暂无歌曲",
-    "musicError": "加载失败",
-    "musicCover": "封面",
     "announcementClose": "关闭公告",
     "close": "关闭"
+  },
+  "Error": {
+    "title": "出错了",
+    "description": "发生了意外错误。你可以重试，或者返回首页。",
+    "errorId": "错误编号：{digest}",
+    "retry": "重试",
+    "backHome": "返回首页",
+    "blogTitle": "文章加载失败",
+    "blogDescription": "加载这篇文章时发生了意外错误。请重试，或返回博客列表。",
+    "backToBlog": "返回博客"
+  },
+  "Player": {
+    "title": "音乐播放器",
+    "collapse": "收起",
+    "sequence": "顺序播放",
+    "repeat": "单曲循环",
+    "shuffle": "随机播放",
+    "progress": "播放进度",
+    "volume": "音量",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "previous": "上一首",
+    "next": "下一首",
+    "playlist": "播放列表"
+  },
+  "PostMeta": {
+    "word": "{count} 字",
+    "minute": "{count} 分钟"
   }
 }

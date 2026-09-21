@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react"
 import { BarChart3, FileText, FolderOpen, Tag, CalendarClock, Activity, TextSearch } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import type { SidebarStats } from "@/server/queries/site"
 
@@ -22,6 +23,7 @@ function formatNumber(num: number): string {
 }
 
 function StatsCard({ stats, lastPostDate }: StatsCardProps) {
+  const t = useTranslations("Widgets")
   const lastUpdateDays = useSyncExternalStore(
     () => () => {},
     () => {
@@ -34,36 +36,44 @@ function StatsCard({ stats, lastPostDate }: StatsCardProps) {
   const statItems = [
     {
       icon: FileText,
-      label: "文章数量",
+      label: t("siteStatsPostCount"),
       value: stats.totalPosts,
     },
     {
       icon: FolderOpen,
-      label: "分类数量",
+      label: t("siteStatsCategoryCount"),
       value: stats.totalCategories,
     },
     {
       icon: Tag,
-      label: "标签数量",
+      label: t("siteStatsTagCount"),
       value: stats.totalTags,
     },
     {
       icon: TextSearch,
-      label: "总字数",
+      label: t("siteStatsTotalWords"),
       value: stats.totalWords,
       formatted: true,
     },
     {
       icon: CalendarClock,
-      label: "运行天数",
+      label: t("siteStatsRunningDays"),
       value: stats.runningDays,
-      suffix: "天",
+      suffix: t("siteStatsDays", { days: "" }).trim(),
     },
     {
       icon: Activity,
-      label: "最后更新",
-      value: lastUpdateDays === null ? "-" : lastUpdateDays === 0 ? "今天" : lastUpdateDays,
-      suffix: lastUpdateDays && lastUpdateDays > 0 ? "天前" : "",
+      label: t("siteStatsLastUpdate"),
+      value:
+        lastUpdateDays === null
+          ? "-"
+          : lastUpdateDays === 0
+            ? t("siteStatsToday")
+            : lastUpdateDays,
+      suffix:
+        lastUpdateDays && lastUpdateDays > 0
+          ? t("siteStatsDaysAgo", { days: "" }).trim()
+          : "",
     },
   ]
 
@@ -71,7 +81,7 @@ function StatsCard({ stats, lastPostDate }: StatsCardProps) {
     <div className="card-base rounded-2xl p-5">
       <div className="widget-title mb-4 pb-3">
         <BarChart3 className="widget-title-icon size-4" />
-        <span className="widget-title-text">站点统计</span>
+        <span className="widget-title-text">{t("stats")}</span>
       </div>
       <div className="flex flex-col gap-2">
         {statItems.map((stat) => {

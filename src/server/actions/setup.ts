@@ -2,9 +2,11 @@
 
 import { exec } from "node:child_process";
 import { promises as fs } from "node:fs";
+import path from "node:path";
 import { promisify } from "node:util";
 import { headers } from "next/headers";
 import mariadb, { type Connection, type Pool } from "mariadb";
+import { isTrustedAdminGateway } from "@/lib/admin-gateway";
 import { prisma } from "@/lib/prisma";
 import { saveConfig } from "@/lib/config";
 import { hashPassword } from "@/server/actions/auth";
@@ -14,6 +16,22 @@ import { ValidationError } from "@/lib/validation";
 
 const execAsync = promisify(exec);
 const SCHEMA_MARKER = "/data/.schema-ready";
+
+/**
+ * 解析 Prisma 迁移目录的绝对路径。
+ *
+ * 迁移目录由 prisma.config.ts 的 migrations.path 声明（"prisma/migrations"，
+ * 相对 schema 所在目录）。这里返回绝对路径，仅用于拼出传给 prisma CLI 的
+ * --schema 参数所在的项目根，保证在任意 cwd 下都能定位到同一份迁移。
+ *
+ * 注意：不要把它传给环境变量。Prisma 7.9.1 的 CLI 只识别
+ * config.migrations.path / --schema，没有任何 PRISMA_MIGRATIONS_PATH
+ * 环境变量（grep node_modules/prisma/build/cli.js 无命中），旧实现把它塞进
+ * env 后该值完全没被读取，属于死代码。
+ */
+function resolveMigrationsDir(): string {
+  return path.join(process.cwd(), "prisma", "migrations").replace(/\\/g, "/");
+}
 
 function errorDetail(err: unknown, fallback: string): string {
   const e = err as {
@@ -29,12 +47,25 @@ function errorDetail(err: unknown, fallback: string): string {
 }
 
 async function applyDatabaseSchema(databaseUrl: string): Promise<void> {
-  // 首次连接成功后立即建表（网页初始化阶段完成）
-  await execAsync("prisma db push", {
-    cwd: process.cwd(),
-    env: { ...process.env, DATABASE_URL: databaseUrl },
-    timeout: 60_000,
-  });
+  // 首次连接成功后应用迁移（网页初始化阶段完成）。
+  // 使用 migrate deploy 而非 db push：按 prisma/migrations 顺序应用并写入记录，
+  // 变更可审计、失败可定位；db push 会跳过迁移历史并可能执行破坏性变更。
+  // 迁移目录本身由 prisma.config.ts 的 migrations.path 决定，不需要（也无法）
+  // 通过环境变量覆盖——详见 resolveMigrationsDir 的注释。
+  const projectRoot = path.resolve(resolveMigrationsDir(), "..", "..");
+  await execAsync(
+    `prisma migrate deploy --schema "${path
+      .join(projectRoot, "prisma", "schema.prisma")
+      .replace(/\\/g, "/")}"`,
+    {
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        DATABASE_URL: databaseUrl,
+      },
+      timeout: 60_000,
+    },
+  );
   // 标记 schema 已应用，entrypoint 不再重复执行
   try {
     await fs.mkdir("/data", { recursive: true });
@@ -76,11 +107,10 @@ export interface ConfigureDatabaseInput {
  */
 export async function configureDatabase(input: ConfigureDatabaseInput) {
   const h = await headers();
-  const gateway = h.get("x-admin-gateway");
-  if (
-    process.env.ADMIN_PROXY_SECRET &&
-    gateway !== process.env.ADMIN_PROXY_SECRET
-  ) {
+  // fail-closed：ADMIN_PROXY_SECRET 未配置或头不匹配时一律拒绝，
+  // 防止从前台端口直接调用初始化接口重配数据库。
+  // 判定复用 @/lib/admin-gateway 的唯一实现（F11）：常量时间比较、长度不等直接 false。
+  if (!isTrustedAdminGateway(h.get("x-admin-gateway"))) {
     return { ok: false as const, error: "adminOnly" };
   }
 
@@ -196,11 +226,11 @@ export async function configureDatabase(input: ConfigureDatabaseInput) {
   try {
     await applyDatabaseSchema(url);
   } catch (err) {
-    console.error("[configureDatabase] prisma db push failed:", err);
+    console.error("[configureDatabase] prisma migrate deploy failed:", err);
     return {
       ok: false as const,
       error: "schemaFailed",
-      detail: errorDetail(err, "prisma db push failed"),
+      detail: errorDetail(err, "prisma migrate deploy failed"),
     };
   }
 

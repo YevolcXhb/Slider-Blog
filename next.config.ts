@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
     },
     // 优化大型包的按需导入，减少客户端 bundle 体积
     optimizePackageImports: ["motion", "lucide-react"],
+    // 让「完全匹配不到任何路由的 URL」交由 src/app/global-not-found.tsx 处理。
+    // 该文件由 Next 在路由层直接返回，绕过整个 app 的渲染（不套 root layout），
+    // 因此它必须自己输出完整的 <html>/<body> —— 这正是官方约定的职责划分：
+    // not-found.js 只负责路由段内的 notFound()，不该输出 html/body。
+    globalNotFound: true,
   },
   images: {
     formats: ["image/avif", "image/webp"],

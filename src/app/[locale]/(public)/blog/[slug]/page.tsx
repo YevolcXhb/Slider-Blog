@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { Suspense } from "react"
+import { Suspense, cache } from "react"
 import { ReadingProgress } from "@/components/blog/reading-progress"
 import { ViewTracker } from "@/components/blog/view-tracker"
 import { PostPage } from "@/components/blog/post-page"
@@ -23,12 +23,43 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string; locale: string }>
 }
 
+/**
+ * 取文章，并把"这一 slug 没有文章"归一化成 null。
+ *
+ * 关于 slug 的解码：Next.js 16 在把动态段交给页面之前**已经**解码过一次
+ * （app-page 路由匹配器 shared/lib/router/utils/route-matcher.ts 里的
+ * decodeURIComponent），所以这里拿到的是解码后的值，不能再解一遍 ——
+ * 对 `/blog/100%25-off` 这类 URL，多解一次会让 "%25" 变成裸 "%"，
+ * decodeURIComponent 直接抛 URIError，整页 500。
+ *
+ * 畸形百分号序列（例如 URL 里一个孤立的 `%`）会在到达本函数之前就被 Next
+ * 判成 DecodeError 并以 400 响应（server/next-server.js 的 DecodeError 分支），
+ * 因此下面这层 try/catch 只是在防御"参数来自改写/其它调用方"的情况：
+ * 解不开就当作"没有这篇文章"，由调用方 notFound() 给出 404，而不是 500。
+ */
+// React 的 cache() 只做**单次请求内**的去重：generateMetadata 与页面主体
+// 都调用它，第二次直接命中同一 Promise，DB 往返减半。
+//
+// 这里刻意不用 unstable_cache：blog/[slug] 声明了 force-dynamic，跨请求缓存
+// 会让「刚发布的文章」或「刚下架的草稿」在 TTL 内继续以旧状态响应
+// （getPostBySlug 已过滤 status: 1，正确性优先于省这一次查询）。
+const getPostOrNull = cache(async (locale: string, rawSlug: string) => {
+  let slug = rawSlug
+  try {
+    // 已经是解码态时 decodeURIComponent 是幂等的；只有含非法转义序列才会抛。
+    slug = decodeURIComponent(rawSlug)
+  } catch {
+    return null
+  }
+  if (!slug) return null
+  return safeDbQuery(() => getPostBySlug(locale, slug), null)
+})
+
 export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata> {
-  const { slug: rawSlug, locale } = await params
-  const slug = decodeURIComponent(rawSlug)
-  const post = await safeDbQuery(() => getPostBySlug(locale, slug), null)
+  const { slug, locale } = await params
+  const post = await getPostOrNull(locale, slug)
 
   if (!post) return {}
 
@@ -44,23 +75,37 @@ export async function generateMetadata({
   }
 }
 
-export default function BlogPostPage({ params }: BlogPostPageProps) {
-  return (
-    <Suspense fallback={null}>
-      <BlogPostPageContent params={params} />
-    </Suspense>
-  )
-}
+type PostDetail = NonNullable<Awaited<ReturnType<typeof getPostBySlug>>>
 
-async function BlogPostPageContent({ params }: BlogPostPageProps) {
-  const { slug: rawSlug, locale } = await params
-  const slug = decodeURIComponent(rawSlug)
-  const post = await safeDbQuery(() => getPostBySlug(locale, slug), null)
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const { slug, locale } = await params
 
+  // 存在性检查必须在任何 <Suspense> 边界之前完成：一旦某个 Suspense fallback
+  // 开始渲染，响应头（含状态码 200）就已经发出，之后再调用 notFound() 只能注入
+  // <meta name="robots" content="noindex">，无法把状态码改回 404，搜索引擎仍会
+  // 把该 URL 当有效页面收录。见 node_modules/next/dist/docs/01-app/02-guides/
+  // streaming.md 的 “Status codes” 一节。
+  //
+  // 解码与"找不到"的处理见 getPostOrNull。
+  const post = await getPostOrNull(locale, slug)
   if (!post) {
     notFound()
   }
 
+  return (
+    <Suspense fallback={null}>
+      <BlogPostPageContent post={post} locale={locale} />
+    </Suspense>
+  )
+}
+
+async function BlogPostPageContent({
+  post,
+  locale,
+}: {
+  post: PostDetail
+  locale: string
+}) {
   const [comments, relatedPosts, adjacent] = await Promise.all([
     safeDbQuery(() => getApprovedComments(post.id), []),
     safeDbQuery(

@@ -3,6 +3,13 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
+// SHADOW_DATABASE_URL 为可选的「影子库」连接串，仅供离线校验迁移使用：
+// `prisma migrate diff --from-migrations ... --to-schema ... --exit-code` 需要一个一次性的空库
+// 来重放 prisma/migrations，因此迁移与 schema.prisma 是否等价可以完全离线比对，不碰真实库。
+// 未配置时该字段不写入配置对象（而不是写 undefined），保证行为与改动前逐字一致，
+// 也不会让现有部署因缺少这个可选变量而失败。
+const shadowDatabaseUrl = process.env["SHADOW_DATABASE_URL"];
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
@@ -10,5 +17,7 @@ export default defineConfig({
   },
   datasource: {
     url: process.env["DATABASE_URL"],
+    // 仅当显式配置了影子库时才写入，禁用方式即留空该环境变量
+    ...(shadowDatabaseUrl ? { shadowDatabaseUrl } : {}),
   },
 });

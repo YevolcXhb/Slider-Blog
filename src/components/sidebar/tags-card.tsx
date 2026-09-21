@@ -1,4 +1,6 @@
 import { Tags } from "lucide-react"
+import { useTranslations } from "next-intl"
+
 import { Link } from "@/i18n/routing"
 
 interface Tag {
@@ -19,6 +21,8 @@ function getTagSize(count: number): string {
 }
 
 function TagsCard({ tags }: TagsCardProps) {
+  const t = useTranslations("Widgets")
+
   if (tags.length === 0) {
     return null
   }
@@ -31,12 +35,12 @@ function TagsCard({ tags }: TagsCardProps) {
     <div className="card-base rounded-2xl p-5">
       <div className="widget-title mb-4 pb-3">
         <Tags className="widget-title-icon size-4" />
-        <span className="widget-title-text">标签云</span>
+        <span className="widget-title-text">{t("tags")}</span>
         <Link
           href="/tags"
           className="ml-auto text-xs text-pink-500 transition-colors hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300"
         >
-          更多
+          {t("more")}
         </Link>
       </div>
       <div className="flex flex-wrap gap-2">

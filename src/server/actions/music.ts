@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { deleteUploadedFilesByUrl } from "@/lib/upload-cleanup";
 import { auth } from "@/lib/auth";
 import { UserRole } from "@/types/user";
 import { parseMusicInfoFromUrl } from "@/lib/parse-music-info";
@@ -84,7 +85,7 @@ export async function createMusic(formData: FormData) {
     },
   });
 
-  revalidatePath("/manage-music");
+  revalidatePath("/[locale]/(admin)/manage-music", "page");
   revalidateTag("music", "max");
 }
 
@@ -92,6 +93,12 @@ export async function updateMusic(id: number, formData: FormData) {
   await requireAdmin();
 
   const musicId = parsePositiveBigIntId(id);
+
+  // 更新前取出旧封面，用于替换后释放不再被引用的本地文件
+  const previous = await prisma.music.findUnique({
+    where: { id: musicId },
+    select: { cover: true },
+  });
 
   const url = validateMusicUrl(getStringFromFormData(formData, "url"));
   const title = getStringFromFormData(formData, "title").trim();
@@ -130,7 +137,12 @@ export async function updateMusic(id: number, formData: FormData) {
     },
   });
 
-  revalidatePath("/manage-music");
+  // 封面被替换时释放旧文件；新值仍指向同一路径则不删
+  if (previous && previous.cover !== cover) {
+    await deleteUploadedFilesByUrl([previous.cover]);
+  }
+
+  revalidatePath("/[locale]/(admin)/manage-music", "page");
   revalidateTag("music", "max");
 }
 
@@ -139,11 +151,19 @@ export async function deleteMusic(id: number) {
 
   const musicId = parsePositiveBigIntId(id);
 
+  // 先取出封面：行删除后查不到，文件会永久残留
+  const existing = await prisma.music.findUnique({
+    where: { id: musicId },
+    select: { cover: true },
+  });
+
   await prisma.music.delete({
     where: { id: musicId },
   });
 
-  revalidatePath("/manage-music");
+  if (existing) await deleteUploadedFilesByUrl([existing.cover]);
+
+  revalidatePath("/[locale]/(admin)/manage-music", "page");
   revalidateTag("music", "max");
 }
 
@@ -163,7 +183,7 @@ export async function toggleMusicPublish(id: number) {
     data: { is_published: music.is_published ? 0 : 1 },
   });
 
-  revalidatePath("/manage-music");
+  revalidatePath("/[locale]/(admin)/manage-music", "page");
   revalidateTag("music", "max");
 }
 
@@ -197,7 +217,7 @@ export async function reorderMusic(id: number, direction: "up" | "down") {
     }),
   ]);
 
-  revalidatePath("/manage-music");
+  revalidatePath("/[locale]/(admin)/manage-music", "page");
   revalidateTag("music", "max");
 }
 
@@ -258,7 +278,7 @@ export async function importMusicBatch(formData: FormData) {
     data: records,
   });
 
-  revalidatePath("/manage-music");
+  revalidatePath("/[locale]/(admin)/manage-music", "page");
   revalidateTag("music", "max");
 
   // 返回导入结果统计，供客户端展示（P2-007）

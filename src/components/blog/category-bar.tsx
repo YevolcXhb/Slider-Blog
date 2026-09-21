@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react"
 import { Home, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 interface Category {
   id: number
@@ -23,6 +24,7 @@ function getPathWithoutLocale(pathname: string) {
 }
 
 function CategoryBar({ categories, totalPosts, currentPostCategory }: CategoryBarProps) {
+  const t = useTranslations("CategoryBar")
   const rawPathname = usePathname()
   const pathname = rawPathname ?? ""
   const hasPathname = rawPathname !== null
@@ -299,7 +301,7 @@ function CategoryBar({ categories, totalPosts, currentPostCategory }: CategoryBa
           className="category-pill text-sm px-3 py-1.5 rounded-full shrink-0 transition-colors duration-150 ease-out flex items-center justify-center"
           data-category-name=""
           data-active={initialActive("").active ? "" : undefined}
-          aria-label="首页"
+          aria-label={t("home")}
         >
           <Home className="text-lg" />
         </Link>
@@ -310,7 +312,7 @@ function CategoryBar({ categories, totalPosts, currentPostCategory }: CategoryBa
           data-category-name="__archive__"
           data-active={initialActive("__archive__").active ? "" : undefined}
         >
-          归档
+          {t("archive")}
           <span className="pill-count">{totalPosts}</span>
         </Link>
 
@@ -346,9 +348,9 @@ function CategoryBar({ categories, totalPosts, currentPostCategory }: CategoryBa
           className="category-pill text-sm px-3 py-1.5 rounded-full shrink-0 transition-colors duration-150 ease-out flex items-center justify-center gap-1"
           data-category-name="__categories__"
           data-active={initialActive("__categories__").active ? "" : undefined}
-          aria-label="更多"
+          aria-label={t("more")}
         >
-          <span>更多</span>
+          <span>{t("more")}</span>
           <ChevronRight className="text-sm" />
         </Link>
       </div>

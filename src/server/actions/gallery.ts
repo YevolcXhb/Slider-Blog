@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { deleteUploadedFilesByUrl } from "@/lib/upload-cleanup";
 import { auth } from "@/lib/auth";
 import { UserRole } from "@/types/user";
 import {
@@ -66,7 +67,7 @@ export async function createAlbum(formData: FormData) {
     },
   });
 
-  revalidatePath("/gallery");
+  revalidatePath("/[locale]/(public)/gallery", "page");
   revalidateTag("gallery", "max");
 }
 
@@ -74,6 +75,11 @@ export async function updateAlbum(id: number, formData: FormData) {
   await requireAdmin();
 
   const albumId = parsePositiveBigIntId(id);
+
+  const previous = await prisma.galleryAlbum.findUnique({
+    where: { id: albumId },
+    select: { cover: true },
+  });
 
   const name = getStringFromFormData(formData, "name").trim();
   if (!name) throw new ValidationError("albumNameRequired");
@@ -101,7 +107,12 @@ export async function updateAlbum(id: number, formData: FormData) {
     },
   });
 
-  revalidatePath("/gallery");
+  // 封面被替换时释放旧文件；新封面仍指向旧路径则不删
+  if (previous && previous.cover !== cover) {
+    await deleteUploadedFilesByUrl([previous.cover]);
+  }
+
+  revalidatePath("/[locale]/(public)/gallery", "page");
   revalidateTag("gallery", "max");
 }
 
@@ -110,13 +121,28 @@ export async function deleteAlbum(id: number) {
 
   const albumId = parsePositiveBigIntId(id);
 
+  // 必须先取出所有会被释放的文件 URL：数据库行一旦删除就再也查不到了，
+  // 那些文件会永久残留，且因文件名是 UUID + 读路由无鉴权，已删除内容仍可取到。
+  const album = await prisma.galleryAlbum.findUnique({
+    where: { id: albumId },
+    include: { photos: { select: { url: true, thumbnail: true } } },
+  });
+
   // 删除相册及照片放入同一事务，避免部分删除（P1-007）
   await prisma.$transaction([
     prisma.galleryPhoto.deleteMany({ where: { album_id: albumId } }),
     prisma.galleryAlbum.delete({ where: { id: albumId } }),
   ]);
 
-  revalidatePath("/gallery");
+  // 事务成功后才删文件；helper 内部吞掉所有异常，不会让删除操作失败
+  if (album) {
+    await deleteUploadedFilesByUrl([
+      album.cover,
+      ...album.photos.flatMap((p) => [p.url, p.thumbnail]),
+    ]);
+  }
+
+  revalidatePath("/[locale]/(public)/gallery", "page");
   revalidateTag("gallery", "max");
 }
 
@@ -155,7 +181,7 @@ export async function createPhoto(formData: FormData) {
     },
   });
 
-  revalidatePath("/gallery");
+  revalidatePath("/[locale]/(public)/gallery", "page");
   revalidateTag("gallery", "max");
 }
 
@@ -164,9 +190,16 @@ export async function deletePhoto(id: number) {
 
   const photoId = parsePositiveBigIntId(id);
 
+  const photo = await prisma.galleryPhoto.findUnique({
+    where: { id: photoId },
+    select: { url: true, thumbnail: true },
+  });
+
   await prisma.galleryPhoto.delete({ where: { id: photoId } });
 
-  revalidatePath("/gallery");
+  if (photo) await deleteUploadedFilesByUrl([photo.url, photo.thumbnail]);
+
+  revalidatePath("/[locale]/(public)/gallery", "page");
   revalidateTag("gallery", "max");
 }
 
@@ -174,6 +207,12 @@ export async function updatePhoto(id: number, formData: FormData) {
   await requireAdmin();
 
   const photoId = parsePositiveBigIntId(id);
+
+  // 更新前取出旧 URL，用于在替换后释放不再被引用的本地文件
+  const previous = await prisma.galleryPhoto.findUnique({
+    where: { id: photoId },
+    select: { url: true, thumbnail: true },
+  });
 
   const url = validateSafeUrl(getStringFromFormData(formData, "url"), "url", {
     allowRelative: true,
@@ -206,6 +245,15 @@ export async function updatePhoto(id: number, formData: FormData) {
     },
   });
 
-  revalidatePath("/gallery");
+  // 只释放「被本次更新替换掉」的旧文件；仍被引用的不动
+  if (previous) {
+    const stillUsed = new Set([url, thumbnail]);
+    await deleteUploadedFilesByUrl([
+      stillUsed.has(previous.url) ? null : previous.url,
+      previous.thumbnail && stillUsed.has(previous.thumbnail) ? null : previous.thumbnail,
+    ]);
+  }
+
+  revalidatePath("/[locale]/(public)/gallery", "page");
   revalidateTag("gallery", "max");
 }

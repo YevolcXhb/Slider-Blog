@@ -11,6 +11,15 @@ import {
   Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTranslations } from "next-intl"
+
+// 服务端布局（[locale]/layout.tsx）在 <body> 上挂了 NextIntlClientProvider，
+// 这里是它下游的普通组件，useTranslations 一定拿得到 context。
+// 原文案依赖传入的 locale prop（post.locale），改为按当前路由语言取值；
+// locale prop 仍然保留，PostMeta 还用它做其他判断。
+function useMetaText() {
+  return useTranslations("PostMeta")
+}
 
 function formatYMD(date: Date | string | number): string {
   const d = new Date(date)
@@ -96,7 +105,8 @@ function PostMeta({
   showWords = false,
   showReadingTime = false,
   variant = "default",
-  locale = "zh",
+  // locale 仍然保留在 PostMetaProps 里（post-card.tsx / post-page.tsx 会传，
+  // 属于公开 props 契约），但文案已改由 next-intl 提供，因此这里不再解构使用。
 }: PostMetaProps) {
   const visibleTags =
     typeof maxTags === "number" && maxTags >= 0
@@ -114,10 +124,16 @@ function PostMeta({
     ? "text-white/60"
     : "text-(--meta-divider)"
 
-  const uncategorizedText = locale === "zh" ? "未分类" : "Uncategorized"
-  const noTagsText = locale === "zh" ? "无标签" : "No tags"
-  const encryptedText = locale === "zh" ? "加密文章" : "Encrypted"
-  const pinnedText = locale === "zh" ? "置顶" : "Pinned"
+  const tMeta = useMetaText()
+  const tArchive = useTranslations("Archive")
+  const tTags = useTranslations("Tags")
+  const tWidgets = useTranslations("Widgets")
+  const tBlogPost = useTranslations("BlogPost")
+
+  const uncategorizedText = tArchive("uncategorized")
+  const noTagsText = tTags("noData")
+  const encryptedText = tBlogPost("encrypted")
+  const pinnedText = tWidgets("pinned")
 
   return (
     <div
@@ -260,7 +276,7 @@ function PostMeta({
             <FileText className="size-5" />
           </div>
           <span className={cn("text-sm font-medium", textColor)}>
-            {words} {locale === "zh" ? "字" : "words"}
+            {tMeta("word", { count: words })}
           </span>
         </div>
       )}
@@ -278,7 +294,7 @@ function PostMeta({
             <Clock className="size-5" />
           </div>
           <span className={cn("text-sm font-medium", textColor)}>
-            {minutes} {locale === "zh" ? "分钟" : "min"}
+            {tMeta("minute", { count: minutes })}
           </span>
         </div>
       )}

@@ -1,23 +1,18 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/client-ip";
 import { UserRole } from "@/types/user";
 import { parsePositiveBigIntId } from "@/lib/validation";
 import * as Sentry from "@sentry/nextjs";
-
-const SubmitCommentSchema = z.object({
-  post_id: z.coerce.number().positive("Post ID is required"),
-  content: z.string().min(1, "Content is required").max(10000, "Content is too long"),
-  author_name: z.string().min(1, "Name is required").max(100).optional(),
-  parent_id: z.coerce.number().positive().optional(),
-});
-
-type SubmitCommentInput = z.infer<typeof SubmitCommentSchema>;
+// 公开提交契约（含「不接受邮箱字段」的中文说明）已抽到叶子模块，
+// 由 src/lib/comment-schema.test.ts 做机器校验，防止邮箱字段被悄悄加回。
+// 该模块只依赖 zod，测试不会把 prisma / next-auth 拉进测试进程。
+import { SubmitCommentSchema, type SubmitCommentInput } from "@/lib/comment-schema";
 
 function isAdmin(user: { role: number } | null): asserts user is { role: number } {
   if (!user || user.role !== UserRole.ADMIN) {
@@ -27,8 +22,9 @@ function isAdmin(user: { role: number } | null): asserts user is { role: number 
 
 export async function submitComment(data: SubmitCommentInput) {
   // Rate limit by IP at the entry point to prevent comment spam.
-  const headersList = await headers();
-  const ip = headersList.get("x-forwarded-for") || "unknown";
+  // 统一走 getClientIp：优先 x-real-ip 并做形态校验，
+  // 避免直接取 x-forwarded-for 首段被客户端伪造而绕过限流。
+  const ip = getClientIp(await headers());
   try {
     await rateLimit(ip, "comment");
   } catch {
@@ -37,11 +33,28 @@ export async function submitComment(data: SubmitCommentInput) {
 
   const validated = SubmitCommentSchema.parse(data);
 
-  let currentUser: { id: bigint; role: number } | null = null;
+  let currentUser: { id: bigint | null; role: number } | null = null;
   try {
     const session = await auth();
+    // 只有拿到形态合法的 user.id 才按登录用户写入 user_id。
+    // 旧实现写的是 BigInt(session.user.id ?? 0)：会话存在但 id 缺失（token 由旧版
+    // next-auth 签发、或 user.id 为空）/ 非法（非十进制字符串）时，user_id 会变成
+    // 0n —— 它**不是** "guest"：user_id 可空，插 0 只会撞上 comment_user_id_fkey
+    // 外键（user 表 id 自增，从 1 开始），公开评论提交直接 500。
+    // 现在改为「拿不到可信 id 就按游客处理」（user_id = null），与未登录分支一致，
+    // 与下面的 Sentry breadcrumb（currentUser ? registered : guest）语义也对齐。
+    const rawUserId = session?.user?.id;
+    let userId: bigint | null = null;
+    if (typeof rawUserId === "string" && /^\d+$/.test(rawUserId)) {
+      try {
+        const parsed = BigInt(rawUserId);
+        if (parsed > 0n) userId = parsed;
+      } catch {
+        // 理论上不可达（已由上面的正则收窄），兜底成游客而不是把提交打崩
+      }
+    }
     currentUser = session?.user
-      ? { id: BigInt(session.user.id ?? 0), role: session.user.role ?? UserRole.USER }
+      ? { id: userId, role: session.user.role ?? UserRole.USER }
       : null;
   } catch {
     // Not authenticated — treat as guest
@@ -86,12 +99,18 @@ export async function submitComment(data: SubmitCommentInput) {
     select: { slug: true },
   });
 
+  // 评论列表数据（getApprovedComments）由 unstable_cache 缓存、带 tag "comments"，
+  // 而 revalidatePath 只失效页面缓存，两者是不同的缓存层：只做 revalidatePath
+  // 时，页面重新渲染仍会读到旧的缓存数据，表现为「评论提交成功却看不到」。
+  // 因此写路径必须同时按 tag 失效数据缓存。
+  revalidateTag("comments", "max");
+
   if (post) {
-    const [commentLocale, ...slugParts] = post.slug.split("/");
-    const pureSlug = slugParts.join("/");
-    revalidatePath(`/${commentLocale}/blog/${pureSlug}`);
+    // 路由结构，而非用户可见 URL：revalidatePath 按 src/app 下的路由文件匹配，
+    // 传 `/zh/blog/foo` 这种 URL 匹配不到任何路由文件，调用会静默失效。
+    revalidatePath("/[locale]/(public)/blog/[slug]", "page");
   }
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
   return comment;
 }
 
@@ -112,12 +131,16 @@ export async function approveComment(id: number) {
     select: { slug: true },
   });
 
+  // 见 submitComment 的说明：审核结果改变的是评论列表数据本身，
+  // 必须按 tag 失效 unstable_cache 的条目，否则要等 TTL 到期才可见。
+  revalidateTag("comments", "max");
+
   if (post) {
-    const [commentLocale, ...slugParts] = post.slug.split("/");
-    const pureSlug = slugParts.join("/");
-    revalidatePath(`/${commentLocale}/blog/${pureSlug}`);
+    // 路由结构，而非用户可见 URL：revalidatePath 按 src/app 下的路由文件匹配，
+    // 传 `/zh/blog/foo` 这种 URL 匹配不到任何路由文件，调用会静默失效。
+    revalidatePath("/[locale]/(public)/blog/[slug]", "page");
   }
-  revalidatePath('/blog');
+  revalidatePath("/[locale]/(public)/blog", "page");
   return comment;
 }
 
@@ -139,10 +162,18 @@ export async function rejectComment(id: number) {
   });
 
   if (post) {
+    // 路由结构，而非用户可见 URL：revalidatePath 按 src/app 下的路由文件匹配，
+    // 传 `/zh/blog/foo` 这种 URL 匹配不到任何路由文件，调用会静默失效。
+    revalidatePath("/[locale]/(public)/blog/[slug]", "page");
+
+    // 驳回通知邮件里要给出原文链接，仍需从 slug 解析出 locale 与纯 slug
+    // （revalidatePath 改用路由结构模式后不再消费这两个值，但邮件还要用）。
     const [commentLocale, ...slugParts] = post.slug.split("/");
     const pureSlug = slugParts.join("/");
-    revalidatePath(`/${commentLocale}/blog/${pureSlug}`);
 
+    // author_email 仅供本函数内部投递驳回通知使用，属于服务端私有数据：
+    // 本 action 的返回值会经 server action / POST /api/comments 序列化给客户端，
+    // 因此 submitComment / approveComment / rejectComment 都不得把邮箱放回返回值。
     // Send rejection email notification (best-effort: never blocks the rejection).
     // Dynamic import so email module loading doesn't fail the action if email
     // env vars aren't configured.
@@ -173,6 +204,8 @@ export async function rejectComment(id: number) {
       }
     }
   }
-  revalidatePath('/blog');
+  // 驳回把评论移出公开列表，同样必须按 tag 失效数据缓存（见 submitComment）。
+  revalidateTag("comments", "max");
+  revalidatePath("/[locale]/(public)/blog", "page");
   return comment;
 }

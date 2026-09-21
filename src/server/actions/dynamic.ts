@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { deleteUploadedFilesByUrl } from "@/lib/upload-cleanup";
 import { auth } from "@/lib/auth";
 import { UserRole } from "@/types/user";
 import {
@@ -39,6 +40,15 @@ function parseImages(imagesStr: string): string[] {
   );
 }
 
+/**
+ * `Dynamic.images` 是 Json 列，运行时可能是 null / 数组 / 别的形状。
+ * 这里只挑出字符串项，供文件清理使用。
+ */
+function asImageList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((v): v is string => typeof v === "string");
+}
+
 // ==================== Dynamic (Moments) Actions ====================
 
 export async function createDynamic(formData: FormData) {
@@ -61,7 +71,7 @@ export async function createDynamic(formData: FormData) {
     },
   });
 
-  revalidatePath("/moments");
+  revalidatePath("/[locale]/(public)/moments", "page");
   revalidateTag("moments", "max");
 }
 
@@ -88,7 +98,7 @@ export async function updateDynamic(id: number, formData: FormData) {
     },
   });
 
-  revalidatePath("/moments");
+  revalidatePath("/[locale]/(public)/moments", "page");
   revalidateTag("moments", "max");
 }
 
@@ -97,11 +107,19 @@ export async function deleteDynamic(id: number) {
 
   const dynamicId = parsePositiveBigIntId(id);
 
+  // 先取出图片列表：行删除后就查不到，文件会永久残留
+  const existing = await prisma.dynamic.findUnique({
+    where: { id: dynamicId },
+    select: { images: true },
+  });
+
   await prisma.dynamic.delete({
     where: { id: dynamicId },
   });
 
-  revalidatePath("/moments");
+  if (existing) await deleteUploadedFilesByUrl(asImageList(existing.images));
+
+  revalidatePath("/[locale]/(public)/moments", "page");
   revalidateTag("moments", "max");
 }
 
@@ -121,7 +139,7 @@ export async function toggleDynamicPin(id: number) {
     data: { is_pinned: dynamic.is_pinned ? 0 : 1 },
   });
 
-  revalidatePath("/moments");
+  revalidatePath("/[locale]/(public)/moments", "page");
   revalidateTag("moments", "max");
 }
 
@@ -141,6 +159,6 @@ export async function toggleDynamicStatus(id: number) {
     data: { status: dynamic.status ? 0 : 1 },
   });
 
-  revalidatePath("/moments");
+  revalidatePath("/[locale]/(public)/moments", "page");
   revalidateTag("moments", "max");
 }

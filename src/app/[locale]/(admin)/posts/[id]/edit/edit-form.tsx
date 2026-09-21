@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Loader2, ArrowLeft, Save, AlertCircle } from "lucide-react";
 
 import { GlassCard } from "@/components/ui/glass-card";
@@ -47,6 +47,7 @@ interface EditPostFormProps {
 
 export default function EditPostForm({ post, categories, tags }: EditPostFormProps) {
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("AdminPosts");
   const tErr = useTranslations("AdminErrors");
 
@@ -92,9 +93,17 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
       setIsSubmitting(true);
 
       try {
+        // 数据库里的 slug 形如 `${locale}/${slug}`（getPostBySlug 也按这个格式查）。
+        // 表单里回显的正是这个带前缀的值；只要管理员改动过 slug 输入框，前缀就可能
+        // 被整段替换掉，于是 updatePost 会把不带 locale 的 slug 原样写库，
+        // 详情页立刻 404。这里与 create-form 保持一致，提交前补齐缺失的前缀。
+        const rawSlug = slug.trim() || slugify(title);
+        const fullSlug = rawSlug.includes("/")
+          ? rawSlug
+          : `${locale}/${rawSlug}`;
         await updatePost(post.id, {
           title,
-          slug: slug || slugify(title),
+          slug: fullSlug,
           content_mdx: content,
           excerpt: excerpt || undefined,
           category_id: categoryId ? Number(categoryId) : null,
@@ -115,7 +124,7 @@ export default function EditPostForm({ post, categories, tags }: EditPostFormPro
         setIsSubmitting(false);
       }
     },
-    [title, slug, content, excerpt, categoryId, selectedTags, post.id, router, t, tErr],
+    [title, slug, content, excerpt, categoryId, selectedTags, post.id, locale, router, t, tErr],
   );
 
   return (

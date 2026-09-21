@@ -10,6 +10,11 @@ import { DynamicFeed } from "@/components/pages/moments/dynamic-feed"
 export const revalidate = 60
 
 export default function MomentsPage() {
+  // notFound() 必须在 <Suspense> 之外：否则状态码已锁定为 200（见 streaming.md）。
+  if (!siteConfig.pages.dynamic) {
+    notFound()
+  }
+
   return (
     <Suspense fallback={null}>
       <MomentsPageContent />
@@ -18,10 +23,6 @@ export default function MomentsPage() {
 }
 
 async function MomentsPageContent() {
-  if (!siteConfig.pages.dynamic) {
-    notFound()
-  }
-
   const t = await getTranslations("Moments")
   const { items: moments, total } = await getMoments(1, dynamicConfig.itemsPerPage)
   const title = dynamicConfig.title || t("title")

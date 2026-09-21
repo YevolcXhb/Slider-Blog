@@ -31,13 +31,15 @@ export interface Tag {
   _count?: { posts: number };
 }
 
+// 公开评论类型：这是 GET/POST /api/comments 直接序列化返回、以及评论区渲染所用的形状。
+// 严禁在此加入 author_email：评论邮箱只属于服务端内部数据（仅管理端页面与驳回邮件
+// 通知按需自取），一旦进入本类型就必然随公开 JSON 响应泄露给任何未登录访客。
 export interface Comment {
   id: number;
   post_id: number;
   user_id: number | null;
   parent_id: number | null;
   author_name: string | null;
-  author_email: string | null;
   content: string;
   status: number;
   avatar_url: string | null;

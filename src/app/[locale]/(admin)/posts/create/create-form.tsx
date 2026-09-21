@@ -53,12 +53,14 @@ export default function CreatePostForm() {
   useEffect(() => {
     let cancelled = false;
 
+    // 注意：API 路由位于 src/app/api/**，不带 locale 前缀（磁盘上不存在 src/app/[locale]/api/）。
+    // 写成 `/${locale}/api/...` 会被 next-intl 当普通页面路由处理而 404，切勿加回 locale 前缀。
     Promise.all([
-      fetch(`/${locale}/api/categories`).then(async (r) => {
+      fetch("/api/categories").then(async (r) => {
         if (!r.ok) throw new Error(`categories HTTP ${r.status}`);
         return r.json();
       }),
-      fetch(`/${locale}/api/tags`).then(async (r) => {
+      fetch("/api/tags").then(async (r) => {
         if (!r.ok) throw new Error(`tags HTTP ${r.status}`);
         return r.json();
       }),
@@ -75,16 +77,22 @@ export default function CreatePostForm() {
         setIsLoadingData(false);
       })
       .catch((e) => {
-        if (!cancelled) {
-          console.error("Failed to load categories/tags:", e);
-          setIsLoadingData(false);
-        }
+        if (cancelled) return;
+        // 不能只打 console：加载失败时选择器会静默为空，管理员无从得知原因。
+        // 保留日志，同时把失败原因写入现有 error state（复用表单顶部已有的错误提示区，不新增 UI）。
+        console.error("Failed to load categories/tags:", e);
+        const reason = e instanceof Error ? e.message : String(e);
+        // 文案走 AdminPosts 命名空间（messages/zh|en.json 的 failed_load_meta），
+        // 失败原因作为 {reason} 插值传入，保证英文 locale 下不再出现中文提示。
+        setError(t("failed_load_meta", { reason }));
+        setIsLoadingData(false);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [locale]);
+    // 依赖 locale：语言切换后需重新拉取（API 路径本身不含 locale，但保持原有重取语义）
+  }, [locale, t]);
 
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

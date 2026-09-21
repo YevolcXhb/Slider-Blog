@@ -27,13 +27,29 @@ export const DEFAULT_THEME_SETTINGS: ThemeSettings = {
 /** SiteSetting 中存储主题配置的键名 */
 export const THEME_SETTINGS_KEY = "theme_settings";
 
+/**
+ * 归一化 hue 到 [0, 360) 的有限数值。
+ *
+ * buildThemeCss 的输出会被三个布局直接塞进 `<style dangerouslySetInnerHTML>`，
+ * 属于未经转义的 CSS 文本。hue 正常来自管理面板（saveThemeSettings 校验 0-360）
+ * 或 getThemeSettings 的钳制，但只要有人直接改库（或未来多一条写入路径忘了校验），
+ * 一个字符串 hue 就能闭合 `:root{` 块并注入任意 CSS。这里做最后一道防线：
+ * 任何非有限数值一律回落到默认值，保证输出永远是纯数字。
+ */
+function normalizeHue(hue: unknown): number {
+  const num = typeof hue === "number" ? hue : Number(hue);
+  if (!Number.isFinite(num)) return DEFAULT_THEME_SETTINGS.hue;
+  return ((num % 360) + 360) % 360;
+}
+
 function oklchFromHue(hue: number, lightness = 0.55, chroma = 0.18): string {
   return `oklch(${lightness} ${chroma} ${hue})`;
 }
 
 /** 由主题设置生成 :root 级 CSS 变量文本（服务端 SSR 与客户端共用） */
 export function buildThemeCss(settings: ThemeSettings): string {
-  const { hue, cardBorderShadow, cardThemeColored } = settings;
+  const { cardBorderShadow, cardThemeColored } = settings;
+  const hue = normalizeHue(settings.hue);
   const hue2 = (hue + 180) % 360;
 
   const vars: Record<string, string> = {

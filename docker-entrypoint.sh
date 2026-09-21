@@ -27,32 +27,55 @@ fi
 if [ "$changed" -eq 1 ]; then
   umask 077
   mkdir -p "$(dirname "$CONFIG_FILE")"
-  cat > "$CONFIG_FILE" <<EOF
-AUTH_TRUST_HOST=$AUTH_TRUST_HOST
-NEXTAUTH_SECRET=$NEXTAUTH_SECRET
-ADMIN_PROXY_SECRET=$ADMIN_PROXY_SECRET
-DATABASE_URL=$DATABASE_URL
-EOF
+  # 只更新本次真正缺失的键，绝不整文件覆盖。
+  #
+  # 旧实现用 `cat > "$CONFIG_FILE"` 重写整个文件，只写这 4 个键：一旦某些原因
+  # 让 NEXTAUTH_SECRET / ADMIN_PROXY_SECRET 变空（手改文件、卷被部分清空等），
+  # 容器重启就会把 /data/config.env 里其余所有键静默抹掉——而 lib/config.ts 的
+  # saveConfig 是「读回 + 合并 + 写回」的增量语义，两边行为不一致会丢配置。
+  #
+  # 这里改为：先删掉待写键的旧行，再追加新值。写入的值本身不是自由文本
+  # （AUTH_TRUST_HOST 是字面量、两个密钥是 base64、DATABASE_URL 由 setup 页拼装
+  # 且经过 encodeURIComponent），因此不需要额外加引号；把整文件覆盖改成增量更新
+  # 才是这里要解决的问题。
+  tmp="${CONFIG_FILE}.tmp"
+  if [ -f "$CONFIG_FILE" ]; then
+    # grep 无匹配时退出码为 1，用 || true 兜住 set -e
+    grep -v -E '^(AUTH_TRUST_HOST|NEXTAUTH_SECRET|ADMIN_PROXY_SECRET|DATABASE_URL)=' \
+      "$CONFIG_FILE" > "$tmp" || true
+  else
+    : > "$tmp"
+  fi
+  echo "AUTH_TRUST_HOST=$AUTH_TRUST_HOST" >> "$tmp"
+  echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> "$tmp"
+  echo "ADMIN_PROXY_SECRET=$ADMIN_PROXY_SECRET" >> "$tmp"
+  if [ -n "$DATABASE_URL" ]; then
+    echo "DATABASE_URL=$DATABASE_URL" >> "$tmp"
+  fi
+  mv "$tmp" "$CONFIG_FILE"
+  chmod 600 "$CONFIG_FILE" 2>/dev/null || true
 fi
 
 export AUTH_TRUST_HOST NEXTAUTH_SECRET ADMIN_PROXY_SECRET DATABASE_URL
-# 提供 prisma CLI（db push 迁移），安装在独立前缀目录
+# 提供 prisma CLI（migrate deploy 迁移），安装在独立前缀目录
 export PATH="/opt/runtime/node_modules/.bin:$PATH"
 
-# 兜底：数据库已配置但从未建过表时补一次建表（正常流程由 setup 页面完成）
+# 兜底：数据库已配置但从未建过表时应用迁移（正常流程由 setup 页面完成）
+# 生产只允许 prisma migrate deploy（按 prisma/migrations 有序应用、有记录、可回滚），
+# 禁止使用 prisma db push：它不做变更审计，且可能执行破坏性变更。
 if [ -n "$DATABASE_URL" ] && [ ! -f /data/.schema-ready ]; then
-  echo "[entrypoint] Applying database schema (prisma db push, first run)..."
+  echo "[entrypoint] Applying database migrations (prisma migrate deploy, first run)..."
   if command -v timeout >/dev/null 2>&1; then
-    if timeout 60 prisma db push; then
+    if timeout 60 prisma migrate deploy; then
       touch /data/.schema-ready
     else
-      echo "[entrypoint] prisma db push failed; will retry on next start."
+      echo "[entrypoint] prisma migrate deploy failed; will retry on next start."
     fi
   else
-    if prisma db push; then
+    if prisma migrate deploy; then
       touch /data/.schema-ready
     else
-      echo "[entrypoint] prisma db push failed; will retry on next start."
+      echo "[entrypoint] prisma migrate deploy failed; will retry on next start."
     fi
   fi
 fi
